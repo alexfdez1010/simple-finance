@@ -1,31 +1,30 @@
 /**
  * Service for calculating custom product values based on annual return rate
- * All values are in EUR (converted from USD if necessary)
+ * All values are in EUR
  * @module domain/services/custom-product-calculator
  */
 
 import { differenceInDays } from 'date-fns';
-import { convertToEurHistorical } from '@/lib/domain/services/currency-converter';
 
 /**
  * Calculates the current value of a custom product based on annual return rate
  * Uses compound interest formula: A = P(1 + r/365)^(days)
- * Converts initial investment from USD to EUR using historical rate
+ * Initial investment is expected in EUR (no conversion needed)
  * Returns current value in EUR
  *
- * @param initialInvestmentUsd - Initial investment amount in USD
+ * @param initialInvestmentEur - Initial investment amount in EUR
  * @param annualReturnRate - Annual return rate as decimal (e.g., 0.05 for 5%)
  * @param investmentDate - Date of initial investment
  * @param currentDate - Current date for calculation (defaults to today)
  * @returns Current value of the investment in EUR
  */
 export async function calculateCustomProductValue(
-  initialInvestmentUsd: number,
+  initialInvestmentEur: number,
   annualReturnRate: number,
   investmentDate: Date,
   currentDate: Date = new Date(),
 ): Promise<number> {
-  if (initialInvestmentUsd <= 0) {
+  if (initialInvestmentEur <= 0) {
     throw new Error('Initial investment must be positive');
   }
 
@@ -39,13 +38,7 @@ export async function calculateCustomProductValue(
     throw new Error('Investment date cannot be in the future');
   }
 
-  // Convert initial investment to EUR using historical rate
-  const initialInvestmentEur = await convertToEurHistorical(
-    initialInvestmentUsd,
-    investmentDate,
-  );
-
-  // Daily compound interest formula (applied in EUR)
+  // Compound interest formula (already in EUR)
   const dailyRate = annualReturnRate / 365;
   const currentValueEur =
     initialInvestmentEur * Math.pow(1 + dailyRate, daysSinceInvestment);

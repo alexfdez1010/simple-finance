@@ -8,10 +8,6 @@ import {
   calculateCustomProductValue,
   calculateCustomProductValueSync,
 } from '@/lib/domain/services/custom-product-calculator';
-import * as currencyConverter from '@/lib/domain/services/currency-converter';
-
-// Mock the currency converter
-vi.mock('@/lib/domain/services/currency-converter');
 
 describe('Custom Product Calculator with EUR Conversion', () => {
   beforeEach(() => {
@@ -19,26 +15,16 @@ describe('Custom Product Calculator with EUR Conversion', () => {
   });
 
   describe('calculateCustomProductValue (async)', () => {
-    it('should calculate value with EUR conversion', async () => {
-      // Mock historical conversion: $1000 USD = €920 EUR at investment date
-      vi.mocked(currencyConverter.convertToEurHistorical).mockResolvedValue(
-        920,
-      );
-
+    it('should calculate value with EUR input directly', async () => {
       const investmentDate = new Date('2024-01-01');
       const currentDate = new Date('2024-12-31'); // 365 days later
 
-      // 5% annual return on €920 for 365 days
+      // Direct EUR input: €920 for 5% annual return over 365 days
       const result = await calculateCustomProductValue(
-        1000, // USD
+        920, // EUR
         0.05, // 5% annual return
         investmentDate,
         currentDate,
-      );
-
-      expect(currencyConverter.convertToEurHistorical).toHaveBeenCalledWith(
-        1000,
-        investmentDate,
       );
 
       // Expected: 920 * (1 + 0.05/365)^365 ≈ 967.17 EUR
@@ -46,21 +32,17 @@ describe('Custom Product Calculator with EUR Conversion', () => {
     });
 
     it('should handle zero days since investment', async () => {
-      vi.mocked(currencyConverter.convertToEurHistorical).mockResolvedValue(
-        920,
-      );
-
       const investmentDate = new Date('2024-01-01');
 
       const result = await calculateCustomProductValue(
-        1000,
+        1000, // EUR
         0.05,
         investmentDate,
         investmentDate, // Same day
       );
 
       // No growth on day 0
-      expect(result).toBe(920);
+      expect(result).toBe(1000);
     });
 
     it('should throw error for negative investment', async () => {
@@ -80,16 +62,12 @@ describe('Custom Product Calculator with EUR Conversion', () => {
     });
 
     it('should handle negative return rate', async () => {
-      vi.mocked(currencyConverter.convertToEurHistorical).mockResolvedValue(
-        920,
-      );
-
       const investmentDate = new Date('2024-01-01');
       const currentDate = new Date('2024-12-31');
 
-      // -5% annual return
+      // -5% annual return on €920
       const result = await calculateCustomProductValue(
-        1000,
+        920, // EUR
         -0.05,
         investmentDate,
         currentDate,
@@ -151,42 +129,34 @@ describe('Custom Product Calculator with EUR Conversion', () => {
 
   describe('Integration scenarios', () => {
     it('should handle high return rates correctly', async () => {
-      vi.mocked(currencyConverter.convertToEurHistorical).mockResolvedValue(
-        920,
-      );
-
       const investmentDate = new Date('2024-01-01');
       const currentDate = new Date('2024-12-31');
 
-      // 50% annual return
+      // 50% annual return on €920
       const result = await calculateCustomProductValue(
-        1000,
+        920, // EUR
         0.5,
         investmentDate,
         currentDate,
       );
 
       // Expected: 920 * (1 + 0.5/365)^365 ≈ 1516.30 EUR
-      expect(result).toBeCloseTo(1516.30, 0);
+      expect(result).toBeCloseTo(1516.3, 0);
     });
 
     it('should handle very small investments', async () => {
-      vi.mocked(currencyConverter.convertToEurHistorical).mockResolvedValue(
-        0.92,
-      );
-
       const investmentDate = new Date('2024-01-01');
       const currentDate = new Date('2024-12-31');
 
       const result = await calculateCustomProductValue(
-        1, // $1 USD
+        1, // €1 EUR
         0.05,
         investmentDate,
         currentDate,
       );
 
-      // Expected: 0.92 * (1 + 0.05/365)^365 ≈ 0.97 EUR
-      expect(result).toBeCloseTo(0.97, 2);
+      // Expected: 1 * (1 + 0.05/365)^365 ≈ 1.05 EUR
+      expect(result).toBeCloseTo(1.05, 2);
     });
   });
 });

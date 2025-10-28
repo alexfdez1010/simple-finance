@@ -127,7 +127,7 @@ export default function AddCustomProductPage() {
                 htmlFor="initialInvestment"
                 className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2"
               >
-                Initial Investment (USD)
+                Initial Investment (€)
               </label>
               <input
                 type="number"
@@ -146,7 +146,7 @@ export default function AddCustomProductPage() {
                 required
               />
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Enter amount in USD (will be converted to EUR)
+                Enter amount in euros (€)
               </p>
             </div>
 

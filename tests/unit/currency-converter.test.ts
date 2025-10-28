@@ -62,9 +62,7 @@ describe('Currency Converter Service', () => {
         timestamp: new Date(),
       };
 
-      vi.mocked(fetchUsdToEurRate).mockResolvedValue(
-        mockRate,
-      );
+      vi.mocked(fetchUsdToEurRate).mockResolvedValue(mockRate);
 
       const result = await convertToEur(0);
 
@@ -79,9 +77,7 @@ describe('Currency Converter Service', () => {
         timestamp: new Date(),
       };
 
-      vi.mocked(fetchUsdToEurRate).mockResolvedValue(
-        mockRate,
-      );
+      vi.mocked(fetchUsdToEurRate).mockResolvedValue(mockRate);
 
       const result = await convertToEur(-100);
 
@@ -99,9 +95,7 @@ describe('Currency Converter Service', () => {
         timestamp: date,
       };
 
-      vi.mocked(
-        fetchHistoricalUsdToEurRate,
-      ).mockResolvedValue(mockRate);
+      vi.mocked(fetchHistoricalUsdToEurRate).mockResolvedValue(mockRate);
 
       const result = await convertToEurHistorical(100, date);
 
@@ -112,9 +106,7 @@ describe('Currency Converter Service', () => {
     it('should use fallback rate when historical rate unavailable', async () => {
       const date = new Date('2024-01-01');
 
-      vi.mocked(
-        fetchHistoricalUsdToEurRate,
-      ).mockResolvedValue(null);
+      vi.mocked(fetchHistoricalUsdToEurRate).mockResolvedValue(null);
 
       const result = await convertToEurHistorical(100, date);
 
@@ -132,9 +124,7 @@ describe('Currency Converter Service', () => {
         timestamp: new Date(),
       };
 
-      vi.mocked(fetchUsdToEurRate).mockResolvedValue(
-        mockRate,
-      );
+      vi.mocked(fetchUsdToEurRate).mockResolvedValue(mockRate);
 
       const result = await getCurrentExchangeRate();
 
@@ -163,9 +153,7 @@ describe('Currency Converter Service', () => {
         timestamp: date,
       };
 
-      vi.mocked(
-        fetchHistoricalUsdToEurRate,
-      ).mockResolvedValue(mockRate);
+      vi.mocked(fetchHistoricalUsdToEurRate).mockResolvedValue(mockRate);
 
       const result = await getHistoricalExchangeRate(date);
 
@@ -175,9 +163,7 @@ describe('Currency Converter Service', () => {
     it('should return fallback rate when historical rate unavailable', async () => {
       const date = new Date('2024-01-01');
 
-      vi.mocked(
-        fetchHistoricalUsdToEurRate,
-      ).mockResolvedValue(null);
+      vi.mocked(fetchHistoricalUsdToEurRate).mockResolvedValue(null);
 
       const result = await getHistoricalExchangeRate(date);
 
