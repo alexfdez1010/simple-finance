@@ -8,7 +8,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useYahooFinance, type YahooQuote } from '@/lib/hooks/useYahooFinance';
+import { validateYahooSymbol } from '@/lib/actions/product-actions';
+import { type YahooQuote } from '@/lib/infrastructure/yahoo-finance/server-client';
+import { createYahooProduct } from '@/lib/actions/product-actions';
 
 /**
  * Add Yahoo Finance product page component
@@ -17,11 +19,6 @@ import { useYahooFinance, type YahooQuote } from '@/lib/hooks/useYahooFinance';
  */
 export default function AddYahooProductPage() {
   const router = useRouter();
-  const {
-    fetchQuote,
-    loading: quoteLoading,
-    error: quoteError,
-  } = useYahooFinance();
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
@@ -31,6 +28,7 @@ export default function AddYahooProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [symbolValidated, setSymbolValidated] = useState(false);
   const [quoteData, setQuoteData] = useState<YahooQuote | null>(null);
+  const [symbolValidationLoading, setSymbolValidationLoading] = useState(false);
 
   const handleSymbolBlur = async () => {
     if (!formData.symbol.trim()) {
@@ -39,19 +37,31 @@ export default function AddYahooProductPage() {
       return;
     }
 
-    const quote = await fetchQuote(formData.symbol.toUpperCase());
-    if (quote) {
-      setSymbolValidated(true);
-      setQuoteData(quote);
-      setError(null);
-      // Auto-fill name if empty
-      if (!formData.name) {
-        setFormData({ ...formData, name: quote.shortName || quote.symbol });
+    setSymbolValidationLoading(true);
+    setError(null);
+
+    try {
+      const quote = await validateYahooSymbol(formData.symbol.toUpperCase());
+      if (quote) {
+        setSymbolValidated(true);
+        setQuoteData(quote);
+        // Auto-fill name if empty
+        if (!formData.name) {
+          setFormData({ ...formData, name: quote.shortName || quote.symbol });
+        }
+      } else {
+        setSymbolValidated(false);
+        setQuoteData(null);
+        setError('Invalid symbol');
       }
-    } else {
+    } catch (err) {
       setSymbolValidated(false);
       setQuoteData(null);
-      setError(quoteError || 'Invalid symbol');
+      setError(
+        err instanceof Error ? err.message : 'Failed to validate symbol',
+      );
+    } finally {
+      setSymbolValidationLoading(false);
     }
   };
 
@@ -67,10 +77,6 @@ export default function AddYahooProductPage() {
     setError(null);
 
     try {
-      const { createYahooProduct } = await import(
-        '@/lib/actions/product-actions'
-      );
-
       const result = await createYahooProduct(
         formData.name,
         formData.symbol.toUpperCase(),
@@ -149,7 +155,7 @@ export default function AddYahooProductPage() {
                   setSymbolValidated(false);
                 }}
                 onBlur={handleSymbolBlur}
-                disabled={quoteLoading}
+                disabled={symbolValidationLoading}
                 className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent uppercase disabled:opacity-50 ${
                   symbolValidated
                     ? 'border-green-500 dark:border-green-500'
@@ -162,7 +168,7 @@ export default function AddYahooProductPage() {
                 Enter the ticker symbol and press Tab to validate (e.g., AAPL
                 for Apple, GOOGL for Google)
               </p>
-              {quoteLoading && (
+              {symbolValidationLoading && (
                 <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
                   Validating symbol...
                 </p>
@@ -173,7 +179,7 @@ export default function AddYahooProductPage() {
                     ✓ Valid symbol: {quoteData.symbol}
                   </p>
                   <p className="text-sm text-green-600 dark:text-green-400">
-                    Current price: ${quoteData.regularMarketPrice.toFixed(2)}
+                    Current price: €{quoteData.regularMarketPrice.toFixed(2)}
                   </p>
                 </div>
               )}
@@ -196,8 +202,8 @@ export default function AddYahooProductPage() {
                 }
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent"
                 placeholder="e.g., 10.5"
-                step="0.01"
-                min="0.01"
+                step="0.0000001"
+                min="0.0000001"
                 required
               />
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">

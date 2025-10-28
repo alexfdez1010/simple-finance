@@ -14,6 +14,10 @@ import {
   deleteProduct,
 } from '@/lib/infrastructure/database/product-repository';
 import { findFirstPortfolio } from '@/lib/infrastructure/database/portfolio-repository';
+import {
+  fetchYahooQuoteServer,
+  type YahooQuote,
+} from '@/lib/infrastructure/yahoo-finance/server-client';
 import type {
   CreateYahooFinanceProductInput,
   CreateCustomProductInput,
@@ -173,4 +177,16 @@ export async function deleteProductAction(
         error instanceof Error ? error.message : 'Failed to delete product',
     };
   }
+}
+
+/**
+ * Validates a Yahoo Finance symbol by fetching quote data
+ *
+ * @param symbol - Stock symbol to validate
+ * @returns Quote data if valid, null if invalid
+ */
+export async function validateYahooSymbol(
+  symbol: string,
+): Promise<YahooQuote | null> {
+  return await fetchYahooQuoteServer(symbol);
 }
