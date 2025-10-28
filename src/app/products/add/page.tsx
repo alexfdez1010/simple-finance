@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useYahooFinance, type YahooQuote } from '@/lib/hooks/useYahooFinance';
 
 /**
  * Add Yahoo Finance product page component
@@ -16,6 +17,11 @@ import Link from 'next/link';
  */
 export default function AddYahooProductPage() {
   const router = useRouter();
+  const {
+    fetchQuote,
+    loading: quoteLoading,
+    error: quoteError,
+  } = useYahooFinance();
   const [formData, setFormData] = useState({
     name: '',
     symbol: '',
@@ -23,28 +29,56 @@ export default function AddYahooProductPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [symbolValidated, setSymbolValidated] = useState(false);
+  const [quoteData, setQuoteData] = useState<YahooQuote | null>(null);
+
+  const handleSymbolBlur = async () => {
+    if (!formData.symbol.trim()) {
+      setSymbolValidated(false);
+      setQuoteData(null);
+      return;
+    }
+
+    const quote = await fetchQuote(formData.symbol.toUpperCase());
+    if (quote) {
+      setSymbolValidated(true);
+      setQuoteData(quote);
+      setError(null);
+      // Auto-fill name if empty
+      if (!formData.name) {
+        setFormData({ ...formData, name: quote.shortName || quote.symbol });
+      }
+    } else {
+      setSymbolValidated(false);
+      setQuoteData(null);
+      setError(quoteError || 'Invalid symbol');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!symbolValidated) {
+      setError('Please validate the stock symbol first');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          symbol: formData.symbol.toUpperCase(),
-          quantity: parseFloat(formData.quantity),
-        }),
-      });
+      const { createYahooProduct } = await import(
+        '@/lib/actions/product-actions'
+      );
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create product');
+      const result = await createYahooProduct(
+        formData.name,
+        formData.symbol.toUpperCase(),
+        parseFloat(formData.quantity),
+      );
+
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create product');
       }
 
       router.push('/dashboard');
@@ -110,16 +144,39 @@ export default function AddYahooProductPage() {
                 type="text"
                 id="symbol"
                 value={formData.symbol}
-                onChange={(e) =>
-                  setFormData({ ...formData, symbol: e.target.value })
-                }
-                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent uppercase"
+                onChange={(e) => {
+                  setFormData({ ...formData, symbol: e.target.value });
+                  setSymbolValidated(false);
+                }}
+                onBlur={handleSymbolBlur}
+                disabled={quoteLoading}
+                className={`w-full px-4 py-2 border rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent uppercase disabled:opacity-50 ${
+                  symbolValidated
+                    ? 'border-green-500 dark:border-green-500'
+                    : 'border-slate-300 dark:border-slate-600'
+                }`}
                 placeholder="e.g., AAPL"
                 required
               />
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Enter the ticker symbol (e.g., AAPL for Apple, GOOGL for Google)
+                Enter the ticker symbol and press Tab to validate (e.g., AAPL
+                for Apple, GOOGL for Google)
               </p>
+              {quoteLoading && (
+                <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+                  Validating symbol...
+                </p>
+              )}
+              {symbolValidated && quoteData && (
+                <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                  <p className="text-sm text-green-700 dark:text-green-300">
+                    ✓ Valid symbol: {quoteData.symbol}
+                  </p>
+                  <p className="text-sm text-green-600 dark:text-green-400">
+                    Current price: ${quoteData.regularMarketPrice.toFixed(2)}
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* Quantity */}

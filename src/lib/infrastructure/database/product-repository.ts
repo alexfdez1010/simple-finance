@@ -12,7 +12,6 @@ import type {
   CreateCustomProductInput,
   UpdateProductQuantityInput,
   ProductSnapshot,
-  ProductType,
 } from '@/lib/domain/models/product.types';
 
 /**
@@ -141,7 +140,7 @@ export async function findProductsByPortfolioId(
     orderBy: { createdAt: 'desc' },
   });
 
-  return products.map((product: typeof products[0]): FinancialProduct => {
+  return products.map((product: (typeof products)[0]): FinancialProduct => {
     if (product.type === 'YAHOO_FINANCE' && product.yahoo) {
       return {
         ...product,

@@ -44,15 +44,25 @@ export async function findAllPortfolios(): Promise<Portfolio[]> {
 }
 
 /**
+ * Finds the first portfolio
+ *
+ * @returns First portfolio or null if none exist
+ */
+export async function findFirstPortfolio(): Promise<Portfolio | null> {
+  const portfolios = await findAllPortfolios();
+  return portfolios.length > 0 ? portfolios[0] : null;
+}
+
+/**
  * Finds or creates a default portfolio
  *
  * @returns Default portfolio
  */
 export async function findOrCreateDefaultPortfolio(): Promise<Portfolio> {
-  const portfolios = await findAllPortfolios();
+  const portfolio = await findFirstPortfolio();
 
-  if (portfolios.length > 0) {
-    return portfolios[0];
+  if (portfolio) {
+    return portfolio;
   }
 
   return await createPortfolio('My Portfolio');
