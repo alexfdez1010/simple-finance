@@ -1,6 +1,8 @@
-# Next.js Production-Ready Template
+# Simple Finance - Portfolio Tracker
 
-A **production-grade Next.js template** engineered with enterprise-level best practices, comprehensive testing infrastructure, and strict code quality standards. Built for teams that demand excellence in maintainability, scalability, and developer experience. This template is based in the practices used in [ZeroChats](https://github.com/zerochats).
+A **production-grade portfolio tracking application** built with Next.js, React, TypeScript, and Prisma. Track your financial products with real-time Yahoo Finance data or custom fixed-return investments. Monitor daily portfolio evolution and performance statistics.
+
+Built following enterprise-level best practices from [ZeroChats](https://github.com/zerochats) and adhering to SOLID principles.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev/)
@@ -8,28 +10,43 @@ A **production-grade Next.js template** engineered with enterprise-level best pr
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38bdf8)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.7.0-2D3748)](https://www.prisma.io/)
 
-## 🎯 Philosophy
+## 🎯 Features
 
-This template embodies **professional software engineering principles** with a focus on:
+### Dual Product Types
+
+1. **Yahoo Finance Products** - Track real stocks, ETFs, and assets using live Yahoo Finance data
+2. **Custom Products** - Track investments with fixed annual return rates using compound interest calculations
+
+### Portfolio Management
+
+- **Real-time Tracking** - Monitor current values and daily changes
+- **Historical Data** - Daily snapshots for performance tracking
+- **Statistics** - Total value, returns, daily changes, and percentages
+- **Flexible Quantities** - Support for fractional shares (float values)
+
+### Technical Excellence
 
 - **SOLID Principles** - Applied rigorously across all code
-- **Design Pattern Driven** - Appropriate patterns for maintainability and scalability
-- **Documentation First** - Comprehensive TSDoc/JSDoc for all functions, classes, and hooks
-- **Testing as Priority** - Unit, integration, and E2E tests with meaningful coverage
-- **Code Quality** - Strict linting, formatting, and file size limits (200 lines max)
-- **Type Safety** - Full TypeScript strict mode enforcement
+- **Type Safety** - Full TypeScript strict mode with Prisma-generated types
+- **Clean Architecture** - Domain, infrastructure, and presentation layers
+- **Comprehensive Documentation** - TSDoc comments on all functions
+- **Testing Ready** - Structure prepared for unit, integration, and E2E tests
 
-See [AGENTS.md](./AGENTS.md) for complete development guidelines and principles that are used to guide AI Agents.
+See [AGENTS.md](./AGENTS.md) for complete development guidelines and [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for architecture details.
 
-## ✨ Features
+## 🛠️ Tech Stack
 
-### Core Stack
+### Core Technologies
 
 - **[Next.js 15.5.4](https://nextjs.org/docs)** - React framework with App Router
 - **[React 19.1.0](https://react.dev/)** - Latest React with Server Components
 - **[TypeScript 5.x](https://www.typescriptlang.org/)** - Strict type safety
 - **[TailwindCSS 4.x](https://tailwindcss.com/)** - Utility-first CSS framework
 - **[Prisma 6.7.0](https://www.prisma.io/)** - Type-safe database ORM
+- **[Yahoo Finance2](https://www.npmjs.com/package/yahoo-finance2)** - Financial data API
+- **[date-fns](https://date-fns.org/)** - Date manipulation utilities
+- **[Zod](https://zod.dev/)** - Runtime validation
+- **[Recharts](https://recharts.org/)** - Charting library (ready for implementation)
 
 ### Testing Infrastructure
 
@@ -65,8 +82,8 @@ See [AGENTS.md](./AGENTS.md) for complete development guidelines and principles 
 
 ```bash
 # Clone the repository
-git clone https://github.com/alexfdez1010/next-template.git my-project
-cd my-project
+git clone <your-repo-url> simple-finance
+cd simple-finance
 
 # Install dependencies
 npm install
@@ -140,32 +157,28 @@ Open [http://localhost:3000](http://localhost:3000) to see your application.
 ## 🏗️ Project Structure
 
 ```
-next-template/
+simple-finance/
 ├── src/
-│   └── app/              # Next.js App Router pages
-│       ├── layout.tsx    # Root layout
-│       ├── page.tsx      # Home page
-│       └── globals.css   # Global styles
+│   ├── app/
+│   │   ├── api/
+│   │   │   ├── products/         # Product CRUD endpoints
+│   │   │   └── yahoo/            # Yahoo Finance proxy
+│   │   ├── layout.tsx            # Root layout
+│   │   └── page.tsx              # Dashboard
+│   └── lib/
+│       ├── domain/
+│       │   ├── models/           # TypeScript types
+│       │   └── services/         # Business logic
+│       ├── infrastructure/
+│       │   ├── database/         # Prisma repositories
+│       │   └── yahoo-finance/    # Yahoo Finance client
+│       └── validation/           # Zod schemas
 ├── prisma/
-│   └── schema.prisma     # Database schema
-├── tests/
-│   ├── unit/             # Unit tests
-│   ├── integration/      # Integration tests
-│   ├── e2e/              # End-to-end tests
-│   └── setup.ts          # Test configuration
-├── public/               # Static assets
-├── generated/            # Generated Prisma client
-├── .vscode/              # VS Code settings
-├── compose.yml           # Development database
-├── compose-test.yml      # Test database (ephemeral)
-├── eslint.config.mjs     # ESLint configuration
-├── playwright.config.ts  # Playwright configuration
-├── vitest.config.ts      # Vitest configuration
-├── tsconfig.json         # TypeScript configuration
-├── tailwind.config.ts    # TailwindCSS configuration
-├── .prettierrc           # Prettier configuration
-├── .env.example          # Environment template
-└── AGENTS.md             # AI Agents Development guidelines
+│   └── schema.prisma             # Database schema
+├── tests/                        # Test suites
+├── generated/                    # Generated Prisma client
+├── IMPLEMENTATION_SUMMARY.md     # Architecture details
+└── AGENTS.md                     # Development guidelines
 ```
 
 ## 🧪 Testing Strategy
@@ -259,11 +272,60 @@ npm run start
 - [Vitest Documentation](https://vitest.dev/)
 - [Playwright Documentation](https://playwright.dev/)
 
-## 📄 Template Usage
+## 📊 Database Schema
 
-This is a template repository. To use it:
+### Models
 
-1. Click "Use this template" on GitHub
-2. Clone your new repository
-3. Remove or modify this README as needed
-4. Start building your application
+- **Portfolio** - Container for financial products
+- **FinancialProduct** - Base table (polymorphic design)
+- **YahooFinanceData** - Yahoo Finance specific data (symbol)
+- **CustomProductData** - Custom product data (annual return rate, initial investment)
+- **ProductSnapshot** - Daily value snapshots
+
+### Product Types
+
+1. **YAHOO_FINANCE** - Real-time tracking with symbol
+2. **CUSTOM** - Fixed annual return rate with compound interest
+
+## 🔄 Daily Value Calculation
+
+Custom products use compound interest formula:
+
+```
+A = P(1 + r/365)^days
+
+Where:
+- A = Current value
+- P = Initial investment
+- r = Annual return rate (as decimal)
+- days = Days since investment
+```
+
+## 🚧 Next Steps
+
+The backend infrastructure is complete. To finish the application:
+
+1. **Frontend Components** - Product cards, forms, statistics display
+2. **Dashboard** - Real-time portfolio overview with data fetching
+3. **Add Product Forms** - Yahoo Finance symbol search and custom product form
+4. **Charts** - Daily evolution visualization with Recharts
+5. **Tests** - Unit, integration, and E2E test implementation
+6. **Snapshot Job** - Daily cron job to capture product values
+
+## 📝 API Endpoints
+
+### Products
+
+- `GET /api/products` - List all products
+- `POST /api/products` - Create product (Yahoo or Custom)
+- `GET /api/products/[id]` - Get product by ID
+- `PUT /api/products/[id]` - Update product quantity
+- `DELETE /api/products/[id]` - Delete product
+
+### Yahoo Finance
+
+- `GET /api/yahoo/quote?symbol=AAPL` - Fetch current quote
+
+## 🤝 Contributing
+
+Follow the guidelines in [AGENTS.md](./AGENTS.md) for development standards.

@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -12,4 +9,91 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+/// Represents a user's investment portfolio
+model Portfolio {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products FinancialProduct[]
+
+  @@map("portfolios")
+}
+
+/// Product type enumeration
+enum ProductType {
+  YAHOO_FINANCE
+  CUSTOM
+
+  @@map("product_type")
+}
+
+/// Base model for all financial products
+model FinancialProduct {
+  id          String      @id @default(cuid())
+  portfolioId String
+  type        ProductType
+  name        String
+  quantity    Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  // Relationships
+  portfolio Portfolio          @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  snapshots ProductSnapshot[]
+  yahoo     YahooFinanceData?
+  custom    CustomProductData?
+
+  @@index([portfolioId])
+  @@index([type])
+  @@map("financial_products")
+}
+
+/// Yahoo Finance specific data
+model YahooFinanceData {
+  id        String   @id @default(cuid())
+  productId String   @unique
+  symbol    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  product FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([symbol])
+  @@map("yahoo_finance_data")
+}
+
+/// Custom product specific data
+model CustomProductData {
+  id                String   @id @default(cuid())
+  productId         String   @unique
+  annualReturnRate  Float
+  initialInvestment Float
+  investmentDate    DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  product FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("custom_product_data")
+}
+
+/// Daily snapshot of product value
+model ProductSnapshot {
+  id        String   @id @default(cuid())
+  productId String
+  date      DateTime @db.Date
+  value     Float
+  quantity  Float
+  createdAt DateTime @default(now())
+
+  product FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, date])
+  @@index([productId])
+  @@index([date])
+  @@map("product_snapshots")
 }
