@@ -1,0 +1,10 @@
+{
+  "editor.defaultFormatter": "vscode.typescript-language-features",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "editor.tabSize": 2,
+  "files.autoSave": "afterDelay",
+  "editor.fontSize": 13,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": true
+}

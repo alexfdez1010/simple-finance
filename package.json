@@ -1,0 +1,53 @@
+{
+  "name": "next-template",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run database && next dev --turbopack && npm run database:down",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint . && npm run database:format",
+    "launch": "npm run database && npm run build && npm run start",
+    "launch:test": "npm run database:test && npm run build && npm run start && npm run database:down",
+    "format": "npx prettier . --write",
+    "lint-format": "npm run lint && npm run format",
+    "pre-commit": "npm run test && npm run lint-format",
+    "test": "npm run test:unit && npm run test:integration && npm run test:e2e",
+    "test:unit": "vitest run --dir tests/unit",
+    "test:integration": "vitest run --dir tests/integration --disable-console-intercept",
+    "test:e2e": "npm run database:test && npm run build && start-server-and-test start http://localhost:3000 'npx playwright test' && npm run database:down",
+    "test:specific": "npx playwright test -g",
+    "database:dev": "npm run database && prisma migrate dev && npm run database:down",
+    "database:deploy": "prisma migrate deploy",
+    "database:check": "prisma migrate diff --to-schema-datamodel prisma/ --from-schema-datasource prisma/ --exit-code",
+    "database": "docker compose up -d",
+    "database:test": "docker compose -f compose-test.yml up -d && npm run database:create",
+    "database:down": "docker compose down",
+    "database:create": "prisma generate && prisma db push",
+    "database:studio": "npm run database && npx prisma studio && npm run database:down",
+    "database:format": "prisma format",
+    "playwright": "npx playwright test --ui"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.7.0",
+    "dotenv": "^17.2.3",
+    "next": "15.5.4",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@playwright/test": "^1.55.1",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "prisma": "^6.16.3",
+    "start-server-and-test": "^2.1.2",
+    "tailwindcss": "^4",
+    "typescript": "^5",
+    "vitest": "^3.2.4"
+  }
+}
