@@ -3,7 +3,7 @@
  * @module infrastructure/database/prisma-client
  */
 
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '../../../../generated/prisma';
 
 /**
  * Global Prisma client instance to prevent multiple instances in development
