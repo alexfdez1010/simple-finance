@@ -98,11 +98,6 @@ export default async function DashboardPage() {
 
         {/* Client Component for interactivity */}
         <DashboardClient productsWithValues={productsWithValues} />
-
-        {/* Footer */}
-        <footer className="mt-12 text-center text-sm text-slate-600 dark:text-slate-400">
-          <p>Built with Next.js, React, TypeScript, TailwindCSS, and Prisma</p>
-        </footer>
       </div>
     </div>
   );

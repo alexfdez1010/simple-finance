@@ -13,7 +13,6 @@ export type ProductType = 'YAHOO_FINANCE' | 'CUSTOM';
  */
 export interface BaseProduct {
   id: string;
-  portfolioId: string;
   type: ProductType;
   name: string;
   quantity: number;
@@ -29,6 +28,8 @@ export interface YahooFinanceProduct extends BaseProduct {
   yahoo: {
     id: string;
     symbol: string;
+    purchasePrice: number; // Purchase price per share in EUR
+    purchaseDate: Date; // Date of purchase
   };
 }
 
@@ -77,17 +78,17 @@ export interface Portfolio {
  * Input for creating a Yahoo Finance product
  */
 export interface CreateYahooFinanceProductInput {
-  portfolioId: string;
   name: string;
   symbol: string;
   quantity: number;
+  purchasePrice: number; // Purchase price per share in EUR
+  purchaseDate: Date; // Date of purchase
 }
 
 /**
  * Input for creating a custom product
  */
 export interface CreateCustomProductInput {
-  portfolioId: string;
   name: string;
   annualReturnRate: number;
   initialInvestment: number;

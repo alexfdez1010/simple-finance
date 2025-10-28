@@ -9,11 +9,10 @@ import { revalidatePath } from 'next/cache';
 import {
   createYahooFinanceProduct,
   createCustomProduct,
-  findProductsByPortfolioId,
+  findAllProducts,
   updateProductQuantity,
   deleteProduct,
 } from '@/lib/infrastructure/database/product-repository';
-import { findFirstPortfolio } from '@/lib/infrastructure/database/portfolio-repository';
 import {
   fetchYahooQuoteServer,
   type YahooQuote,
@@ -30,25 +29,24 @@ import type {
  * @param name - Product name
  * @param symbol - Stock symbol
  * @param quantity - Number of shares
+ * @param purchasePrice - Purchase price per share in EUR
+ * @param purchaseDate - Date of purchase
  * @returns Created product
  */
 export async function createYahooProduct(
   name: string,
   symbol: string,
   quantity: number,
+  purchasePrice: number,
+  purchaseDate: Date,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
-    // Get or create default portfolio
-    const portfolio = await findFirstPortfolio();
-    if (!portfolio) {
-      return { success: false, error: 'No portfolio found' };
-    }
-
     const input: CreateYahooFinanceProductInput = {
-      portfolioId: portfolio.id,
       name,
       symbol: symbol.toUpperCase(),
       quantity,
+      purchasePrice,
+      purchaseDate,
     };
 
     const product = await createYahooFinanceProduct(input);
@@ -83,14 +81,7 @@ export async function createCustomProductAction(
   quantity: number,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
-    // Get or create default portfolio
-    const portfolio = await findFirstPortfolio();
-    if (!portfolio) {
-      return { success: false, error: 'No portfolio found' };
-    }
-
     const input: CreateCustomProductInput = {
-      portfolioId: portfolio.id,
       name,
       annualReturnRate,
       initialInvestment,
@@ -119,12 +110,7 @@ export async function createCustomProductAction(
  */
 export async function getProducts(): Promise<FinancialProduct[]> {
   try {
-    const portfolio = await findFirstPortfolio();
-    if (!portfolio) {
-      return [];
-    }
-
-    return await findProductsByPortfolioId(portfolio.id);
+    return await findAllProducts();
   } catch (error) {
     console.error('Failed to get products:', error);
     return [];

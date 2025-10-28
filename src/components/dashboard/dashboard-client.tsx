@@ -51,6 +51,10 @@ export function DashboardClient({ productsWithValues }: DashboardClientProps) {
         const initialInvestment =
           product.custom.initialInvestment * product.quantity;
         acc.totalInvestment += initialInvestment;
+      } else if (product.type === 'YAHOO_FINANCE') {
+        const initialInvestment =
+          product.yahoo.purchasePrice * product.quantity;
+        acc.totalInvestment += initialInvestment;
       }
 
       return acc;

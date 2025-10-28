@@ -11,18 +11,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-/// Represents a user's investment portfolio
-model Portfolio {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  products FinancialProduct[]
-
-  @@map("portfolios")
-}
-
 /// Product type enumeration
 enum ProductType {
   YAHOO_FINANCE
@@ -33,32 +21,30 @@ enum ProductType {
 
 /// Base model for all financial products
 model FinancialProduct {
-  id          String      @id @default(cuid())
-  portfolioId String
-  type        ProductType
-  name        String
-  quantity    Float
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id        String      @id @default(cuid())
+  type      ProductType
+  name      String
+  quantity  Float
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 
-  // Relationships
-  portfolio Portfolio          @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
   snapshots ProductSnapshot[]
   yahoo     YahooFinanceData?
   custom    CustomProductData?
 
-  @@index([portfolioId])
   @@index([type])
   @@map("financial_products")
 }
 
 /// Yahoo Finance specific data
 model YahooFinanceData {
-  id        String   @id @default(cuid())
-  productId String   @unique
-  symbol    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(cuid())
+  productId     String   @unique
+  symbol        String
+  purchasePrice Float // Purchase price per share in EUR
+  purchaseDate  DateTime // Date of purchase
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   product FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 

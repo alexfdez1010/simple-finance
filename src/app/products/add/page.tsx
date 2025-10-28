@@ -23,6 +23,8 @@ export default function AddYahooProductPage() {
     name: '',
     symbol: '',
     quantity: '',
+    purchasePrice: '',
+    purchaseDate: new Date().toISOString().split('T')[0],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,9 +47,18 @@ export default function AddYahooProductPage() {
       if (quote) {
         setSymbolValidated(true);
         setQuoteData(quote);
-        // Auto-fill name if empty
+        // Auto-fill name and purchase price if empty
         if (!formData.name) {
-          setFormData({ ...formData, name: quote.shortName || quote.symbol });
+          setFormData({
+            ...formData,
+            name: quote.shortName || quote.symbol,
+            purchasePrice: quote.regularMarketPrice.toString(),
+          });
+        } else if (!formData.purchasePrice) {
+          setFormData({
+            ...formData,
+            purchasePrice: quote.regularMarketPrice.toString(),
+          });
         }
       } else {
         setSymbolValidated(false);
@@ -81,6 +92,8 @@ export default function AddYahooProductPage() {
         formData.name,
         formData.symbol.toUpperCase(),
         parseFloat(formData.quantity),
+        parseFloat(formData.purchasePrice),
+        new Date(formData.purchaseDate),
       );
 
       if (!result.success) {
@@ -183,6 +196,55 @@ export default function AddYahooProductPage() {
                   </p>
                 </div>
               )}
+            </div>
+
+            {/* Purchase Price */}
+            <div className="mb-6">
+              <label
+                htmlFor="purchasePrice"
+                className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2"
+              >
+                Purchase Price (€)
+              </label>
+              <input
+                type="number"
+                id="purchasePrice"
+                value={formData.purchasePrice}
+                onChange={(e) =>
+                  setFormData({ ...formData, purchasePrice: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                placeholder="e.g., 150.25"
+                step="0.01"
+                min="0.01"
+                required
+              />
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Price per share in euros (€)
+              </p>
+            </div>
+
+            {/* Purchase Date */}
+            <div className="mb-6">
+              <label
+                htmlFor="purchaseDate"
+                className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2"
+              >
+                Purchase Date
+              </label>
+              <input
+                type="date"
+                id="purchaseDate"
+                value={formData.purchaseDate}
+                onChange={(e) =>
+                  setFormData({ ...formData, purchaseDate: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                required
+              />
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Date when you purchased the shares
+              </p>
             </div>
 
             {/* Quantity */}

@@ -43,7 +43,7 @@ export async function calculateProductValue(
       productId: product.id,
       name: product.name,
       currentValue: currentPrice * product.quantity,
-      initialInvestment: 0, // We don't track initial investment for Yahoo products
+      initialInvestment: product.yahoo.purchasePrice * product.quantity,
     };
   }
 

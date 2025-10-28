@@ -25,13 +25,14 @@ export async function createYahooFinanceProduct(
 ): Promise<YahooFinanceProduct> {
   const product = await prisma.financialProduct.create({
     data: {
-      portfolioId: input.portfolioId,
       type: 'YAHOO_FINANCE',
       name: input.name,
       quantity: input.quantity,
       yahoo: {
         create: {
           symbol: input.symbol,
+          purchasePrice: input.purchasePrice,
+          purchaseDate: input.purchaseDate,
         },
       },
     },
@@ -58,7 +59,6 @@ export async function createCustomProduct(
 ): Promise<CustomProduct> {
   const product = await prisma.financialProduct.create({
     data: {
-      portfolioId: input.portfolioId,
       type: 'CUSTOM',
       name: input.name,
       quantity: input.quantity,
@@ -128,11 +128,8 @@ export async function findProductById(
  * @param portfolioId - Portfolio ID
  * @returns Array of products
  */
-export async function findProductsByPortfolioId(
-  portfolioId: string,
-): Promise<FinancialProduct[]> {
+export async function findAllProducts(): Promise<FinancialProduct[]> {
   const products = await prisma.financialProduct.findMany({
-    where: { portfolioId },
     include: {
       yahoo: true,
       custom: true,
