@@ -6,17 +6,55 @@
 
 import { getProducts } from '@/lib/actions/product-actions';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
+import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
+import { calculateCustomProductValue } from '@/lib/domain/services/custom-product-calculator';
 import Link from 'next/link';
+import type { FinancialProduct } from '@/lib/domain/models/product.types';
+
+/**
+ * Product with enriched current value data
+ */
+type ProductWithValue = FinancialProduct & {
+  currentValue: number;
+};
+
+// Revalidate this page every 60 seconds
+export const revalidate = 60;
 
 /**
  * Dashboard page component - Server Component
- * Fetches initial product data on the server
+ * Fetches product data and current prices on the server
  *
  * @returns Dashboard page element
  */
 export default async function DashboardPage() {
   // Fetch products on the server
   const products = await getProducts();
+
+  // Fetch current prices for all products on the server
+  const productsWithValues: ProductWithValue[] = await Promise.all(
+    products.map(async (product) => {
+      let currentValue = 0;
+
+      if (product.type === 'YAHOO_FINANCE') {
+        // Fetch real-time price from Yahoo Finance on server
+        const quote = await fetchYahooQuoteServer(product.yahoo.symbol);
+        currentValue = quote ? quote.regularMarketPrice : 0;
+      } else if (product.type === 'CUSTOM') {
+        // Calculate custom product value
+        currentValue = calculateCustomProductValue(
+          product.custom.initialInvestment,
+          product.custom.annualReturnRate,
+          new Date(product.custom.investmentDate),
+        );
+      }
+
+      return {
+        ...product,
+        currentValue,
+      };
+    }),
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
@@ -58,8 +96,8 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {/* Client Component with real-time updates */}
-        <DashboardClient initialProducts={products} />
+        {/* Client Component for interactivity */}
+        <DashboardClient productsWithValues={productsWithValues} />
 
         {/* Footer */}
         <footer className="mt-12 text-center text-sm text-slate-600 dark:text-slate-400">

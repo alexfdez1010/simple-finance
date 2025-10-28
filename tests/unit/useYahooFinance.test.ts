@@ -92,9 +92,7 @@ describe('useYahooFinance hook', () => {
   });
 
   it('should handle network errors', async () => {
-    (global.fetch as unknown as jest.Mock).mockRejectedValueOnce(
-      new Error('Network error'),
-    );
+    vi.mocked(global.fetch).mockRejectedValueOnce(new Error('Network error'));
 
     const { result } = renderHook(() => useYahooFinance());
 
@@ -123,10 +121,10 @@ describe('useYahooFinance hook', () => {
       },
     };
 
-    (global.fetch as any).mockResolvedValueOnce({
+    vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: async () => mockResponse,
-    });
+    } as Response);
 
     const { result } = renderHook(() => useYahooFinance());
 

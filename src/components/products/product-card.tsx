@@ -5,6 +5,7 @@
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 /**
@@ -52,6 +53,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const isYahooFinance = product.type === 'YAHOO_FINANCE';
   const totalValue = currentValue * product.quantity;
+  const [dateString, setDateString] = useState('');
 
   let returnValue = 0;
 
@@ -60,6 +62,11 @@ export function ProductCard({
       product.custom.initialInvestment * product.quantity;
     returnValue = totalValue - initialInvestment;
   }
+
+  // Render date on client to avoid hydration mismatch
+  useEffect(() => {
+    setDateString(new Date(product.createdAt).toLocaleDateString());
+  }, [product.createdAt]);
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
@@ -137,7 +144,7 @@ export function ProductCard({
       {/* Metadata */}
       <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
         <p className="text-xs text-slate-500 dark:text-slate-400">
-          Added {new Date(product.createdAt).toLocaleDateString()}
+          Added {dateString}
         </p>
       </div>
     </div>
