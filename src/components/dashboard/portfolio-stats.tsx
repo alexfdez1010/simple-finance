@@ -18,15 +18,15 @@ interface PortfolioStatsProps {
 }
 
 /**
- * Formats currency value
+ * Formats currency value in EUR
  *
  * @param value - Value to format
- * @returns Formatted currency string
+ * @returns Formatted currency string in EUR
  */
 function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('es-ES', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'EUR',
   }).format(value);
 }
 

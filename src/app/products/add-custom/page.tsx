@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { createCustomProductAction } from '@/lib/actions/product-actions';
 
 /**
  * Add custom product page component
@@ -32,23 +33,16 @@ export default function AddCustomProductPage() {
     setError(null);
 
     try {
-      const response = await fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          annualReturnRate: parseFloat(formData.annualReturnRate) / 100,
-          initialInvestment: parseFloat(formData.initialInvestment),
-          investmentDate: new Date(formData.investmentDate).toISOString(),
-          quantity: parseFloat(formData.quantity),
-        }),
-      });
+      const result = await createCustomProductAction(
+        formData.name,
+        parseFloat(formData.annualReturnRate) / 100,
+        parseFloat(formData.initialInvestment),
+        new Date(formData.investmentDate),
+        parseFloat(formData.quantity),
+      );
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to create product');
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create product');
       }
 
       router.push('/dashboard');
@@ -133,7 +127,7 @@ export default function AddCustomProductPage() {
                 htmlFor="initialInvestment"
                 className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2"
               >
-                Initial Investment ($)
+                Initial Investment (USD)
               </label>
               <input
                 type="number"
@@ -151,6 +145,9 @@ export default function AddCustomProductPage() {
                 min="0.01"
                 required
               />
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Enter amount in USD (will be converted to EUR)
+              </p>
             </div>
 
             {/* Investment Date */}

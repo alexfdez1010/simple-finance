@@ -1,19 +1,23 @@
 /**
  * Server-side Yahoo Finance client
  * Fetches quotes on the server for SSR using yahoo-finance2 library
+ * All prices are converted to EUR
  * @module infrastructure/yahoo-finance/server-client
  */
 
 import YahooFinance from 'yahoo-finance2';
+import { convertToEur } from '@/lib/domain/services/currency-converter';
 
 /**
- * Quote data from Yahoo Finance
+ * Quote data from Yahoo Finance (prices in EUR)
  */
 export interface YahooQuote {
   symbol: string;
   regularMarketPrice: number;
+  regularMarketPriceUsd: number;
   regularMarketTime: Date;
   currency: string;
+  originalCurrency: string;
   shortName?: string;
   longName?: string;
 }
@@ -24,10 +28,11 @@ const yahooFinance = new YahooFinance();
 /**
  * Fetches a quote from Yahoo Finance on the server using yahoo-finance2
  * This library handles crumb/cookie authentication automatically
+ * Converts all prices to EUR regardless of original currency
  * Note: This uses the server's IP and may hit rate limits with high traffic
  *
  * @param symbol - Stock symbol to fetch
- * @returns Quote data or null if failed
+ * @returns Quote data with prices in EUR, or null if failed
  */
 export async function fetchYahooQuoteServer(
   symbol: string,
@@ -45,13 +50,28 @@ export async function fetchYahooQuoteServer(
       return null;
     }
 
+    const originalCurrency = quote.currency || 'USD';
+    const priceUsd = quote.regularMarketPrice;
+
+    // Convert to EUR if the original currency is USD
+    // For other currencies, we assume USD as intermediate (simplified)
+    let priceEur: number;
+    if (originalCurrency === 'EUR') {
+      priceEur = priceUsd;
+    } else {
+      // Convert USD to EUR (or treat non-USD as USD for simplicity)
+      priceEur = await convertToEur(priceUsd);
+    }
+
     return {
       symbol: quote.symbol,
-      regularMarketPrice: quote.regularMarketPrice,
+      regularMarketPrice: priceEur,
+      regularMarketPriceUsd: originalCurrency === 'USD' ? priceUsd : priceEur,
       regularMarketTime: quote.regularMarketTime
         ? new Date(quote.regularMarketTime)
         : new Date(),
-      currency: quote.currency || 'USD',
+      currency: 'EUR',
+      originalCurrency,
       shortName: quote.shortName || undefined,
       longName: quote.longName || undefined,
     };

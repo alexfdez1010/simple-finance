@@ -31,18 +31,18 @@ export default async function DashboardPage() {
   // Fetch products on the server
   const products = await getProducts();
 
-  // Fetch current prices for all products on the server
+  // Fetch current prices for all products on the server (all values in EUR)
   const productsWithValues: ProductWithValue[] = await Promise.all(
     products.map(async (product) => {
       let currentValue = 0;
 
       if (product.type === 'YAHOO_FINANCE') {
-        // Fetch real-time price from Yahoo Finance on server
+        // Fetch real-time price from Yahoo Finance on server (converted to EUR)
         const quote = await fetchYahooQuoteServer(product.yahoo.symbol);
         currentValue = quote ? quote.regularMarketPrice : 0;
       } else if (product.type === 'CUSTOM') {
-        // Calculate custom product value
-        currentValue = calculateCustomProductValue(
+        // Calculate custom product value (converted to EUR)
+        currentValue = await calculateCustomProductValue(
           product.custom.initialInvestment,
           product.custom.annualReturnRate,
           new Date(product.custom.investmentDate),

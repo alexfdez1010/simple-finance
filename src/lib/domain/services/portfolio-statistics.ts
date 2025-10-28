@@ -24,15 +24,16 @@ interface ProductValue {
 
 /**
  * Calculates current value for a single product
+ * Note: For custom products, this now requires async operation for EUR conversion
  *
  * @param product - Financial product
- * @param currentPrice - Current price for Yahoo Finance products
- * @returns Product value information
+ * @param currentPrice - Current price for Yahoo Finance products (already in EUR)
+ * @returns Product value information (all values in EUR)
  */
-export function calculateProductValue(
+export async function calculateProductValue(
   product: FinancialProduct,
   currentPrice?: number,
-): ProductValue {
+): Promise<ProductValue> {
   if (product.type === 'YAHOO_FINANCE') {
     if (!currentPrice) {
       throw new Error('Current price required for Yahoo Finance products');
@@ -46,8 +47,8 @@ export function calculateProductValue(
     };
   }
 
-  // Custom product
-  const currentValue = calculateCustomProductValue(
+  // Custom product - now async due to EUR conversion
+  const currentValue = await calculateCustomProductValue(
     product.custom.initialInvestment,
     product.custom.annualReturnRate,
     product.custom.investmentDate,
@@ -63,33 +64,41 @@ export function calculateProductValue(
 
 /**
  * Calculates portfolio statistics
+ * Now async due to EUR conversion for custom products
  *
  * @param products - Array of financial products
- * @param currentPrices - Map of product ID to current price for Yahoo products
+ * @param currentPrices - Map of product ID to current price for Yahoo products (in EUR)
  * @param previousDayValues - Map of product ID to previous day value
- * @returns Portfolio statistics
+ * @returns Portfolio statistics (all values in EUR)
  */
-export function calculatePortfolioStatistics(
+export async function calculatePortfolioStatistics(
   products: FinancialProduct[],
   currentPrices: Map<string, number>,
   previousDayValues?: Map<string, number>,
-): PortfolioStatistics {
+): Promise<PortfolioStatistics> {
   let totalValue = 0;
   let totalInvestment = 0;
   let previousTotalValue = 0;
 
-  for (const product of products) {
-    const price =
-      product.type === 'YAHOO_FINANCE'
-        ? currentPrices.get(product.id)
-        : undefined;
-    const productValue = calculateProductValue(product, price);
+  // Calculate all product values in parallel
+  const productValues = await Promise.all(
+    products.map(async (product) => {
+      const price =
+        product.type === 'YAHOO_FINANCE'
+          ? currentPrices.get(product.id)
+          : undefined;
+      return calculateProductValue(product, price);
+    }),
+  );
 
+  // Aggregate values
+  for (let i = 0; i < products.length; i++) {
+    const productValue = productValues[i];
     totalValue += productValue.currentValue;
     totalInvestment += productValue.initialInvestment;
 
     if (previousDayValues) {
-      const prevValue = previousDayValues.get(product.id) || 0;
+      const prevValue = previousDayValues.get(products[i].id) || 0;
       previousTotalValue += prevValue;
     }
   }
