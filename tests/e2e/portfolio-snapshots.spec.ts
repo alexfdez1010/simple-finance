@@ -31,7 +31,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
     const cronToken = process.env.CRON_TOKEN || 'test-token';
 
     // Call the snapshot API endpoint
-    const response = await request.post(
+    const response = await request.get(
       'http://localhost:3000/api/cron/snapshot',
       {
         headers: {
@@ -62,7 +62,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
     request,
   }) => {
     // Call without authorization header
-    const response = await request.post(
+    const response = await request.get(
       'http://localhost:3000/api/cron/snapshot',
     );
 
@@ -75,7 +75,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
 
   test('should reject API call with invalid token', async ({ request }) => {
     // Call with invalid token
-    const response = await request.post(
+    const response = await request.get(
       'http://localhost:3000/api/cron/snapshot',
       {
         headers: {
@@ -96,7 +96,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
     // This should return 500 if CRON_TOKEN is not set
     // Or 401 if token is invalid
 
-    const response = await request.post(
+    const response = await request.get(
       'http://localhost:3000/api/cron/snapshot',
       {
         headers: {
@@ -156,7 +156,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
 
     // Create snapshot
     const cronToken = process.env.CRON_TOKEN || 'test-token';
-    const response = await request.post(
+    const response = await request.get(
       'http://localhost:3000/api/cron/snapshot',
       {
         headers: {
