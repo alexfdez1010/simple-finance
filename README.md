@@ -138,10 +138,10 @@ The default configuration works out of the box:
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/db"
 PASSWORD="12345678"
-CRON_TOKEN="your-secure-cron-token-here"
+CRON_SECRET="your-secure-cron-token-here"
 ```
 
-**Note:** Change the `PASSWORD` to your desired access password and the `CRON_TOKEN` for secure cron job access. This protects all routes from unauthorized access and secures the snapshot API endpoint.
+**Note:** Change the `PASSWORD` to your desired access password and the `CRON_SECRET` for secure cron job access. This protects all routes from unauthorized access and secures the snapshot API endpoint.
 
 ### 4. Start the Database
 
@@ -578,7 +578,7 @@ Required environment variables:
 ```env
 DATABASE_URL="postgresql://user:password@host:5432/database"
 PASSWORD="your-secure-password-here"
-CRON_TOKEN="your-secure-cron-token-here"
+CRON_SECRET="your-secure-cron-token-here"
 ```
 
 ### Production Build
@@ -602,7 +602,7 @@ PASSWORD="your-secure-password-here"
 **Security Best Practices:**
 
 - Use a strong, unique password (minimum 12 characters recommended)
-- Use a secure CRON_TOKEN (minimum 32 characters, random string)
+- Use a secure CRON_SECRET (minimum 32 characters, random string)
 - Store in environment variables, never in code
 - Use your platform's secrets management (Vercel Secrets, Railway Variables, etc.)
 - Change password and tokens periodically
