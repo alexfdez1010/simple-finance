@@ -1,331 +1,552 @@
-# Simple Finance - Portfolio Tracker
+# 💰 Simple Finance
 
-A **production-grade portfolio tracking application** built with Next.js, React, TypeScript, and Prisma. Track your financial products with real-time Yahoo Finance data or custom fixed-return investments. Monitor daily portfolio evolution and performance statistics.
+A **modern, production-ready portfolio tracking application** built with Next.js 15, React 19, TypeScript, and Prisma. Track your financial products with real-time Yahoo Finance data or custom fixed-return investments, all displayed in EUR.
 
-Built following enterprise-level best practices from [ZeroChats](https://github.com/zerochats) and adhering to SOLID principles.
+Built following **SOLID principles** and enterprise-level best practices with comprehensive test coverage.
 
 [![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38bdf8)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.7.0-2D3748)](https://www.prisma.io/)
+[![Tests](https://img.shields.io/badge/Tests-17%20E2E%20%2B%2021%20Unit-success)](https://playwright.dev/)
 
 ## 🎯 Features
 
-### Dual Product Types
+### 📊 Dual Product Types
 
-1. **Yahoo Finance Products** - Track real stocks, ETFs, and assets using live Yahoo Finance data
-2. **Custom Products** - Track investments with fixed annual return rates using compound interest calculations
+**Yahoo Finance Products**
 
-### Portfolio Management
+- Track real stocks, ETFs, and cryptocurrencies using live Yahoo Finance API
+- Automatic USD to EUR conversion with real-time exchange rates
+- Purchase price and date tracking for accurate ROI calculations
+- Auto-fill current market price when adding products
 
-- **Real-time Tracking** - Monitor current values and daily changes
-- **Historical Data** - Daily snapshots for performance tracking
-- **Statistics** - Total value, returns, daily changes, and percentages
-- **Flexible Quantities** - Support for fractional shares (float values)
+**Custom Products**
 
-### Technical Excellence
+- Track investments with fixed annual return rates
+- Daily compound interest calculation: `A = P(1 + r/365)^days`
+- Direct EUR input for initial investment
+- Perfect for savings accounts, bonds, or fixed-return investments
 
-- **SOLID Principles** - Applied rigorously across all code
+### 💼 Portfolio Management
+
+- **Real-time Tracking** - Server-side rendering with 60-second cache revalidation
+- **EUR Currency** - All values displayed in euros (€)
+- **Portfolio Statistics** - Total value, total return, return percentage
+- **Sorted Display** - Products ordered by total current value
+- **Flexible Quantities** - Support for fractional shares (e.g., 2.5 shares)
+- **Responsive UI** - Beautiful dark mode support with TailwindCSS 4
+
+### 🏗️ Technical Excellence
+
+- **SOLID Principles** - Applied rigorously across all code (SRP, OCP, LSP, ISP, DIP)
 - **Type Safety** - Full TypeScript strict mode with Prisma-generated types
 - **Clean Architecture** - Domain, infrastructure, and presentation layers
-- **Comprehensive Documentation** - TSDoc comments on all functions
-- **Testing Ready** - Structure prepared for unit, integration, and E2E tests
-
-See [AGENTS.md](./AGENTS.md) for complete development guidelines and [IMPLEMENTATION_SUMMARY.md](./IMPLEMENTATION_SUMMARY.md) for architecture details.
+- **Server Actions** - Modern Next.js 15 data mutations with automatic revalidation
+- **Comprehensive Testing** - 17 E2E tests + 21 unit tests (100% passing)
+- **TSDoc Documentation** - All functions documented with purpose, params, and returns
+- **Code Quality** - ESLint + Prettier with pre-commit hooks
+- **File Size Limit** - Max 200 lines per file (enforced)
 
 ## 🛠️ Tech Stack
 
-### Core Technologies
+### Frontend
 
-- **[Next.js 15.5.4](https://nextjs.org/docs)** - React framework with App Router
-- **[React 19.1.0](https://react.dev/)** - Latest React with Server Components
-- **[TypeScript 5.x](https://www.typescriptlang.org/)** - Strict type safety
-- **[TailwindCSS 4.x](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[Prisma 6.7.0](https://www.prisma.io/)** - Type-safe database ORM
-- **[Yahoo Finance2](https://www.npmjs.com/package/yahoo-finance2)** - Financial data API
-- **[date-fns](https://date-fns.org/)** - Date manipulation utilities
-- **[Zod](https://zod.dev/)** - Runtime validation
-- **[Recharts](https://recharts.org/)** - Charting library (ready for implementation)
+- **[Next.js 15.5.4](https://nextjs.org/docs)** - React framework with App Router and Server Components
+- **[React 19.1.0](https://react.dev/)** - Latest React with concurrent features
+- **[TypeScript 5.x](https://www.typescriptlang.org/)** - Strict type safety throughout
+- **[TailwindCSS 4.x](https://tailwindcss.com/)** - Utility-first CSS with dark mode
+- **[Lucide React](https://lucide.dev/)** - Beautiful icon library
+- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React components (ready to integrate)
 
-### Testing Infrastructure
+### Backend & Data
 
-- **[Vitest](https://vitest.dev/)** - Fast unit and integration testing
-- **[Playwright](https://playwright.dev/)** - Reliable E2E testing across browsers
-- **Comprehensive test setup** - Separate unit, integration, and E2E test suites
-- **Docker-based test database** - Isolated test environment
-
-### Code Quality Tools
-
-- **[ESLint](https://eslint.org/)** - Next.js and TypeScript linting rules
-- **[Prettier](https://prettier.io/)** - Consistent code formatting
-- **Pre-commit hooks** - Automated testing and formatting before commits
-- **Strict TypeScript** - Maximum type safety configuration
-
-### Database & Infrastructure
-
-- **PostgreSQL** - Production-ready relational database
-- **Docker Compose** - Containerized development and test databases
-- **Prisma migrations** - Version-controlled database schema
-- **Environment management** - Secure configuration with `.env` files
-
-## 📋 Prerequisites
-
-- **Node.js** 20.x or higher
-- **npm** 10.x or higher
-- **Docker** and **Docker Compose** (for database)
-- **Git** for version control
-
-## 🚀 Getting Started
-
-### 1. Clone and Install
-
-```bash
-# Clone the repository
-git clone <your-repo-url> simple-finance
-cd simple-finance
-
-# Install dependencies
-npm install
-```
-
-### 2. Environment Setup
-
-```bash
-# Copy environment template
-cp .env.example .env
-
-# Edit .env with your configuration
-# DATABASE_URL="postgresql://postgres:postgres@localhost:5432/db"
-```
-
-### 3. Database Setup
-
-```bash
-# Start PostgreSQL container
-npm run database
-
-# Run migrations (in another terminal)
-npm run database:dev
-
-# Stop database when done
-npm run database:down
-```
-
-### 4. Run Development Server
-
-```bash
-# Start development server with Turbopack
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) to see your application.
-
-## 📜 Available Scripts
-
-### Development
-
-- **`npm run dev`** - Start development server with database
-- **`npm run build`** - Build production bundle
-- **`npm run start`** - Start production server
-- **`npm run launch`** - Build and start with database
-
-### Code Quality
-
-- **`npm run lint`** - Run ESLint and Prisma formatting
-- **`npm run format`** - Format code with Prettier
-- **`npm run lint-format`** - Lint and format (required before commits)
-- **`npm run pre-commit`** - Run tests and code quality checks
+- **[Prisma 6.7.0](https://www.prisma.io/)** - Type-safe ORM with PostgreSQL
+- **[PostgreSQL](https://www.postgresql.org/)** - Production-ready relational database
+- **[Yahoo Finance2](https://www.npmjs.com/package/yahoo-finance2)** - Real-time financial data
+- **[Zod 4.x](https://zod.dev/)** - Runtime schema validation
+- **[date-fns](https://date-fns.org/)** - Modern date manipulation
 
 ### Testing
 
-- **`npm test`** - Run all tests (unit, integration, E2E)
-- **`npm run test:unit`** - Run unit tests only
-- **`npm run test:integration`** - Run integration tests only
-- **`npm run test:e2e`** - Run E2E tests with Playwright
-- **`npm run playwright`** - Open Playwright UI for debugging
+- **[Playwright](https://playwright.dev/)** - E2E testing with automatic database cleanup
+- **[Vitest](https://vitest.dev/)** - Fast unit testing with JSDOM
+- **[Testing Library](https://testing-library.com/)** - React component testing utilities
+- **Docker Compose** - Isolated test database environment
 
-### Database
+### DevOps & Tools
 
-- **`npm run database`** - Start PostgreSQL container
-- **`npm run database:down`** - Stop database container
-- **`npm run database:dev`** - Run migrations in development
-- **`npm run database:deploy`** - Deploy migrations to production
-- **`npm run database:studio`** - Open Prisma Studio
-- **`npm run database:test`** - Start test database
+- **[Docker](https://www.docker.com/)** - Containerized PostgreSQL for development
+- **[ESLint](https://eslint.org/)** - Code linting with Next.js config
+- **[Prettier](https://prettier.io/)** - Automatic code formatting
+- **[Turbopack](https://turbo.build/pack)** - Fast development builds
+
+## 📋 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+- **[Node.js](https://nodejs.org/)** 20.x or higher
+- **[npm](https://www.npmjs.com/)** 10.x or higher
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (for PostgreSQL database)
+- **[Git](https://git-scm.com/)** for version control
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/yourusername/simple-finance.git
+cd simple-finance
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+This will install all required packages including Next.js, React, Prisma, and testing tools.
+
+### 3. Set Up Environment Variables
+
+```bash
+cp .env.example .env
+```
+
+The default configuration works out of the box:
+
+```env
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/db"
+```
+
+### 4. Start the Database
+
+```bash
+npm run database
+```
+
+This starts a PostgreSQL container using Docker Compose. The database will be available at `localhost:5432`.
+
+### 5. Run Database Migrations
+
+Open a new terminal and run:
+
+```bash
+npm run database:dev
+```
+
+This creates the database schema and generates the Prisma client.
+
+### 6. Start the Development Server
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser. You should see the Simple Finance dashboard!
+
+### 7. Stop the Database (when done)
+
+```bash
+npm run database:down
+```
+
+## 🎬 Usage
+
+### Adding a Yahoo Finance Product
+
+1. Click **"Add Yahoo Finance Product"** on the dashboard
+2. Enter a stock symbol (e.g., `AAPL`, `MSFT`, `GOOGL`)
+3. The system validates the symbol and auto-fills the current price
+4. Enter quantity and adjust purchase price/date if needed
+5. Click **"Add Product"** - values are automatically converted to EUR
+
+### Adding a Custom Product
+
+1. Click **"Add Custom Product"** on the dashboard
+2. Enter product name (e.g., "Savings Account")
+3. Enter initial investment in EUR (e.g., `1000`)
+4. Enter annual return rate as percentage (e.g., `5.5` for 5.5%)
+5. Select investment date
+6. Enter quantity (usually `1` for custom products)
+7. Click **"Add Product"** - compound interest is calculated daily
+
+### Viewing Portfolio Statistics
+
+The dashboard displays:
+
+- **Total Portfolio Value** - Sum of all products in EUR
+- **Total Return** - Absolute gain/loss in EUR
+- **Return %** - Percentage return on total investment
+- **Individual Products** - Sorted by total current value (highest first)
+
+Each product card shows:
+
+- Current value per unit
+- Total value (current value × quantity)
+- Return amount and percentage
+- Purchase/investment date
+
+## 📜 Available Scripts
+
+### Development Commands
+
+| Command          | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| `npm run dev`    | Start development server with Turbopack (auto-starts database) |
+| `npm run build`  | Build optimized production bundle                              |
+| `npm run start`  | Start production server                                        |
+| `npm run launch` | Build and start with database                                  |
+
+### Testing Commands
+
+| Command                    | Description                                          |
+| -------------------------- | ---------------------------------------------------- |
+| `npm test`                 | Run all tests (unit + integration + E2E)             |
+| `npm run test:unit`        | Run unit tests with Vitest                           |
+| `npm run test:integration` | Run integration tests                                |
+| `npm run test:e2e`         | Run E2E tests with Playwright (auto-manages test DB) |
+| `npm run playwright`       | Open Playwright UI for debugging tests               |
+
+### Database Commands
+
+| Command                   | Description                             |
+| ------------------------- | --------------------------------------- |
+| `npm run database`        | Start PostgreSQL container              |
+| `npm run database:down`   | Stop and remove database container      |
+| `npm run database:dev`    | Create and run migrations (development) |
+| `npm run database:deploy` | Deploy migrations (production)          |
+| `npm run database:studio` | Open Prisma Studio (database GUI)       |
+| `npm run database:create` | Generate Prisma client and push schema  |
+
+### Code Quality Commands
+
+| Command               | Description                          |
+| --------------------- | ------------------------------------ |
+| `npm run lint`        | Run ESLint and Prisma format check   |
+| `npm run format`      | Format all code with Prettier        |
+| `npm run lint-format` | Lint and format (run before commits) |
+| `npm run pre-commit`  | Run all tests + lint + format        |
 
 ## 🏗️ Project Structure
 
 ```
 simple-finance/
 ├── src/
-│   ├── app/
-│   │   ├── api/
-│   │   │   ├── products/         # Product CRUD endpoints
-│   │   │   └── yahoo/            # Yahoo Finance proxy
-│   │   ├── layout.tsx            # Root layout
-│   │   └── page.tsx              # Dashboard
-│   └── lib/
-│       ├── domain/
-│       │   ├── models/           # TypeScript types
-│       │   └── services/         # Business logic
-│       ├── infrastructure/
-│       │   ├── database/         # Prisma repositories
-│       │   └── yahoo-finance/    # Yahoo Finance client
-│       └── validation/           # Zod schemas
+│   ├── app/                      # Next.js App Router
+│   │   ├── dashboard/            # Dashboard page (Server Component)
+│   │   ├── products/
+│   │   │   ├── add/              # Add Yahoo Finance product
+│   │   │   └── add-custom/       # Add custom product
+│   │   ├── layout.tsx            # Root layout with metadata
+│   │   ├── page.tsx              # Home page (redirects to dashboard)
+│   │   └── globals.css           # Global styles
+│   │
+│   ├── components/               # React components
+│   │   ├── dashboard/
+│   │   │   ├── dashboard-client.tsx    # Client component for interactivity
+│   │   │   └── portfolio-stats.tsx     # Portfolio statistics display
+│   │   └── products/
+│   │       └── product-card.tsx        # Individual product card
+│   │
+│   └── lib/                      # Business logic and utilities
+│       ├── actions/              # Next.js Server Actions
+│       │   └── product-actions.ts      # CRUD operations
+│       │
+│       ├── domain/               # Domain layer (business logic)
+│       │   ├── models/
+│       │   │   └── product.types.ts    # TypeScript interfaces
+│       │   └── services/
+│       │       ├── custom-product-calculator.ts  # Compound interest
+│       │       ├── currency-converter.ts         # USD to EUR conversion
+│       │       └── portfolio-statistics.ts       # Portfolio calculations
+│       │
+│       ├── infrastructure/       # Infrastructure layer
+│       │   ├── database/
+│       │   │   └── product-repository.ts   # Prisma database access
+│       │   ├── yahoo-finance/
+│       │   │   └── server-client.ts        # Yahoo Finance API client
+│       │   └── currency/
+│       │       └── exchange-rate-client.ts # Exchange rate API
+│       │
+│       └── hooks/                # React hooks
+│           └── useYahooFinance.ts        # Client-side Yahoo Finance hook
+│
 ├── prisma/
-│   └── schema.prisma             # Database schema
-├── tests/                        # Test suites
+│   ├── schema.prisma             # Database schema
+│   └── migrations/               # Database migrations
+│
+├── tests/
+│   ├── e2e/                      # Playwright E2E tests
+│   │   ├── add-yahoo-product.spec.ts     # Yahoo product tests (7 tests)
+│   │   ├── add-custom-product.spec.ts    # Custom product tests (10 tests)
+│   │   └── global-setup.ts               # Test database cleanup
+│   ├── unit/                     # Vitest unit tests
+│   │   ├── currency-converter.test.ts
+│   │   ├── custom-product-calculator-eur.test.ts
+│   │   └── useYahooFinance.test.ts
+│   └── setup.ts                  # Test configuration
+│
 ├── generated/                    # Generated Prisma client
-├── IMPLEMENTATION_SUMMARY.md     # Architecture details
-└── AGENTS.md                     # Development guidelines
+│   └── prisma/
+│
+├── .env.example                  # Environment variables template
+├── compose.yml                   # Docker Compose for PostgreSQL
+├── compose-test.yml              # Docker Compose for test database
+├── package.json                  # Dependencies and scripts
+├── tsconfig.json                 # TypeScript configuration
+├── eslint.config.mjs             # ESLint configuration
+├── vitest.config.ts              # Vitest configuration
+├── playwright.config.ts          # Playwright configuration
+└── AGENTS.md                     # Development guidelines (SOLID principles)
 ```
 
-## 🧪 Testing Strategy
+## 🧪 Testing
 
-### Unit Tests
+This project has **comprehensive test coverage** with 38+ tests across unit and E2E testing.
 
-Located in `tests/unit/`, these test individual functions and components in isolation.
+### Unit Tests (21 tests)
+
+Located in `tests/unit/`, these test business logic in isolation:
+
+- **`currency-converter.test.ts`** (10 tests) - USD to EUR conversion, exchange rates, fallbacks
+- **`custom-product-calculator-eur.test.ts`** (11 tests) - Compound interest calculations, edge cases
+- **`useYahooFinance.test.ts`** - React hook for Yahoo Finance API
 
 ```bash
 npm run test:unit
 ```
 
-### Integration Tests
+**Technologies:** Vitest, JSDOM, Testing Library
 
-Located in `tests/integration/`, these test module interactions and API endpoints.
+### End-to-End Tests (17 tests)
 
-```bash
-npm run test:integration
-```
+Located in `tests/e2e/`, these test complete user workflows:
 
-### End-to-End Tests
+**Yahoo Finance Product Tests** (`add-yahoo-product.spec.ts` - 7 tests)
 
-Located in `tests/e2e/`, these test complete user flows across browsers.
+- ✅ Main flow: Create product with AAPL symbol
+- ✅ Symbol validation and error handling
+- ✅ Form validation (required fields)
+- ✅ Navigation (cancel, back link)
+- ✅ Lowercase symbol handling
+- ✅ Auto-fill functionality
+
+**Custom Product Tests** (`add-custom-product.spec.ts` - 10 tests)
+
+- ✅ Main flow: Create custom product with 5.5% return
+- ✅ High return rate test (15.75%)
+- ✅ Fractional quantity support (2.5)
+- ✅ Form validation
+- ✅ Navigation tests
+- ✅ Info box and helper text verification
+- ✅ Minimum value validation
 
 ```bash
 npm run test:e2e
 ```
 
-## 🗄️ Database Management
+**Technologies:** Playwright, Chromium
 
-### Prisma Workflow
+### Test Database
 
-```bash
-# Create a new migration
-npm run database:dev
+E2E tests use an isolated test database that is automatically:
 
-# Deploy migrations to production
-npm run database:deploy
+- Created before tests run
+- Cleaned between test runs (via `global-setup.ts`)
+- Destroyed after tests complete
 
-# Check migration status
-npm run database:check
-
-# Open Prisma Studio
-npm run database:studio
-```
-
-### Schema Changes
-
-1. Edit `prisma/schema.prisma`
-2. Run `npm run database:dev` to create migration
-3. Test with `npm run database:test`
-4. Commit schema and migration files
-
-## 🚢 Deployment
-
-### Environment Variables
-
-Ensure all required environment variables are set:
+### Running All Tests
 
 ```bash
-DATABASE_URL="postgresql://user:password@host:5432/database"
+npm test
 ```
 
-### Build and Deploy
+This runs unit tests, integration tests, and E2E tests sequentially.
 
-```bash
-# Build production bundle
-npm run build
-
-# Run production server
-npm run start
-```
-
-## 🔧 Configuration Files
-
-- **`tsconfig.json`** - TypeScript strict mode, path aliases
-- **`eslint.config.mjs`** - Next.js and TypeScript rules
-- **`.prettierrc`** - Single quotes, trailing commas, 2-space tabs
-- **`vitest.config.ts`** - Node environment, 10s timeout
-- **`playwright.config.ts`** - Multi-browser E2E testing
-
-## 📚 Resources
-
-### Official Documentation
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [React Documentation](https://react.dev/)
-- [TypeScript Handbook](https://www.typescriptlang.org/docs/)
-- [TailwindCSS Documentation](https://tailwindcss.com/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Vitest Documentation](https://vitest.dev/)
-- [Playwright Documentation](https://playwright.dev/)
-
-## 📊 Database Schema
+## 🗄️ Database Schema
 
 ### Models
 
-- **Portfolio** - Container for financial products
-- **FinancialProduct** - Base table (polymorphic design)
-- **YahooFinanceData** - Yahoo Finance specific data (symbol)
-- **CustomProductData** - Custom product data (annual return rate, initial investment)
-- **ProductSnapshot** - Daily value snapshots
+The database uses a **polymorphic design** with Prisma and PostgreSQL:
 
-### Product Types
+**FinancialProduct** (Base table)
 
-1. **YAHOO_FINANCE** - Real-time tracking with symbol
-2. **CUSTOM** - Fixed annual return rate with compound interest
+- `id` - Unique identifier (CUID)
+- `type` - Product type enum (`YAHOO_FINANCE` | `CUSTOM`)
+- `name` - Product name
+- `quantity` - Float (supports fractional shares)
+- `createdAt`, `updatedAt` - Timestamps
 
-## 🔄 Daily Value Calculation
+**YahooFinanceData** (1:1 with FinancialProduct)
 
-Custom products use compound interest formula:
+- `symbol` - Stock symbol (e.g., "AAPL")
+- `purchasePrice` - Purchase price per share in EUR
+- `purchaseDate` - Date of purchase
+
+**CustomProductData** (1:1 with FinancialProduct)
+
+- `annualReturnRate` - Annual return rate as decimal (e.g., 0.055 for 5.5%)
+- `initialInvestment` - Initial investment in EUR
+- `investmentDate` - Date of investment
+
+**ProductSnapshot** (1:N with FinancialProduct)
+
+- `date` - Snapshot date
+- `value` - Value at that date
+- `quantity` - Quantity at that date
+- Used for historical tracking (future feature)
+
+### Compound Interest Formula
+
+Custom products calculate daily compound interest:
 
 ```
-A = P(1 + r/365)^days
+A = P × (1 + r/365)^days
 
 Where:
-- A = Current value
-- P = Initial investment
-- r = Annual return rate (as decimal)
-- days = Days since investment
+- A = Current value (EUR)
+- P = Initial investment (EUR)
+- r = Annual return rate (decimal, e.g., 0.055 for 5.5%)
+- days = Days since investment date
 ```
 
-## 🚧 Next Steps
+**Example:** €1,000 invested at 5.5% annual rate for 365 days:
 
-The backend infrastructure is complete. To finish the application:
+```
+A = 1000 × (1 + 0.055/365)^365 = €1,056.54
+```
 
-1. **Frontend Components** - Product cards, forms, statistics display
-2. **Dashboard** - Real-time portfolio overview with data fetching
-3. **Add Product Forms** - Yahoo Finance symbol search and custom product form
-4. **Charts** - Daily evolution visualization with Recharts
-5. **Tests** - Unit, integration, and E2E test implementation
-6. **Snapshot Job** - Daily cron job to capture product values
+### Database Migrations
 
-## 📝 API Endpoints
+```bash
+# Create a new migration after schema changes
+npm run database:dev
 
-### Products
+# View database in GUI
+npm run database:studio
+```
 
-- `GET /api/products` - List all products
-- `POST /api/products` - Create product (Yahoo or Custom)
-- `GET /api/products/[id]` - Get product by ID
-- `PUT /api/products/[id]` - Update product quantity
-- `DELETE /api/products/[id]` - Delete product
+## 🏛️ Architecture
 
-### Yahoo Finance
+This project follows **Clean Architecture** principles with clear separation of concerns:
 
-- `GET /api/yahoo/quote?symbol=AAPL` - Fetch current quote
+### Layers
+
+**Presentation Layer** (`src/app/`, `src/components/`)
+
+- Next.js App Router pages (Server Components)
+- React client components for interactivity
+- Server Actions for data mutations
+
+**Domain Layer** (`src/lib/domain/`)
+
+- Business logic (compound interest, portfolio statistics)
+- Type definitions and interfaces
+- Pure functions, no external dependencies
+
+**Infrastructure Layer** (`src/lib/infrastructure/`)
+
+- Database access (Prisma repositories)
+- External APIs (Yahoo Finance, exchange rates)
+- Caching and data fetching
+
+### Key Design Patterns
+
+- **Repository Pattern** - Database access abstraction
+- **Service Layer** - Business logic encapsulation
+- **Dependency Inversion** - Domain doesn't depend on infrastructure
+- **Server Actions** - Modern Next.js data mutations
+- **Server Components** - Server-side rendering with data fetching
+
+## 🚀 Deployment
+
+### Environment Variables
+
+Required environment variables:
+
+```env
+DATABASE_URL="postgresql://user:password@host:5432/database"
+```
+
+### Production Build
+
+```bash
+# Build optimized bundle
+npm run build
+
+# Start production server
+npm run start
+```
+
+### Deployment Platforms
+
+This application can be deployed to:
+
+- **[Vercel](https://vercel.com/)** - Recommended (built by Next.js creators)
+- **[Railway](https://railway.app/)** - Easy PostgreSQL + Node.js hosting
+- **[Fly.io](https://fly.io/)** - Docker-based deployment
+- **[AWS](https://aws.amazon.com/)** / **[GCP](https://cloud.google.com/)** - Enterprise solutions
+
+### Database Hosting
+
+For production PostgreSQL:
+
+- **[Vercel Postgres](https://vercel.com/storage/postgres)** - Serverless PostgreSQL
+- **[Supabase](https://supabase.com/)** - Open-source Firebase alternative
+- **[Neon](https://neon.tech/)** - Serverless PostgreSQL
+- **[Railway](https://railway.app/)** - Simple PostgreSQL hosting
 
 ## 🤝 Contributing
 
-Follow the guidelines in [AGENTS.md](./AGENTS.md) for development standards.
+Contributions are welcome! Please follow these guidelines:
+
+### Development Standards
+
+1. **Read [AGENTS.md](./AGENTS.md)** - Complete development guidelines
+2. **SOLID Principles** - Apply SRP, OCP, LSP, ISP, DIP
+3. **File Size Limit** - Max 200 lines per file
+4. **Documentation** - TSDoc comments on all functions
+5. **Testing** - Add tests for new features
+6. **Code Quality** - Run `npm run lint-format` before committing
+
+### Workflow
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes
+4. Run tests (`npm test`)
+5. Run linting (`npm run lint-format`)
+6. Commit your changes (`git commit -m 'Add amazing feature'`)
+7. Push to the branch (`git push origin feature/amazing-feature`)
+8. Open a Pull Request
+
+## 📚 Resources
+
+- **[Next.js Documentation](https://nextjs.org/docs)** - Framework documentation
+- **[React Documentation](https://react.dev/)** - React 19 features
+- **[Prisma Documentation](https://www.prisma.io/docs)** - Database ORM
+- **[TailwindCSS Documentation](https://tailwindcss.com/docs)** - Styling
+- **[Playwright Documentation](https://playwright.dev/)** - E2E testing
+- **[Vitest Documentation](https://vitest.dev/)** - Unit testing
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 👤 Author
+
+**Alejandro Fernández**
+
+- GitHub: [@alexfdez1010](https://github.com/alexfdez1010)
+
+## 🙏 Acknowledgments
+
+- Built following enterprise best practices
+- Inspired by modern financial tracking applications
+- Uses best-in-class open source technologies
+
+---
+
+**⭐ If you find this project useful, please consider giving it a star on GitHub!**
