@@ -105,7 +105,7 @@ Before you begin, ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/simple-finance.git
+git clone https://github.com/alexfdez1010/simple-finance.git
 cd simple-finance
 ```
 
@@ -407,7 +407,7 @@ E2E tests use an isolated test database that is automatically:
 ### Running All Tests
 
 ```bash
-npm test
+npm run test
 ```
 
 This runs unit tests, integration tests, and E2E tests sequentially.
