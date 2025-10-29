@@ -132,7 +132,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
   }) => {
     // Create a product with known value
     await page.goto('http://localhost:3000/products/add-custom');
-    
+
     // Ensure we're on the right page and not redirected
     await page.waitForURL('http://localhost:3000/products/add-custom');
     await page.waitForLoadState('networkidle');

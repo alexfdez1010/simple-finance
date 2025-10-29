@@ -4,6 +4,7 @@ import { calculatePortfolioStatistics } from '@/lib/domain/services/portfolio-st
 import { upsertPortfolioSnapshot } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { calculateCustomProductValue } from '@/lib/domain/services/custom-product-calculator';
+import { generateAuthToken } from '@/lib/auth/auth-utils';
 
 /**
  * API endpoint to create a daily portfolio snapshot.
@@ -35,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
 
-    if (token !== expectedToken) {
+    if (generateAuthToken(token) !== generateAuthToken(expectedToken)) {
       return NextResponse.json(
         { error: 'Invalid authorization token' },
         { status: 401 },
