@@ -4,11 +4,16 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { authenticateTestUser } from './auth-helper';
 
 /**
  * Test suite for Yahoo Finance product creation flow
  */
 test.describe('Add Yahoo Finance Product', () => {
+  test.beforeEach(async ({ page }) => {
+    // Authenticate before each test
+    await authenticateTestUser(page);
+  });
   /**
    * Test: Successfully create a Yahoo Finance product and verify it appears in dashboard
    */

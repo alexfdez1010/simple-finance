@@ -4,11 +4,16 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { authenticateTestUser } from './auth-helper';
 
 /**
  * Test suite for custom product creation flow
  */
 test.describe('Add Custom Product', () => {
+  test.beforeEach(async ({ page }) => {
+    // Authenticate before each test
+    await authenticateTestUser(page);
+  });
   /**
    * Test: Successfully create a custom product and verify it appears in dashboard
    */

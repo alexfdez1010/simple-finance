@@ -23,7 +23,7 @@ export interface YahooQuote {
 }
 
 // Create a single instance to reuse
-const yahooFinance = new YahooFinance();
+const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 /**
  * Fetches a quote from Yahoo Finance on the server using yahoo-finance2
