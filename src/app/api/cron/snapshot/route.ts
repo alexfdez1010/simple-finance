@@ -13,7 +13,7 @@ import { generateAuthToken } from '@/lib/auth/auth-utils';
  *
  * @returns JSON response with snapshot data or error
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     // Verify bearer token
     const authHeader = request.headers.get('authorization');
