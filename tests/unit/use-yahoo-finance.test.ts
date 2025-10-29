@@ -5,7 +5,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useYahooFinance } from '@/lib/hooks/useYahooFinance';
+import { useYahooFinance } from '@/lib/hooks/use-yahoo-finance';
 
 // Mock fetch
 global.fetch = vi.fn() as unknown as typeof fetch;
