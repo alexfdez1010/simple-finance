@@ -7,6 +7,8 @@
 
 import { ProductCard } from '@/components/products/product-card';
 import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
+import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
+import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 import Link from 'next/link';
@@ -20,6 +22,8 @@ type ProductWithValue = FinancialProduct & {
 
 interface DashboardClientProps {
   productsWithValues: ProductWithValue[];
+  evolutionData: Array<{ date: string; value: number }>;
+  dailyChanges: Array<{ date: string; change: number }>;
 }
 
 /**
@@ -29,7 +33,11 @@ interface DashboardClientProps {
  * @param props - Component props
  * @returns Dashboard client element
  */
-export function DashboardClient({ productsWithValues }: DashboardClientProps) {
+export function DashboardClient({
+  productsWithValues,
+  evolutionData,
+  dailyChanges,
+}: DashboardClientProps) {
   // Handle product deletion
   const handleDelete = async (productId: string) => {
     const result = await deleteProductAction(productId);
@@ -85,6 +93,12 @@ export function DashboardClient({ productsWithValues }: DashboardClientProps) {
           dailyChangePercentage={0}
           productCount={stats.productCount}
         />
+      </div>
+
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <PortfolioEvolutionChart data={evolutionData} />
+        <DailyChangesChart data={dailyChanges} />
       </div>
 
       {/* Products List */}

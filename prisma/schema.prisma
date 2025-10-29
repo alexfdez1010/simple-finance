@@ -83,3 +83,14 @@ model ProductSnapshot {
   @@index([date])
   @@map("product_snapshots")
 }
+
+/// Daily snapshot of total portfolio value
+model PortfolioSnapshot {
+  id        String   @id @default(cuid())
+  date      DateTime @unique @db.Date
+  value     Float // Total portfolio value in EUR
+  createdAt DateTime @default(now())
+
+  @@index([date])
+  @@map("portfolio_snapshots")
+}
