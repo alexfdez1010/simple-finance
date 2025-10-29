@@ -56,11 +56,19 @@ export function ProductCard({
   const [dateString, setDateString] = useState('');
 
   let returnValue = 0;
+  let returnPercentage = 0;
+  let initialInvestment = 0;
 
-  if (!isYahooFinance && product.custom) {
-    const initialInvestment =
-      product.custom.initialInvestment * product.quantity;
+  if (isYahooFinance && product.yahoo) {
+    initialInvestment = product.yahoo.purchasePrice * product.quantity;
     returnValue = totalValue - initialInvestment;
+    returnPercentage =
+      initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
+  } else if (!isYahooFinance && product.custom) {
+    initialInvestment = product.custom.initialInvestment * product.quantity;
+    returnValue = totalValue - initialInvestment;
+    returnPercentage =
+      initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
   }
 
   // Render date on client to avoid hydration mismatch
@@ -111,8 +119,8 @@ export function ProductCard({
         </p>
       </div>
 
-      {/* Return (Custom products only) */}
-      {!isYahooFinance && product.custom && (
+      {/* Return (Both Yahoo Finance and Custom products) */}
+      {(isYahooFinance || product.custom) && (
         <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
           <div className="flex justify-between items-center">
             <div>
@@ -131,13 +139,29 @@ export function ProductCard({
             </div>
             <div className="text-right">
               <p className="text-sm text-slate-600 dark:text-slate-400">
+                Return %
+              </p>
+              <p
+                className={`text-lg font-semibold ${
+                  returnPercentage >= 0
+                    ? 'text-green-600 dark:text-green-400'
+                    : 'text-red-600 dark:text-red-400'
+                }`}
+              >
+                {formatPercentage(returnPercentage)}
+              </p>
+            </div>
+          </div>
+          {!isYahooFinance && product.custom && (
+            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 Annual Rate
               </p>
               <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
                 {formatPercentage(product.custom.annualReturnRate * 100)}
               </p>
             </div>
-          </div>
+          )}
         </div>
       )}
 
