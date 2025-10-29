@@ -9,7 +9,7 @@ Built following **SOLID principles** and enterprise-level best practices with co
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38bdf8)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.7.0-2D3748)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/Tests-17%20E2E%20%2B%2021%20Unit-success)](https://playwright.dev/)
+[![Tests](https://img.shields.io/badge/Tests-27%20E2E%20%2B%2021%20Unit-success)](https://playwright.dev/)
 
 ## 🎯 Features
 
@@ -38,13 +38,22 @@ Built following **SOLID principles** and enterprise-level best practices with co
 - **Flexible Quantities** - Support for fractional shares (e.g., 2.5 shares)
 - **Responsive UI** - Beautiful dark mode support with TailwindCSS 4
 
+### 🔐 Password Protection
+
+- **Single-Password Authentication** - Simple password-based access control
+- **Cookie-Based Sessions** - Secure HttpOnly cookies with 30-day expiration
+- **SHA-256 Token Hashing** - Secure token generation and validation
+- **Route Protection** - All routes protected except auth page
+- **Smart Redirects** - Preserves intended destination after login
+- **Environment-Based** - Password stored in `PASSWORD` environment variable
+
 ### 🏗️ Technical Excellence
 
 - **SOLID Principles** - Applied rigorously across all code (SRP, OCP, LSP, ISP, DIP)
 - **Type Safety** - Full TypeScript strict mode with Prisma-generated types
 - **Clean Architecture** - Domain, infrastructure, and presentation layers
 - **Server Actions** - Modern Next.js 15 data mutations with automatic revalidation
-- **Comprehensive Testing** - 17 E2E tests + 21 unit tests (100% passing)
+- **Comprehensive Testing** - 27 E2E tests + 21 unit tests (100% passing)
 - **TSDoc Documentation** - All functions documented with purpose, params, and returns
 - **Code Quality** - ESLint + Prettier with pre-commit hooks
 - **File Size Limit** - Max 200 lines per file (enforced)
@@ -118,7 +127,10 @@ The default configuration works out of the box:
 
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/db"
+PASSWORD="12345678"
 ```
+
+**Note:** Change the `PASSWORD` to your desired access password. This protects all routes from unauthorized access.
 
 ### 4. Start the Database
 
@@ -144,7 +156,7 @@ This creates the database schema and generates the Prisma client.
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. You should see the Simple Finance dashboard!
+Open [http://localhost:3000](http://localhost:3000) in your browser. You'll be prompted to enter the password (default: `12345678`). After authentication, you'll see the Simple Finance dashboard!
 
 ### 7. Stop the Database (when done)
 
@@ -153,6 +165,18 @@ npm run database:down
 ```
 
 ## 🎬 Usage
+
+### Authentication
+
+When you first visit the application, you'll be redirected to the password page:
+
+1. Enter the password (default: `12345678`)
+2. Click **"Continue"**
+3. You'll be authenticated and redirected to the dashboard
+4. Your session is stored in a secure cookie for 30 days
+5. To logout, clear your browser cookies
+
+The password is stored in the `PASSWORD` environment variable for security.
 
 ### Adding a Yahoo Finance Product
 
@@ -235,15 +259,18 @@ Each product card shows:
 simple-finance/
 ├── src/
 │   ├── app/                      # Next.js App Router
+│   │   ├── auth/                 # Authentication page
 │   │   ├── dashboard/            # Dashboard page (Server Component)
 │   │   ├── products/
 │   │   │   ├── add/              # Add Yahoo Finance product
 │   │   │   └── add-custom/       # Add custom product
-│   │   ├── layout.tsx            # Root layout with metadata
+│   │   ├── layout.tsx            # Root layout with AuthGuard
 │   │   ├── page.tsx              # Home page (redirects to dashboard)
 │   │   └── globals.css           # Global styles
 │   │
 │   ├── components/               # React components
+│   │   ├── auth/
+│   │   │   └── auth-guard.tsx          # Route protection component
 │   │   ├── dashboard/
 │   │   │   ├── dashboard-client.tsx    # Client component for interactivity
 │   │   │   └── portfolio-stats.tsx     # Portfolio statistics display
@@ -252,7 +279,11 @@ simple-finance/
 │   │
 │   └── lib/                      # Business logic and utilities
 │       ├── actions/              # Next.js Server Actions
+│       │   ├── auth-actions.ts         # Authentication actions
 │       │   └── product-actions.ts      # CRUD operations
+│       │
+│       ├── auth/                 # Authentication utilities
+│       │   └── auth-utils.ts           # Token generation, validation
 │       │
 │       ├── domain/               # Domain layer (business logic)
 │       │   ├── models/
@@ -279,9 +310,11 @@ simple-finance/
 │
 ├── tests/
 │   ├── e2e/                      # Playwright E2E tests
-│   │   ├── add-yahoo-product.spec.ts     # Yahoo product tests (7 tests)
-│   │   ├── add-custom-product.spec.ts    # Custom product tests (10 tests)
-│   │   └── global-setup.ts               # Test database cleanup
+│   │   ├── auth.spec.ts                 # Auth tests (10 tests)
+│   │   ├── auth-helper.ts               # Authentication helper
+│   │   ├── add-yahoo-product.spec.ts    # Yahoo product tests (7 tests)
+│   │   ├── add-custom-product.spec.ts   # Custom product tests (10 tests)
+│   │   └── global-setup.ts              # Test database cleanup
 │   ├── unit/                     # Vitest unit tests
 │   │   ├── currency-converter.test.ts
 │   │   ├── custom-product-calculator-eur.test.ts
@@ -294,6 +327,7 @@ simple-finance/
 ├── .env.example                  # Environment variables template
 ├── compose.yml                   # Docker Compose for PostgreSQL
 ├── compose-test.yml              # Docker Compose for test database
+├── middleware.ts                 # Next.js middleware for auth
 ├── package.json                  # Dependencies and scripts
 ├── tsconfig.json                 # TypeScript configuration
 ├── eslint.config.mjs             # ESLint configuration
@@ -320,9 +354,22 @@ npm run test:unit
 
 **Technologies:** Vitest, JSDOM, Testing Library
 
-### End-to-End Tests (17 tests)
+### End-to-End Tests (27 tests)
 
 Located in `tests/e2e/`, these test complete user workflows:
+
+**Authentication Tests** (`auth.spec.ts` - 10 tests)
+
+- ✅ Redirect unauthenticated users to auth page
+- ✅ Invalid password error handling
+- ✅ Empty password validation
+- ✅ Successful authentication and redirect
+- ✅ Default redirect behavior
+- ✅ Auth persistence across navigation
+- ✅ Auth persistence after page reload
+- ✅ Route protection verification
+- ✅ Auth page accessibility
+- ✅ Cookie attributes validation
 
 **Yahoo Finance Product Tests** (`add-yahoo-product.spec.ts` - 7 tests)
 
@@ -479,6 +526,22 @@ npm run build
 # Start production server
 npm run start
 ```
+
+### Authentication Setup
+
+For production deployment, ensure the `PASSWORD` environment variable is set securely:
+
+```env
+PASSWORD="your-secure-password-here"
+```
+
+**Security Best Practices:**
+
+- Use a strong, unique password (minimum 12 characters recommended)
+- Store in environment variables, never in code
+- Use your platform's secrets management (Vercel Secrets, Railway Variables, etc.)
+- Change password periodically
+- Use HTTPS in production (enforced by secure cookie flag)
 
 ### Deployment Platforms
 
