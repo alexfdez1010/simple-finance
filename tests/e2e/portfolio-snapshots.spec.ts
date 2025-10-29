@@ -28,7 +28,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
   test('should create snapshot via API endpoint with valid token', async ({
     request,
   }) => {
-    const cronToken = process.env.CRON_TOKEN || 'test-token';
+    const cronToken = process.env.CRON_SECRET || 'test-token';
 
     // Call the snapshot API endpoint
     const response = await request.get(
@@ -123,56 +123,5 @@ test.describe('Portfolio Snapshots and Charts', () => {
     // Stats should be visible even with no products
     const statsSection = page.locator('text=Total Value').first();
     await expect(statsSection).toBeVisible({ timeout: 10000 });
-  });
-
-  // Note: This test requires manual testing due to Playwright auth cookie limitations
-  test.skip('should format currency values correctly in charts', async ({
-    page,
-    request,
-  }) => {
-    // Create a product with known value
-    await page.goto('http://localhost:3000/products/add-custom');
-
-    // Ensure we're on the right page and not redirected
-    await page.waitForURL('http://localhost:3000/products/add-custom');
-    await page.waitForLoadState('networkidle');
-
-    await page.fill('input[name="name"]', `Currency Test ${Date.now()}`);
-    await page.fill('input[name="initialInvestment"]', '10000');
-    await page.fill('input[name="annualReturnRate"]', '5');
-    await page.fill('input[name="quantity"]', '1');
-
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    await page.fill(
-      'input[name="investmentDate"]',
-      oneWeekAgo.toISOString().split('T')[0],
-    );
-
-    await page.click('button[type="submit"]');
-    await page.waitForURL('http://localhost:3000/dashboard', {
-      timeout: 10000,
-    });
-
-    // Create snapshot
-    const cronToken = process.env.CRON_TOKEN || 'test-token';
-    const response = await request.get(
-      'http://localhost:3000/api/cron/snapshot',
-      {
-        headers: {
-          Authorization: `Bearer ${cronToken}`,
-        },
-      },
-    );
-
-    expect(response.ok()).toBeTruthy();
-
-    // Reload and check for EUR symbol
-    await page.goto('http://localhost:3000/dashboard');
-    await page.waitForLoadState('networkidle');
-
-    // Look for EUR currency symbol in the page
-    const eurSymbol = page.locator('text=/€/').first();
-    await expect(eurSymbol).toBeVisible({ timeout: 10000 });
   });
 });

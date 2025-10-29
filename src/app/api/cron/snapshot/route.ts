@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
   try {
     // Verify bearer token
     const authHeader = request.headers.get('authorization');
-    const expectedToken = process.env.CRON_TOKEN;
+    const expectedToken = process.env.CRON_SECRET;
 
     if (!expectedToken) {
-      console.error('CRON_TOKEN environment variable is not set');
+      console.error('CRON_SECRET environment variable is not set');
       return NextResponse.json(
         { error: 'Server configuration error' },
         { status: 500 },
