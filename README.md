@@ -9,7 +9,7 @@ Built following **SOLID principles** and enterprise-level best practices with co
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38bdf8)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.7.0-2D3748)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/Tests-34%20E2E%20%2B%2021%20Unit-success)](https://playwright.dev/)
+[![Tests](https://img.shields.io/badge/Tests-33%20E2E%20%2B%2021%20Unit-success)](https://playwright.dev/)
 
 ## 🎯 Features
 
