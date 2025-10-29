@@ -41,7 +41,7 @@ Built following **SOLID principles** and enterprise-level best practices with co
 ### 🔐 Password Protection
 
 - **Single-Password Authentication** - Simple password-based access control
-- **Cookie-Based Sessions** - Secure HttpOnly cookies with 30-day expiration
+- **Cookie-Based Sessions** - Secure HttpOnly cookies with 365-day expiration
 - **SHA-256 Token Hashing** - Secure token generation and validation
 - **Route Protection** - All routes protected except auth page
 - **Smart Redirects** - Preserves intended destination after login
