@@ -105,6 +105,29 @@ export interface UpdateProductQuantityInput {
 }
 
 /**
+ * Input for updating a Yahoo Finance product
+ */
+export interface UpdateYahooFinanceProductInput {
+  productId: string;
+  name: string;
+  quantity: number;
+  purchasePrice: number; // Purchase price per share in EUR
+  purchaseDate: Date; // Date of purchase
+}
+
+/**
+ * Input for updating a custom product
+ */
+export interface UpdateCustomProductInput {
+  productId: string;
+  name: string;
+  quantity: number;
+  annualReturnRate: number;
+  initialInvestment: number;
+  investmentDate: Date;
+}
+
+/**
  * Portfolio statistics
  */
 export interface PortfolioStatistics {

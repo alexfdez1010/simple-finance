@@ -5,12 +5,16 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
+import { cleanDatabase } from './test-helpers';
 
 /**
  * Test suite for Yahoo Finance product creation flow
  */
 test.describe('Add Yahoo Finance Product', () => {
   test.beforeEach(async ({ page }) => {
+    // Clean database before each test to ensure isolation
+    await cleanDatabase();
+
     // Authenticate before each test
     await authenticateTestUser(page);
   });
@@ -75,7 +79,7 @@ test.describe('Add Yahoo Finance Product', () => {
       .locator('.bg-white.dark\\:bg-slate-800.rounded-lg')
       .filter({ hasText: productName })
       .first();
-    await expect(productCard.getByText(/Symbol: AAPL/)).toBeVisible();
+    await expect(productCard.getByText(/Symbol: AAPL/).nth(0)).toBeVisible();
     await expect(productCard).toContainText('Quantity');
     await expect(productCard).toContainText('Current Value');
   });

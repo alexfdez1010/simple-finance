@@ -6,6 +6,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 /**
@@ -90,15 +91,24 @@ export function ProductCard({
               : 'Custom Product'}
           </p>
         </div>
-        {onDelete && (
-          <button
-            onClick={() => onDelete(product.id)}
-            className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
-            aria-label="Delete product"
+        <div className="flex gap-2">
+          <Link
+            href={`/products/edit/${product.id}`}
+            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+            aria-label="Edit product"
           >
-            Delete
-          </button>
-        )}
+            Edit
+          </Link>
+          {onDelete && (
+            <button
+              onClick={() => onDelete(product.id)}
+              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
+              aria-label="Delete product"
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Quantity */}

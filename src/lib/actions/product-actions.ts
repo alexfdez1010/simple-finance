@@ -10,7 +10,10 @@ import {
   createYahooFinanceProduct,
   createCustomProduct,
   findAllProducts,
+  findProductById,
   updateProductQuantity,
+  updateYahooFinanceProduct,
+  updateCustomProduct,
   deleteProduct,
 } from '@/lib/infrastructure/database/product-repository';
 import {
@@ -20,6 +23,8 @@ import {
 import type {
   CreateYahooFinanceProductInput,
   CreateCustomProductInput,
+  UpdateYahooFinanceProductInput,
+  UpdateCustomProductInput,
   FinancialProduct,
 } from '@/lib/domain/models/product.types';
 
@@ -161,6 +166,106 @@ export async function deleteProductAction(
       success: false,
       error:
         error instanceof Error ? error.message : 'Failed to delete product',
+    };
+  }
+}
+
+/**
+ * Gets a single product by ID
+ *
+ * @param productId - Product ID
+ * @returns Product or null if not found
+ */
+export async function getProduct(
+  productId: string,
+): Promise<FinancialProduct | null> {
+  try {
+    return await findProductById(productId);
+  } catch (error) {
+    console.error('Failed to get product:', error);
+    return null;
+  }
+}
+
+/**
+ * Updates a Yahoo Finance product
+ *
+ * @param productId - Product ID
+ * @param name - Product name
+ * @param quantity - Number of shares
+ * @param purchasePrice - Purchase price per share in EUR
+ * @param purchaseDate - Date of purchase
+ * @returns Success status
+ */
+export async function updateYahooProductAction(
+  productId: string,
+  name: string,
+  quantity: number,
+  purchasePrice: number,
+  purchaseDate: Date,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const input: UpdateYahooFinanceProductInput = {
+      productId,
+      name,
+      quantity,
+      purchasePrice,
+      purchaseDate,
+    };
+
+    await updateYahooFinanceProduct(input);
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update Yahoo Finance product:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to update product',
+    };
+  }
+}
+
+/**
+ * Updates a custom product
+ *
+ * @param productId - Product ID
+ * @param name - Product name
+ * @param quantity - Quantity
+ * @param annualReturnRate - Annual return rate percentage
+ * @param initialInvestment - Initial investment amount
+ * @param investmentDate - Date of investment
+ * @returns Success status
+ */
+export async function updateCustomProductAction(
+  productId: string,
+  name: string,
+  quantity: number,
+  annualReturnRate: number,
+  initialInvestment: number,
+  investmentDate: Date,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const input: UpdateCustomProductInput = {
+      productId,
+      name,
+      quantity,
+      annualReturnRate,
+      initialInvestment,
+      investmentDate,
+    };
+
+    await updateCustomProduct(input);
+
+    revalidatePath('/dashboard');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to update custom product:', error);
+    return {
+      success: false,
+      error:
+        error instanceof Error ? error.message : 'Failed to update product',
     };
   }
 }

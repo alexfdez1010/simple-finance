@@ -1,8 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
+import { cleanDatabase } from './test-helpers';
 
 test.describe('Portfolio Snapshots and Charts', () => {
   test.beforeEach(async ({ page }) => {
+    // Clean database before each test to ensure isolation
+    await cleanDatabase();
+
     // Authenticate before each test
     await authenticateTestUser(page);
   });

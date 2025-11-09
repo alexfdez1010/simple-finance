@@ -11,6 +11,8 @@ import type {
   CreateYahooFinanceProductInput,
   CreateCustomProductInput,
   UpdateProductQuantityInput,
+  UpdateYahooFinanceProductInput,
+  UpdateCustomProductInput,
   ProductSnapshot,
 } from '@/lib/domain/models/product.types';
 
@@ -178,6 +180,73 @@ export async function updateProductQuantity(
       yahoo: product.yahoo,
     } as YahooFinanceProduct;
   }
+
+  return {
+    ...product,
+    type: 'CUSTOM',
+    custom: product.custom!,
+  } as CustomProduct;
+}
+
+/**
+ * Updates a Yahoo Finance product
+ *
+ * @param input - Update data
+ * @returns Updated product
+ */
+export async function updateYahooFinanceProduct(
+  input: UpdateYahooFinanceProductInput,
+): Promise<YahooFinanceProduct> {
+  const product = await prisma.financialProduct.update({
+    where: { id: input.productId },
+    data: {
+      name: input.name,
+      quantity: input.quantity,
+      yahoo: {
+        update: {
+          purchasePrice: input.purchasePrice,
+          purchaseDate: input.purchaseDate,
+        },
+      },
+    },
+    include: {
+      yahoo: true,
+    },
+  });
+
+  return {
+    ...product,
+    type: 'YAHOO_FINANCE',
+    yahoo: product.yahoo!,
+  } as YahooFinanceProduct;
+}
+
+/**
+ * Updates a custom product
+ *
+ * @param input - Update data
+ * @returns Updated product
+ */
+export async function updateCustomProduct(
+  input: UpdateCustomProductInput,
+): Promise<CustomProduct> {
+  const product = await prisma.financialProduct.update({
+    where: { id: input.productId },
+    data: {
+      name: input.name,
+      quantity: input.quantity,
+      custom: {
+        update: {
+          annualReturnRate: input.annualReturnRate,
+          initialInvestment: input.initialInvestment,
+          investmentDate: input.investmentDate,
+        },
+      },
+    },
+    include: {
+      custom: true,
+    },
+  });
 
   return {
     ...product,

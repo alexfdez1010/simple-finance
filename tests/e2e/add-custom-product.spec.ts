@@ -5,12 +5,16 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
+import { cleanDatabase } from './test-helpers';
 
 /**
  * Test suite for custom product creation flow
  */
 test.describe('Add Custom Product', () => {
   test.beforeEach(async ({ page }) => {
+    // Clean database before each test to ensure isolation
+    await cleanDatabase();
+
     // Authenticate before each test
     await authenticateTestUser(page);
   });
