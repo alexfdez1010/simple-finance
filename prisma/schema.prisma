@@ -61,6 +61,7 @@ model CustomProductData {
   investmentDate    DateTime
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  currency          String   @default("EUR")
 
   product FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
 

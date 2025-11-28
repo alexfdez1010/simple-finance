@@ -45,6 +45,7 @@ export default function EditProductPage() {
     annualReturnRate: '',
     initialInvestment: '',
     investmentDate: '',
+    currency: 'EUR',
   });
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function EditProductPage() {
             investmentDate: new Date(fetchedProduct.custom.investmentDate)
               .toISOString()
               .split('T')[0],
+            currency: fetchedProduct.custom.currency,
           });
         }
 
@@ -131,6 +133,7 @@ export default function EditProductPage() {
         parseFloat(customFormData.annualReturnRate) / 100,
         parseFloat(customFormData.initialInvestment),
         new Date(customFormData.investmentDate),
+        customFormData.currency,
       );
 
       if (!result.success) {
@@ -427,13 +430,42 @@ export default function EditProductPage() {
               </p>
             </div>
 
+            {/* Currency */}
+            <div>
+              <label
+                htmlFor="currency"
+                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+              >
+                Currency
+              </label>
+              <select
+                id="currency"
+                value={customFormData.currency}
+                onChange={(e) =>
+                  setCustomFormData({
+                    ...customFormData,
+                    currency: e.target.value,
+                  })
+                }
+                required
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
+              >
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+              <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                Currency of initial investment
+              </p>
+            </div>
+
             {/* Initial Investment */}
             <div>
               <label
                 htmlFor="initialInvestment"
                 className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
               >
-                Initial Investment (€)
+                Initial Investment (
+                {customFormData.currency === 'EUR' ? '€' : '$'})
               </label>
               <input
                 type="number"
@@ -451,7 +483,10 @@ export default function EditProductPage() {
                 className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-slate-700 dark:text-slate-100"
               />
               <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                Enter amount in euros (€)
+                Enter amount in{' '}
+                {customFormData.currency === 'EUR'
+                  ? 'euros (€)'
+                  : 'dollars ($)'}
               </p>
             </div>
 

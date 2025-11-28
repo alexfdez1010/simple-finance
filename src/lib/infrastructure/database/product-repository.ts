@@ -69,6 +69,7 @@ export async function createCustomProduct(
           annualReturnRate: input.annualReturnRate,
           initialInvestment: input.initialInvestment,
           investmentDate: input.investmentDate,
+          currency: input.currency,
         },
       },
     },
@@ -80,7 +81,13 @@ export async function createCustomProduct(
   return {
     ...product,
     type: 'CUSTOM',
-    custom: product.custom!,
+    custom: {
+      id: product.custom!.id,
+      annualReturnRate: product.custom!.annualReturnRate,
+      initialInvestment: product.custom!.initialInvestment,
+      investmentDate: product.custom!.investmentDate,
+      currency: product.custom!.currency,
+    },
   } as CustomProduct;
 }
 
@@ -117,7 +124,13 @@ export async function findProductById(
     return {
       ...product,
       type: 'CUSTOM',
-      custom: product.custom,
+      custom: {
+        id: product.custom.id,
+        annualReturnRate: product.custom.annualReturnRate,
+        initialInvestment: product.custom.initialInvestment,
+        investmentDate: product.custom.investmentDate,
+        currency: product.custom.currency,
+      },
     } as CustomProduct;
   }
 
@@ -150,7 +163,13 @@ export async function findAllProducts(): Promise<FinancialProduct[]> {
     return {
       ...product,
       type: 'CUSTOM',
-      custom: product.custom!,
+      custom: {
+        id: product.custom!.id,
+        annualReturnRate: product.custom!.annualReturnRate,
+        initialInvestment: product.custom!.initialInvestment,
+        investmentDate: product.custom!.investmentDate,
+        currency: product.custom!.currency,
+      },
     } as CustomProduct;
   });
 }
@@ -184,7 +203,13 @@ export async function updateProductQuantity(
   return {
     ...product,
     type: 'CUSTOM',
-    custom: product.custom!,
+    custom: {
+      id: product.custom!.id,
+      annualReturnRate: product.custom!.annualReturnRate,
+      initialInvestment: product.custom!.initialInvestment,
+      investmentDate: product.custom!.investmentDate,
+      currency: product.custom!.currency,
+    },
   } as CustomProduct;
 }
 
@@ -240,6 +265,7 @@ export async function updateCustomProduct(
           annualReturnRate: input.annualReturnRate,
           initialInvestment: input.initialInvestment,
           investmentDate: input.investmentDate,
+          currency: input.currency,
         },
       },
     },
@@ -251,7 +277,13 @@ export async function updateCustomProduct(
   return {
     ...product,
     type: 'CUSTOM',
-    custom: product.custom!,
+    custom: {
+      id: product.custom!.id,
+      annualReturnRate: product.custom!.annualReturnRate,
+      initialInvestment: product.custom!.initialInvestment,
+      investmentDate: product.custom!.investmentDate,
+      currency: product.custom!.currency,
+    },
   } as CustomProduct;
 }
 

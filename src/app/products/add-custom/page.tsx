@@ -23,6 +23,7 @@ export default function AddCustomProductPage() {
     initialInvestment: '',
     investmentDate: '',
     quantity: '1',
+    currency: 'EUR',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +40,7 @@ export default function AddCustomProductPage() {
         parseFloat(formData.initialInvestment),
         new Date(formData.investmentDate),
         parseFloat(formData.quantity),
+        formData.currency,
       );
 
       if (!result.success) {
@@ -121,13 +123,38 @@ export default function AddCustomProductPage() {
               </p>
             </div>
 
+            {/* Currency */}
+            <div className="mb-6">
+              <label
+                htmlFor="currency"
+                className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2"
+              >
+                Currency
+              </label>
+              <select
+                id="currency"
+                value={formData.currency}
+                onChange={(e) =>
+                  setFormData({ ...formData, currency: e.target.value })
+                }
+                className="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 focus:ring-2 focus:ring-slate-500 focus:border-transparent"
+                required
+              >
+                <option value="EUR">EUR (€)</option>
+                <option value="USD">USD ($)</option>
+              </select>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
+                Select the currency of your initial investment
+              </p>
+            </div>
+
             {/* Initial Investment */}
             <div className="mb-6">
               <label
                 htmlFor="initialInvestment"
                 className="block text-sm font-medium text-slate-900 dark:text-slate-100 mb-2"
               >
-                Initial Investment (€)
+                Initial Investment ({formData.currency === 'EUR' ? '€' : '$'})
               </label>
               <input
                 type="number"
@@ -146,7 +173,8 @@ export default function AddCustomProductPage() {
                 required
               />
               <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-                Enter amount in euros (€)
+                Enter amount in{' '}
+                {formData.currency === 'EUR' ? 'euros (€)' : 'dollars ($)'}
               </p>
             </div>
 

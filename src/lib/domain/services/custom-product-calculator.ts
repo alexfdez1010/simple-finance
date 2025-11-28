@@ -9,7 +9,7 @@ import { differenceInDays } from 'date-fns';
 /**
  * Calculates the current value of a custom product based on annual return rate
  * Uses compound interest formula: A = P(1 + r/365)^(days)
- * Initial investment is expected in EUR (no conversion needed)
+ * Initial investment is already in EUR (converted at creation time)
  * Returns current value in EUR
  *
  * @param initialInvestmentEur - Initial investment amount in EUR
@@ -51,7 +51,7 @@ export async function calculateCustomProductValue(
  * Used when EUR conversion is already done
  * Uses compound interest formula: A = P(1 + r/365)^(days)
  *
- * @param initialInvestmentEur - Initial investment amount in EUR
+ * @param initialInvestmentEur - Initial investment amount in EUR (already converted)
  * @param annualReturnRate - Annual return rate as decimal (e.g., 0.05 for 5%)
  * @param investmentDate - Date of initial investment
  * @param currentDate - Current date for calculation (defaults to today)

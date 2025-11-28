@@ -47,7 +47,7 @@ export async function calculateProductValue(
     };
   }
 
-  // Custom product - now async due to EUR conversion
+  // Custom product - initialInvestment already in EUR
   const currentValue = await calculateCustomProductValue(
     product.custom.initialInvestment,
     product.custom.annualReturnRate,

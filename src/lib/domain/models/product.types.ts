@@ -43,6 +43,7 @@ export interface CustomProduct extends BaseProduct {
     annualReturnRate: number;
     initialInvestment: number;
     investmentDate: Date;
+    currency: string; // 'EUR' or 'USD'
   };
 }
 
@@ -94,6 +95,7 @@ export interface CreateCustomProductInput {
   initialInvestment: number;
   investmentDate: Date;
   quantity: number;
+  currency: string; // 'EUR' or 'USD'
 }
 
 /**
@@ -125,6 +127,7 @@ export interface UpdateCustomProductInput {
   annualReturnRate: number;
   initialInvestment: number;
   investmentDate: Date;
+  currency: string; // 'EUR' or 'USD'
 }
 
 /**

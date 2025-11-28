@@ -70,12 +70,14 @@ export async function createYahooProduct(
 
 /**
  * Creates a custom product
+ * Converts USD to EUR at creation time if needed
  *
  * @param name - Product name
  * @param annualReturnRate - Annual return rate percentage
- * @param initialInvestment - Initial investment amount
+ * @param initialInvestment - Initial investment amount in original currency
  * @param investmentDate - Date of investment
  * @param quantity - Quantity
+ * @param currency - Currency ('EUR' or 'USD')
  * @returns Created product
  */
 export async function createCustomProductAction(
@@ -84,14 +86,24 @@ export async function createCustomProductAction(
   initialInvestment: number,
   investmentDate: Date,
   quantity: number,
+  currency: string = 'EUR',
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
+    // Convert to EUR at creation time if USD
+    let initialInvestmentEur = initialInvestment;
+    if (currency === 'USD') {
+      const { convertToEur } =
+        await import('@/lib/domain/services/currency-converter');
+      initialInvestmentEur = await convertToEur(initialInvestment);
+    }
+
     const input: CreateCustomProductInput = {
       name,
       annualReturnRate,
-      initialInvestment,
+      initialInvestment: initialInvestmentEur, // Store in EUR
       investmentDate,
       quantity,
+      currency,
     };
 
     const product = await createCustomProduct(input);
@@ -229,13 +241,15 @@ export async function updateYahooProductAction(
 
 /**
  * Updates a custom product
+ * Initial investment is already in EUR (no conversion needed)
  *
  * @param productId - Product ID
  * @param name - Product name
  * @param quantity - Quantity
  * @param annualReturnRate - Annual return rate percentage
- * @param initialInvestment - Initial investment amount
+ * @param initialInvestment - Initial investment amount (already in EUR)
  * @param investmentDate - Date of investment
+ * @param currency - Currency ('EUR' or 'USD')
  * @returns Success status
  */
 export async function updateCustomProductAction(
@@ -245,6 +259,7 @@ export async function updateCustomProductAction(
   annualReturnRate: number,
   initialInvestment: number,
   investmentDate: Date,
+  currency: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const input: UpdateCustomProductInput = {
@@ -252,8 +267,9 @@ export async function updateCustomProductAction(
       name,
       quantity,
       annualReturnRate,
-      initialInvestment,
+      initialInvestment, // Already in EUR
       investmentDate,
+      currency,
     };
 
     await updateCustomProduct(input);

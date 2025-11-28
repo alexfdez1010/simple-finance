@@ -1,5 +1,5 @@
 /**
- * Unit tests for custom product calculator with EUR conversion
+ * Unit tests for custom product calculator with EUR/USD currency support
  * @module tests/unit/custom-product-calculator-eur
  */
 
@@ -9,7 +9,12 @@ import {
   calculateCustomProductValueSync,
 } from '@/lib/domain/services/custom-product-calculator';
 
-describe('Custom Product Calculator with EUR Conversion', () => {
+// Mock the currency converter
+vi.mock('@/lib/domain/services/currency-converter', () => ({
+  convertToEur: vi.fn(async (usdAmount: number) => usdAmount * 0.92), // Mock USD to EUR conversion
+}));
+
+describe('Custom Product Calculator with EUR/USD Currency Support', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -157,6 +162,22 @@ describe('Custom Product Calculator with EUR Conversion', () => {
 
       // Expected: 1 * (1 + 0.05/365)^365 ≈ 1.05 EUR
       expect(result).toBeCloseTo(1.05, 2);
+    });
+
+    it('should convert USD to EUR before calculation', async () => {
+      const investmentDate = new Date('2024-01-01');
+      const currentDate = new Date('2024-12-31');
+
+      // $1000 USD converted to €920 at creation time
+      const result = await calculateCustomProductValue(
+        920, // Already converted to EUR
+        0.05,
+        investmentDate,
+        currentDate,
+      );
+
+      // Expected: 920 EUR * (1 + 0.05/365)^365 ≈ 967.17 EUR
+      expect(result).toBeCloseTo(967.17, 0);
     });
   });
 });

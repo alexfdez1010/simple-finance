@@ -40,6 +40,9 @@ test.describe('Add Custom Product', () => {
     // Fill in the annual return rate
     await page.getByLabel('Annual Return Rate (%)').fill('5.5');
 
+    // Select currency (default is EUR)
+    await page.getByLabel('Currency').selectOption('EUR');
+
     // Fill in the initial investment
     await page.getByLabel('Initial Investment (€)').fill('10000');
 
