@@ -5,6 +5,9 @@
 
 'use client';
 
+import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
+import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
+
 /**
  * Portfolio statistics props
  */
@@ -15,6 +18,7 @@ interface PortfolioStatsProps {
   dailyChange: number;
   dailyChangePercentage: number;
   productCount: number;
+  profitRates: ProfitRates;
 }
 
 /**
@@ -53,6 +57,7 @@ export function PortfolioStats({
   dailyChange,
   dailyChangePercentage,
   productCount,
+  profitRates,
 }: PortfolioStatsProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -125,6 +130,8 @@ export function PortfolioStats({
           {productCount}
         </p>
       </div>
+
+      <ProfitRateDisplay profitRates={profitRates} />
     </div>
   );
 }

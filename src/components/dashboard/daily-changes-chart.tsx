@@ -117,11 +117,14 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(value).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    });
+                    return new Date(value as string).toLocaleDateString(
+                      'en-US',
+                      {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      },
+                    );
                   }}
                   formatter={(value) => {
                     const numValue = Number(value);

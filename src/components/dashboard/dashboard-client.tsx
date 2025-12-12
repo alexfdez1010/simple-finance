@@ -10,6 +10,7 @@ import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
 import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
 import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
 import { deleteProductAction } from '@/lib/actions/product-actions';
+import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 import Link from 'next/link';
 
@@ -78,6 +79,9 @@ export function DashboardClient({
   const totalReturnPercentage =
     stats.totalInvestment > 0 ? (totalReturn / stats.totalInvestment) * 100 : 0;
 
+  // Calculate profit rates for custom products only
+  const profitRates = calculateProfitRatesSync(productsWithValues);
+
   return (
     <>
       {/* Portfolio Overview */}
@@ -92,6 +96,7 @@ export function DashboardClient({
           dailyChange={0}
           dailyChangePercentage={0}
           productCount={stats.productCount}
+          profitRates={profitRates}
         />
       </div>
 
