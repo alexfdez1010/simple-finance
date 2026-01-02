@@ -12,7 +12,7 @@ import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 /**
  * Period type for profit display
  */
-type ProfitPeriod = 'daily' | 'weekly' | 'monthly';
+type ProfitPeriod = 'daily' | 'weekly' | 'monthly' | 'annual';
 
 /**
  * Period configuration
@@ -24,12 +24,13 @@ const PERIOD_CONFIG: Record<
   daily: { label: 'Daily', key: 'daily' },
   weekly: { label: 'Weekly', key: 'weekly' },
   monthly: { label: 'Monthly', key: 'monthly' },
+  annual: { label: 'Annual', key: 'annual' },
 };
 
 /**
  * Order of periods for cycling
  */
-const PERIOD_ORDER: ProfitPeriod[] = ['daily', 'weekly', 'monthly'];
+const PERIOD_ORDER: ProfitPeriod[] = ['daily', 'weekly', 'monthly', 'annual'];
 
 interface ProfitRateDisplayProps {
   profitRates: ProfitRates;
@@ -82,7 +83,8 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
         >
           {currentPeriod === 'daily' && '→ Weekly'}
           {currentPeriod === 'weekly' && '→ Monthly'}
-          {currentPeriod === 'monthly' && '→ Daily'}
+          {currentPeriod === 'monthly' && '→ Annual'}
+          {currentPeriod === 'annual' && '→ Daily'}
         </button>
       </div>
       <p

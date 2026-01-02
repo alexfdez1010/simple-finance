@@ -17,6 +17,8 @@ export interface ProfitRates {
   weekly: number;
   /** Monthly profit in EUR (30 days) */
   monthly: number;
+  /** Annual profit in EUR (365 days) */
+  annual: number;
 }
 
 /**
@@ -52,7 +54,7 @@ export async function calculateProfitRates(
   const customProducts = products.filter((p) => p.type === 'CUSTOM');
 
   if (customProducts.length === 0) {
-    return { daily: 0, weekly: 0, monthly: 0 };
+    return { daily: 0, weekly: 0, monthly: 0, annual: 0 };
   }
 
   let totalDailyProfit = 0;
@@ -80,8 +82,9 @@ export async function calculateProfitRates(
   const daily = Math.round(totalDailyProfit * 100) / 100;
   const weekly = Math.round(totalDailyProfit * 7 * 100) / 100;
   const monthly = Math.round(totalDailyProfit * 30 * 100) / 100;
+  const annual = Math.round(totalDailyProfit * 365 * 100) / 100;
 
-  return { daily, weekly, monthly };
+  return { daily, weekly, monthly, annual };
 }
 
 /**
@@ -96,7 +99,7 @@ export function calculateProfitRatesSync(
   const customProducts = products.filter((p) => p.type === 'CUSTOM');
 
   if (customProducts.length === 0) {
-    return { daily: 0, weekly: 0, monthly: 0 };
+    return { daily: 0, weekly: 0, monthly: 0, annual: 0 };
   }
 
   let totalDailyProfit = 0;
@@ -117,6 +120,7 @@ export function calculateProfitRatesSync(
   const daily = Math.round(totalDailyProfit * 100) / 100;
   const weekly = Math.round(totalDailyProfit * 7 * 100) / 100;
   const monthly = Math.round(totalDailyProfit * 30 * 100) / 100;
+  const annual = Math.round(totalDailyProfit * 365 * 100) / 100;
 
-  return { daily, weekly, monthly };
+  return { daily, weekly, monthly, annual };
 }
