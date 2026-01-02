@@ -107,36 +107,34 @@ export function DashboardClient({
       </div>
 
       {/* Products List */}
-      <div className="p-6">
-        <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
-          Your Products
-        </h2>
+      <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
+        Your Products
+      </h2>
 
-        {productsWithValues.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-slate-600 dark:text-slate-400 mb-4">
-              No products yet. Add your first product to get started!
-            </p>
-            <Link
-              href="/products/add"
-              className="inline-block px-6 py-3 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
-            >
-              Add Product
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {productsWithValues.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                currentValue={product.currentValue}
-                onDelete={handleDelete}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {productsWithValues.length === 0 ? (
+        <div className="text-center py-12">
+          <p className="text-slate-600 dark:text-slate-400 mb-4">
+            No products yet. Add your first product to get started!
+          </p>
+          <Link
+            href="/products/add"
+            className="inline-block px-6 py-3 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
+          >
+            Add Product
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {productsWithValues.map((product) => (
+            <ProductCard
+              key={product.id}
+              product={product}
+              currentValue={product.currentValue}
+              onDelete={handleDelete}
+            />
+          ))}
+        </div>
+      )}
     </>
   );
 }
