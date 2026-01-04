@@ -119,12 +119,12 @@ export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
             <Bar
               dataKey="value"
               radius={[4, 4, 0, 0]}
-              className="fill-slate-900 dark:fill-slate-100"
+              className="fill-blue-600 dark:fill-blue-400"
             >
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  className="fill-slate-900 dark:fill-slate-100 hover:opacity-80 transition-opacity"
+                  className="fill-blue-600 dark:fill-blue-400 hover:opacity-80 transition-opacity"
                 />
               ))}
             </Bar>
