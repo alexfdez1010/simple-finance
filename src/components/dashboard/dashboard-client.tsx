@@ -102,10 +102,7 @@ export function DashboardClient({
           profitRates={profitRates}
         />
 
-        {/* Monthly Wealth Chart - Positioned as requested "big down of portfolio stats" */}
-        <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-700">
-          <MonthlyWealthChart data={monthlyWealthData} />
-        </div>
+        <MonthlyWealthChart data={monthlyWealthData} />
       </div>
 
       {/* Charts Section */}
