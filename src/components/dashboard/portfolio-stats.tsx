@@ -56,7 +56,7 @@ export function PortfolioStats({
   profitRates,
 }: PortfolioStatsProps) {
   return (
-    <div className="flex flex-wrap items-center gap-6">
+    <div className="flex flex-wrap items-center gap-6 bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-8">
       {/* Total Value */}
       <div className="flex-1 min-w-[150px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
         <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">

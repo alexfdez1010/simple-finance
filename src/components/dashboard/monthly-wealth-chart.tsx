@@ -53,7 +53,7 @@ export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
   }
 
   return (
-    <div className="w-full h-[350px]">
+    <div className="w-full h-[350px] bg-white dark:bg-slate-800 rounded-lg shadow-md px-6">
       {title}
       <ChartContainer
         className="h-[300px] w-full"

@@ -143,39 +143,35 @@ export function ProductCard({
 
       {/* Return (Both Yahoo Finance and Custom products) */}
       {(isYahooFinance || product.custom) && (
-        <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
-          <div className="flex justify-between items-center">
-            <div>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Return
-              </p>
-              <p
-                className={`text-lg font-semibold ${
-                  returnValue >= 0
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
-                }`}
-              >
-                {formatCurrency(returnValue)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Return %
-              </p>
-              <p
-                className={`text-lg font-semibold ${
-                  returnPercentage >= 0
-                    ? 'text-green-600 dark:text-green-400'
-                    : 'text-red-600 dark:text-red-400'
-                }`}
-              >
-                {formatPercentage(returnPercentage)}
-              </p>
-            </div>
+        <div className="flex justify-between items-center">
+          <div>
+            <p className="text-sm text-slate-600 dark:text-slate-400">Return</p>
+            <p
+              className={`text-lg font-semibold ${
+                returnValue >= 0
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}
+            >
+              {formatCurrency(returnValue)}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Return %
+            </p>
+            <p
+              className={`text-lg font-semibold ${
+                returnPercentage >= 0
+                  ? 'text-green-600 dark:text-green-400'
+                  : 'text-red-600 dark:text-red-400'
+              }`}
+            >
+              {formatPercentage(returnPercentage)}
+            </p>
           </div>
           {!isYahooFinance && product.custom && (
-            <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-700">
+            <div className="mt-3 pt-3">
               <p className="text-sm text-slate-600 dark:text-slate-400">
                 Annual Rate
               </p>
@@ -188,7 +184,7 @@ export function ProductCard({
       )}
 
       {/* Metadata */}
-      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+      <div className="mt-4 pt-4">
         <p className="text-xs text-slate-500 dark:text-slate-400">
           Added {dateString}
         </p>
