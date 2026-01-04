@@ -8,6 +8,7 @@
 import { ProductCard } from '@/components/products/product-card';
 import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
 import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
+import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
 import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
@@ -24,6 +25,7 @@ type ProductWithValue = FinancialProduct & {
 interface DashboardClientProps {
   productsWithValues: ProductWithValue[];
   evolutionData: Array<{ date: string; value: number }>;
+  monthlyWealthData: Array<{ month: string; value: number }>;
   dailyChanges: Array<{ date: string; change: number }>;
 }
 
@@ -37,6 +39,7 @@ interface DashboardClientProps {
 export function DashboardClient({
   productsWithValues,
   evolutionData,
+  monthlyWealthData,
   dailyChanges,
 }: DashboardClientProps) {
   // Handle product deletion
@@ -84,20 +87,25 @@ export function DashboardClient({
 
   return (
     <>
-      {/* Portfolio Overview */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-8 border border-slate-200 dark:border-slate-700">
-        <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
-          Portfolio Overview
-        </h2>
+      <div className="mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
+            Portfolio Overview
+          </h2>
+        </div>
+
         <PortfolioStats
           totalValue={stats.totalValue}
           totalReturn={totalReturn}
           totalReturnPercentage={totalReturnPercentage}
-          dailyChange={0}
-          dailyChangePercentage={0}
           productCount={stats.productCount}
           profitRates={profitRates}
         />
+
+        {/* Monthly Wealth Chart - Positioned as requested "big down of portfolio stats" */}
+        <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-700">
+          <MonthlyWealthChart data={monthlyWealthData} />
+        </div>
       </div>
 
       {/* Charts Section */}

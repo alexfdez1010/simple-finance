@@ -15,8 +15,6 @@ interface PortfolioStatsProps {
   totalValue: number;
   totalReturn: number;
   totalReturnPercentage: number;
-  dailyChange: number;
-  dailyChangePercentage: number;
   productCount: number;
   profitRates: ProfitRates;
 }
@@ -54,84 +52,61 @@ export function PortfolioStats({
   totalValue,
   totalReturn,
   totalReturnPercentage,
-  dailyChange,
-  dailyChangePercentage,
   productCount,
   profitRates,
 }: PortfolioStatsProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="flex flex-wrap items-center gap-6">
       {/* Total Value */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+      <div className="flex-1 min-w-[150px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
           Total Value
         </p>
-        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
           {formatCurrency(totalValue)}
         </p>
       </div>
 
       {/* Total Return */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+      <div className="flex-1 min-w-[150px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
           Total Return
         </p>
-        <p
-          className={`text-2xl font-bold ${
-            totalReturn >= 0
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}
-        >
-          {formatCurrency(totalReturn)}
-        </p>
-        <p
-          className={`text-sm ${
-            totalReturnPercentage >= 0
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}
-        >
-          {formatPercentage(totalReturnPercentage)}
-        </p>
-      </div>
-
-      {/* Daily Change */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
-          Daily Change
-        </p>
-        <p
-          className={`text-2xl font-bold ${
-            dailyChange >= 0
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}
-        >
-          {formatCurrency(dailyChange)}
-        </p>
-        <p
-          className={`text-sm ${
-            dailyChangePercentage >= 0
-              ? 'text-green-600 dark:text-green-400'
-              : 'text-red-600 dark:text-red-400'
-          }`}
-        >
-          {formatPercentage(dailyChangePercentage)}
-        </p>
+        <div className="flex items-baseline gap-2">
+          <p
+            className={`text-xl font-bold ${
+              totalReturn >= 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
+            {formatCurrency(totalReturn)}
+          </p>
+          <span
+            className={`text-sm font-medium ${
+              totalReturnPercentage >= 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
+            {formatPercentage(totalReturnPercentage)}
+          </span>
+        </div>
       </div>
 
       {/* Products Count */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-sm text-slate-600 dark:text-slate-400 mb-1">
+      <div className="flex-1 min-w-[100px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
+        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
           Products
         </p>
-        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
           {productCount}
         </p>
       </div>
 
-      <ProfitRateDisplay profitRates={profitRates} />
+      <div className="flex-2 min-w-[250px]">
+        <ProfitRateDisplay profitRates={profitRates} />
+      </div>
     </div>
   );
 }

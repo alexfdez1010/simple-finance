@@ -81,6 +81,7 @@ test.describe('Add Yahoo Finance Product', () => {
       .first();
     await expect(productCard.getByText(/Symbol: AAPL/).nth(0)).toBeVisible();
     await expect(productCard).toContainText('Quantity');
+    await expect(productCard).toContainText('Unit Price');
     await expect(productCard).toContainText('Current Value');
   });
 

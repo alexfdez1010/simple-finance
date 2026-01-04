@@ -64,16 +64,32 @@ export default async function DashboardPage() {
     return totalValueB - totalValueA;
   });
 
-  // Fetch portfolio snapshots for the last 30 days
-  const snapshots = await getPortfolioSnapshotsLastNDays(30);
+  // Fetch portfolio snapshots for the last 365 days to get monthly data
+  const snapshots = await getPortfolioSnapshotsLastNDays(365);
 
-  // Prepare chart data
-  const evolutionData = snapshots.map((snapshot) => ({
+  // Prepare evolution data (last 30 days for the main evolution chart)
+  const evolutionData = snapshots.slice(-30).map((snapshot) => ({
     date: snapshot.date.toISOString().split('T')[0],
     value: snapshot.value,
   }));
 
-  // Calculate daily changes
+  // Prepare monthly wealth data (end of each month)
+  const monthlyWealthMap = new Map<string, number>();
+  snapshots.forEach((snapshot) => {
+    const date = new Date(snapshot.date);
+    const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    // Always keep the latest value for each month (end of month)
+    monthlyWealthMap.set(monthKey, snapshot.value);
+  });
+
+  const monthlyWealthData = Array.from(monthlyWealthMap.entries())
+    .map(([month, value]) => ({
+      month,
+      value,
+    }))
+    .sort((a, b) => a.month.localeCompare(b.month));
+
+  // Calculate daily changes for the DailyChangesChart
   const dailyChanges = [];
   for (let i = 1; i < snapshots.length; i++) {
     const change = snapshots[i].value - snapshots[i - 1].value;
@@ -127,6 +143,7 @@ export default async function DashboardPage() {
         <DashboardClient
           productsWithValues={productsWithValues}
           evolutionData={evolutionData}
+          monthlyWealthData={monthlyWealthData}
           dailyChanges={dailyChanges}
         />
       </div>

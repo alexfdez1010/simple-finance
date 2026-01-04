@@ -112,11 +112,23 @@ export function ProductCard({
       </div>
 
       {/* Quantity */}
-      <div className="mb-4">
-        <p className="text-sm text-slate-600 dark:text-slate-400">Quantity</p>
-        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
-          {product.quantity}
-        </p>
+      <div className="grid grid-cols-2 gap-4 mb-4">
+        <div>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Quantity</p>
+          <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+            {product.quantity}
+          </p>
+        </div>
+        {isYahooFinance && (
+          <div className="text-right">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Unit Price
+            </p>
+            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              {formatCurrency(currentValue)}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Value */}
