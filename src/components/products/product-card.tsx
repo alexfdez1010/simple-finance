@@ -119,13 +119,22 @@ export function ProductCard({
             {product.quantity}
           </p>
         </div>
-        {isYahooFinance && (
+        {isYahooFinance ? (
           <div className="text-right">
             <p className="text-sm text-slate-600 dark:text-slate-400">
               Unit Price
             </p>
             <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
               {formatCurrency(currentValue)}
+            </p>
+          </div>
+        ) : (
+          <div className="text-right">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
+              Annual Rate
+            </p>
+            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              {formatPercentage(product.custom.annualReturnRate * 100)}
             </p>
           </div>
         )}
@@ -141,47 +150,32 @@ export function ProductCard({
         </p>
       </div>
 
-      {/* Return (Both Yahoo Finance and Custom products) */}
-      {(isYahooFinance || product.custom) && (
-        <div className="flex justify-between items-center">
-          <div>
-            <p className="text-sm text-slate-600 dark:text-slate-400">Return</p>
-            <p
-              className={`text-lg font-semibold ${
-                returnValue >= 0
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
-              }`}
-            >
-              {formatCurrency(returnValue)}
-            </p>
-          </div>
-          <div className="text-right">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Return %
-            </p>
-            <p
-              className={`text-lg font-semibold ${
-                returnPercentage >= 0
-                  ? 'text-green-600 dark:text-green-400'
-                  : 'text-red-600 dark:text-red-400'
-              }`}
-            >
-              {formatPercentage(returnPercentage)}
-            </p>
-          </div>
-          {!isYahooFinance && product.custom && (
-            <div className="mt-3 pt-3">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Annual Rate
-              </p>
-              <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-                {formatPercentage(product.custom.annualReturnRate * 100)}
-              </p>
-            </div>
-          )}
+      <div className="flex justify-between items-center">
+        <div>
+          <p className="text-sm text-slate-600 dark:text-slate-400">Return</p>
+          <p
+            className={`text-lg font-semibold ${
+              returnValue >= 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
+            {formatCurrency(returnValue)}
+          </p>
         </div>
-      )}
+        <div className="text-right">
+          <p className="text-sm text-slate-600 dark:text-slate-400">Return %</p>
+          <p
+            className={`text-lg font-semibold ${
+              returnPercentage >= 0
+                ? 'text-green-600 dark:text-green-400'
+                : 'text-red-600 dark:text-red-400'
+            }`}
+          >
+            {formatPercentage(returnPercentage)}
+          </p>
+        </div>
+      </div>
 
       {/* Metadata */}
       <div className="mt-4 pt-4">
