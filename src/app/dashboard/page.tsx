@@ -10,7 +10,6 @@ import { DashboardClient } from '@/components/dashboard/dashboard-client';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { calculateCustomProductValue } from '@/lib/domain/services/custom-product-calculator';
 import { getPortfolioSnapshotsLastNDays } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
-import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import {
   StatsLoadingSkeleton,
   ChartLoadingSkeleton,
@@ -62,7 +61,7 @@ async function getProductsWithValues(): Promise<ProductWithValue[]> {
 async function getSnapshotData() {
   const snapshots = await getPortfolioSnapshotsLastNDays(365);
 
-  const evolutionData = snapshots.slice(-30).map((s) => ({
+  const evolutionData = snapshots.slice(-90).map((s) => ({
     date: s.date.toISOString().split('T')[0],
     value: s.value,
   }));
@@ -119,7 +118,6 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[oklch(0.97_0.008_80)] via-[oklch(0.96_0.015_240)] to-[oklch(0.95_0.02_280)] dark:from-slate-950 dark:via-[oklch(0.15_0.02_260)] dark:to-[oklch(0.13_0.025_280)]">
       <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
-        <DashboardHeader />
         <Suspense
           fallback={
             <div className="space-y-6 sm:space-y-8">

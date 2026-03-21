@@ -150,6 +150,63 @@
   animation: fade-up 0.5s ease-out both;
 }
 
+/* Subtle shimmer effect for stat cards */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-border {
+  background: linear-gradient(
+    90deg,
+    oklch(0.9 0.01 80) 25%,
+    oklch(0.8 0.03 260) 50%,
+    oklch(0.9 0.01 80) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+.dark .shimmer-border {
+  background: linear-gradient(
+    90deg,
+    oklch(0.25 0.02 260) 25%,
+    oklch(0.35 0.05 260) 50%,
+    oklch(0.25 0.02 260) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+/* Gradient text for hero heading */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.35 0.07 260) 0%,
+    oklch(0.45 0.12 280) 50%,
+    oklch(0.35 0.07 260) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-text {
+  background: linear-gradient(
+    135deg,
+    oklch(0.75 0.1 260) 0%,
+    oklch(0.8 0.12 280) 50%,
+    oklch(0.75 0.1 260) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 /* Custom scrollbar */
 @media (min-width: 768px) {
   ::-webkit-scrollbar {

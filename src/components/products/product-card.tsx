@@ -6,13 +6,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { Pencil, Trash2 } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 interface ProductCardProps {
   product: FinancialProduct;
   currentValue?: number;
-  onDelete?: (id: string) => void;
+  onEdit?: (product: FinancialProduct) => void;
+  onDelete?: (product: FinancialProduct) => void;
 }
 
 /**
@@ -39,7 +42,7 @@ function formatPercentage(value: number): string {
 }
 
 /**
- * Product card component with refined design
+ * Product card with enhanced visual design and dialog-based actions
  *
  * @param props - Component props
  * @returns Product card element
@@ -47,6 +50,7 @@ function formatPercentage(value: number): string {
 export function ProductCard({
   product,
   currentValue = 0,
+  onEdit,
   onDelete,
 }: ProductCardProps) {
   const isYahoo = product.type === 'YAHOO_FINANCE';
@@ -73,33 +77,40 @@ export function ProductCard({
   }, [product.createdAt]);
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg glass-card p-5 border border-border shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="group bg-card rounded-xl glass-card p-5 border border-border shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
       {/* Header */}
       <div className="flex justify-between items-start mb-3">
         <div className="min-w-0 flex-1 mr-2">
           <h3 className="text-base font-semibold text-foreground truncate">
             {product.name}
           </h3>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {isYahoo ? `Symbol: ${product.yahoo.symbol}` : 'Custom Product'}
-          </p>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="secondary" className="text-[10px]">
+              {isYahoo ? product.yahoo.symbol : 'Custom'}
+            </Badge>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <Link
-            href={`/products/edit/${product.id}`}
-            className="text-sm font-medium text-primary hover:opacity-80 transition-opacity"
-            aria-label="Edit product"
-          >
-            Edit
-          </Link>
-          {onDelete && (
-            <button
-              onClick={() => onDelete(product.id)}
-              className="text-sm font-medium text-destructive hover:opacity-80 transition-opacity"
-              aria-label="Delete product"
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onEdit(product)}
+              aria-label="Edit product"
             >
-              Delete
-            </button>
+              <Pencil />
+            </Button>
+          )}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onDelete(product)}
+              aria-label="Delete product"
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 />
+            </Button>
           )}
         </div>
       </div>

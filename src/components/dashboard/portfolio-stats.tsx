@@ -59,7 +59,7 @@ export function PortfolioStats({
   return (
     <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-stretch sm:gap-4 lg:gap-5">
       {/* Total Value */}
-      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px]">
+      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px] hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-2">
           <Wallet className="w-4 h-4 text-primary" />
           <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -72,7 +72,7 @@ export function PortfolioStats({
       </div>
 
       {/* Total Return */}
-      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px]">
+      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px] hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-2">
           <TrendIcon
             className={`w-4 h-4 ${isPositive ? 'text-gain' : 'text-loss'}`}
@@ -94,7 +94,7 @@ export function PortfolioStats({
       </div>
 
       {/* Products */}
-      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[100px]">
+      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[100px] hover:shadow-md transition-shadow duration-300">
         <div className="flex items-center gap-2 mb-2">
           <Package className="w-4 h-4 text-primary" />
           <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
@@ -107,7 +107,7 @@ export function PortfolioStats({
       </div>
 
       {/* Profit Rate */}
-      <div className="glass-card rounded-2xl bg-card shadow-sm border border-border flex-1 min-w-[160px] col-span-2 sm:col-span-1">
+      <div className="glass-card rounded-2xl bg-card shadow-sm border border-border flex-1 min-w-[160px] col-span-2 sm:col-span-1 hover:shadow-md transition-shadow duration-300">
         <ProfitRateDisplay profitRates={profitRates} />
       </div>
     </div>

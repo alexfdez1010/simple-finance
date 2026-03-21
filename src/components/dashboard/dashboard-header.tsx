@@ -1,22 +1,33 @@
 /**
- * Dashboard header with navigation and quick actions
+ * Dashboard header with title and dialog-based quick actions
  * @module components/dashboard/dashboard-header
  */
 
-import Link from 'next/link';
+'use client';
+
 import { Plus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface DashboardHeaderProps {
+  onAddYahoo: () => void;
+  onAddCustom: () => void;
+}
 
 /**
- * Dashboard header component with title and quick action links
+ * Dashboard header component with title and add product buttons
  *
+ * @param props - Callbacks for opening add product dialogs
  * @returns Header element
  */
-export function DashboardHeader() {
+export function DashboardHeader({
+  onAddYahoo,
+  onAddCustom,
+}: DashboardHeaderProps) {
   return (
     <header className="mb-6 sm:mb-8 animate-fade-up">
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl tracking-tight text-foreground">
+          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl tracking-tight gradient-text">
             Simple Finance
           </h1>
           <p className="text-muted-foreground mt-1 text-sm sm:text-base">
@@ -26,20 +37,19 @@ export function DashboardHeader() {
 
         {/* Quick Actions */}
         <div className="flex gap-2 sm:gap-3">
-          <Link
-            href="/products/add"
-            className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium rounded-xl bg-primary text-primary-foreground hover:opacity-90 transition-opacity shadow-sm"
-          >
-            <Plus className="w-3.5 h-3.5" />
+          <Button onClick={onAddYahoo} size="sm" className="rounded-xl">
+            <Plus data-icon="inline-start" />
             <span>Yahoo Product</span>
-          </Link>
-          <Link
-            href="/products/add-custom"
-            className="inline-flex items-center gap-1.5 px-3 py-2 sm:px-4 sm:py-2.5 text-xs sm:text-sm font-medium rounded-xl bg-secondary text-secondary-foreground hover:bg-accent transition-colors border border-border"
+          </Button>
+          <Button
+            onClick={onAddCustom}
+            variant="outline"
+            size="sm"
+            className="rounded-xl"
           >
-            <Plus className="w-3.5 h-3.5" />
+            <Plus data-icon="inline-start" />
             <span>Custom Product</span>
-          </Link>
+          </Button>
         </div>
       </div>
     </header>
