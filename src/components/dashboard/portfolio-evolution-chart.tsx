@@ -1,3 +1,8 @@
+/**
+ * Portfolio evolution area chart component
+ * @module components/dashboard/portfolio-evolution-chart
+ */
+
 'use client';
 
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
@@ -16,36 +21,35 @@ import {
 } from '@/components/ui/chart';
 
 interface PortfolioEvolutionChartProps {
-  data: Array<{
-    date: string;
-    value: number;
-  }>;
+  data: Array<{ date: string; value: number }>;
 }
 
 const chartConfig = {
   value: {
     label: 'Portfolio Value',
-    color: 'hsl(var(--chart-1))',
+    color: 'var(--chart-1)',
   },
 } satisfies ChartConfig;
 
 /**
  * Portfolio Evolution Chart Component
- * Displays the total portfolio value over time using an area chart.
+ * Displays total portfolio value over time using an area chart
  *
  * @param data - Array of date/value pairs for the last 30 days
+ * @returns Chart element
  */
 export function PortfolioEvolutionChart({
   data,
 }: PortfolioEvolutionChartProps) {
   if (data.length === 0) {
     return (
-      <Card>
+      <Card className="glass-card border-border">
         <CardHeader>
-          <CardTitle>Portfolio Evolution</CardTitle>
+          <CardTitle className="font-serif text-lg">
+            Portfolio Evolution
+          </CardTitle>
           <CardDescription>
-            No historical data available yet. Data will appear after the first
-            daily snapshot.
+            No data yet. Data appears after the first daily snapshot.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -55,84 +59,66 @@ export function PortfolioEvolutionChart({
   const firstValue = data[0]?.value || 0;
   const lastValue = data[data.length - 1]?.value || 0;
   const change = lastValue - firstValue;
-  const changePercentage =
-    firstValue > 0 ? ((change / firstValue) * 100).toFixed(2) : '0.00';
+  const pct = firstValue > 0 ? ((change / firstValue) * 100).toFixed(2) : '0';
   const isPositive = change >= 0;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Portfolio Evolution</CardTitle>
-        <CardDescription>
-          Total portfolio value over the last {data.length} days
-        </CardDescription>
+    <Card className="glass-card border-border">
+      <CardHeader className="pb-2">
+        <CardTitle className="font-serif text-lg">
+          Portfolio Evolution
+        </CardTitle>
+        <CardDescription>Last {data.length} days</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex items-center gap-4">
-          <div>
-            <p className="text-muted-foreground text-sm">Current Value</p>
-            <p className="text-2xl font-bold">
-              €
-              {lastValue.toLocaleString('es-ES', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm">Period Change</p>
-            <p
-              className={`text-2xl font-bold ${isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
-            >
-              {isPositive ? '+' : ''}€
-              {change.toLocaleString('es-ES', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}{' '}
-              ({isPositive ? '+' : ''}
-              {changePercentage}%)
-            </p>
-          </div>
-        </div>
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <AreaChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
+        <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <p className="text-xl sm:text-2xl font-bold tabular-nums">
+            &euro;
+            {lastValue.toLocaleString('es-ES', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </p>
+          <p
+            className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
           >
-            <CartesianGrid vertical={false} />
+            {isPositive ? '+' : ''}&euro;
+            {change.toLocaleString('es-ES', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}{' '}
+            ({isPositive ? '+' : ''}
+            {pct}%)
+          </p>
+        </div>
+        <ChartContainer config={chartConfig} className="h-[200px] w-full">
+          <AreaChart data={data} margin={{ left: 4, right: 4 }}>
+            <CartesianGrid vertical={false} strokeOpacity={0.3} />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
+              tickFormatter={(v) =>
+                new Date(v).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
-                });
-              }}
+                })
+              }
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value as string).toLocaleDateString(
-                      'en-US',
-                      {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      },
-                    );
-                  }}
-                  formatter={(value) => [
-                    `€${Number(value).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    'Portfolio Value',
+                  labelFormatter={(v) =>
+                    new Date(v as string).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })
+                  }
+                  formatter={(v) => [
+                    `€${Number(v).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                    'Value',
                   ]}
                 />
               }
@@ -141,7 +127,7 @@ export function PortfolioEvolutionChart({
               dataKey="value"
               type="monotone"
               fill="var(--color-value)"
-              fillOpacity={0.4}
+              fillOpacity={0.15}
               stroke="var(--color-value)"
               strokeWidth={2}
             />

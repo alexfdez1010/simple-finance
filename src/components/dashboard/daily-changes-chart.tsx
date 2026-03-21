@@ -1,3 +1,8 @@
+/**
+ * Daily portfolio changes bar chart component
+ * @module components/dashboard/daily-changes-chart
+ */
+
 'use client';
 
 import { Bar, BarChart, CartesianGrid, XAxis, Cell } from 'recharts';
@@ -16,35 +21,31 @@ import {
 } from '@/components/ui/chart';
 
 interface DailyChangesChartProps {
-  data: Array<{
-    date: string;
-    change: number;
-  }>;
+  data: Array<{ date: string; change: number }>;
 }
 
 const chartConfig = {
   change: {
     label: 'Daily Change',
-    color: 'hsl(var(--chart-2))',
+    color: 'var(--chart-2)',
   },
 } satisfies ChartConfig;
 
 /**
  * Daily Changes Chart Component
- * Displays the day-to-day change in portfolio value using a bar chart.
- * Positive changes are shown in green, negative in red.
+ * Displays day-to-day portfolio value changes. Green = positive, red = negative.
  *
- * @param data - Array of date/change pairs calculated from snapshots
+ * @param data - Array of date/change pairs from snapshots
+ * @returns Chart element
  */
 export function DailyChangesChart({ data }: DailyChangesChartProps) {
   if (data.length === 0) {
     return (
-      <Card>
+      <Card className="glass-card border-border">
         <CardHeader>
-          <CardTitle>Daily Changes</CardTitle>
+          <CardTitle className="font-serif text-lg">Daily Changes</CardTitle>
           <CardDescription>
-            No historical data available yet. Data will appear after at least 2
-            daily snapshots.
+            No data yet. Needs at least 2 daily snapshots.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -52,86 +53,62 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
   }
 
   const totalChange = data.reduce((sum, item) => sum + item.change, 0);
-  const positiveChanges = data.filter((item) => item.change > 0).length;
-  const negativeChanges = data.filter((item) => item.change < 0).length;
+  const positiveCount = data.filter((d) => d.change > 0).length;
+  const negativeCount = data.filter((d) => d.change < 0).length;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Daily Changes</CardTitle>
-        <CardDescription>
-          Day-to-day portfolio value changes over the last {data.length} days
-        </CardDescription>
+    <Card className="glass-card border-border">
+      <CardHeader className="pb-2">
+        <CardTitle className="font-serif text-lg">Daily Changes</CardTitle>
+        <CardDescription>Last {data.length} days</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex items-center gap-4">
-          <div>
-            <p className="text-muted-foreground text-sm">Total Change</p>
-            <p
-              className={`text-2xl font-bold ${totalChange >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
-            >
-              {totalChange >= 0 ? '+' : ''}€
-              {totalChange.toLocaleString('es-ES', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-              })}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm">Positive Days</p>
-            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-              {positiveChanges}
-            </p>
-          </div>
-          <div>
-            <p className="text-muted-foreground text-sm">Negative Days</p>
-            <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-              {negativeChanges}
-            </p>
+        <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+          <p
+            className={`text-xl sm:text-2xl font-bold tabular-nums ${totalChange >= 0 ? 'text-gain' : 'text-loss'}`}
+          >
+            {totalChange >= 0 ? '+' : ''}&euro;
+            {totalChange.toLocaleString('es-ES', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </p>
+          <div className="flex gap-3 text-xs font-medium">
+            <span className="text-gain">{positiveCount} up</span>
+            <span className="text-loss">{negativeCount} down</span>
           </div>
         </div>
-        <ChartContainer config={chartConfig} className="h-[250px] w-full">
-          <BarChart
-            accessibilityLayer
-            data={data}
-            margin={{
-              left: 12,
-              right: 12,
-            }}
-          >
-            <CartesianGrid vertical={false} />
+        <ChartContainer config={chartConfig} className="h-[200px] w-full">
+          <BarChart data={data} margin={{ left: 4, right: 4 }}>
+            <CartesianGrid vertical={false} strokeOpacity={0.3} />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              tickFormatter={(value) => {
-                const date = new Date(value);
-                return date.toLocaleDateString('en-US', {
+              tickFormatter={(v) =>
+                new Date(v).toLocaleDateString('en-US', {
                   month: 'short',
                   day: 'numeric',
-                });
-              }}
+                })
+              }
             />
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  labelFormatter={(value) => {
-                    return new Date(value as string).toLocaleDateString(
-                      'en-US',
-                      {
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      },
-                    );
-                  }}
-                  formatter={(value) => {
-                    const numValue = Number(value);
-                    const prefix = numValue >= 0 ? '+' : '';
+                  labelFormatter={(v) =>
+                    new Date(v as string).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })
+                  }
+                  formatter={(v) => {
+                    const n = Number(v);
+                    const prefix = n >= 0 ? '+' : '';
                     return [
-                      `${prefix}€${numValue.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                      'Daily Change',
+                      `${prefix}€${n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                      'Change',
                     ];
                   }}
                 />
@@ -143,8 +120,8 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
                   key={`cell-${index}`}
                   fill={
                     entry.change >= 0
-                      ? 'hsl(142, 76%, 36%)' // Green for positive
-                      : 'hsl(0, 84%, 60%)' // Red for negative
+                      ? 'oklch(0.55 0.17 155)' // gain green
+                      : 'oklch(0.55 0.20 25)' // loss red
                   }
                 />
               ))}

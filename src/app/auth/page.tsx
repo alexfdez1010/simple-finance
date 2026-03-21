@@ -1,3 +1,8 @@
+/**
+ * Authentication page component
+ * @module app/auth/page
+ */
+
 'use client';
 
 import { useState } from 'react';
@@ -6,8 +11,9 @@ import { authenticateWithPassword } from '@/lib/actions/auth-actions';
 import { Lock } from 'lucide-react';
 
 /**
- * Authentication page component.
- * Displays a password input form to authenticate users.
+ * Authentication page with password input form
+ *
+ * @returns Auth page element
  */
 export default function AuthPage() {
   const searchParams = useSearchParams();
@@ -24,12 +30,10 @@ export default function AuthPage() {
 
     try {
       const result = await authenticateWithPassword(password, redirectTo);
-
       if (!result.success) {
         setError(result.error || 'Authentication failed');
         setIsLoading(false);
       }
-      // If successful, the server action will redirect
     } catch {
       setError('An unexpected error occurred');
       setIsLoading(false);
@@ -37,28 +41,28 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[oklch(0.97_0.008_80)] via-[oklch(0.96_0.015_240)] to-[oklch(0.95_0.02_280)] dark:from-slate-950 dark:via-[oklch(0.15_0.02_260)] dark:to-[oklch(0.13_0.025_280)] px-4">
+      <div className="w-full max-w-sm animate-fade-up">
+        <div className="glass-card bg-card rounded-3xl shadow-xl p-8 border border-border">
           {/* Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 dark:bg-blue-900/30 rounded-full mb-4">
-              <Lock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-4">
+              <Lock className="w-6 h-6 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">
+            <h1 className="font-serif text-2xl text-foreground mb-1">
               Simple Finance
             </h1>
-            <p className="text-slate-600 dark:text-slate-400">
+            <p className="text-sm text-muted-foreground">
               Enter password to continue
             </p>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label
                 htmlFor="password"
-                className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+                className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2"
               >
                 Password
               </label>
@@ -67,7 +71,7 @@ export default function AuthPage() {
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent transition-colors"
+                className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-all text-sm"
                 placeholder="Enter your password"
                 required
                 autoFocus
@@ -75,29 +79,24 @@ export default function AuthPage() {
               />
             </div>
 
-            {/* Error Message */}
             {error && (
-              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                <p className="text-sm text-red-600 dark:text-red-400">
-                  {error}
-                </p>
+              <div className="p-3 rounded-xl bg-destructive/10 border border-destructive/20">
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-4 bg-primary text-primary-foreground font-medium rounded-xl transition-all hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
             >
               {isLoading ? 'Authenticating...' : 'Continue'}
             </button>
           </form>
         </div>
 
-        {/* Footer */}
-        <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
-          Protected access • Simple Finance
+        <p className="text-center text-[11px] text-muted-foreground mt-6">
+          Protected access
         </p>
       </div>
     </div>

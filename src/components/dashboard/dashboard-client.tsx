@@ -1,26 +1,43 @@
 /**
- * Dashboard client component - handles real-time updates
+ * Dashboard client component with lazy-loaded charts
  * @module components/dashboard/dashboard-client
  */
 
 'use client';
 
+import dynamic from 'next/dynamic';
 import { ProductCard } from '@/components/products/product-card';
 import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
-import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
-import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
-import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
-import type { FinancialProduct } from '@/lib/domain/models/product.types';
+import { ChartLoadingSkeleton } from '@/components/dashboard/loading-skeletons';
+import type { ProductWithValue } from '@/lib/domain/models/product.types';
 import Link from 'next/link';
 
-/**
- * Product with enriched current value data
- */
-type ProductWithValue = FinancialProduct & {
-  currentValue: number;
-};
+/** Lazy-load chart components to reduce initial bundle size */
+const MonthlyWealthChart = dynamic(
+  () =>
+    import('@/components/dashboard/monthly-wealth-chart').then(
+      (m) => m.MonthlyWealthChart,
+    ),
+  { loading: () => <ChartLoadingSkeleton />, ssr: false },
+);
+
+const PortfolioEvolutionChart = dynamic(
+  () =>
+    import('@/components/dashboard/portfolio-evolution-chart').then(
+      (m) => m.PortfolioEvolutionChart,
+    ),
+  { loading: () => <ChartLoadingSkeleton />, ssr: false },
+);
+
+const DailyChangesChart = dynamic(
+  () =>
+    import('@/components/dashboard/daily-changes-chart').then(
+      (m) => m.DailyChangesChart,
+    ),
+  { loading: () => <ChartLoadingSkeleton />, ssr: false },
+);
 
 interface DashboardClientProps {
   productsWithValues: ProductWithValue[];
@@ -31,9 +48,8 @@ interface DashboardClientProps {
 
 /**
  * Client component for dashboard interactivity
- * Receives server-rendered products with pre-fetched prices
  *
- * @param props - Component props
+ * @param props - Component props with pre-fetched data
  * @returns Dashboard client element
  */
 export function DashboardClient({
@@ -42,58 +58,44 @@ export function DashboardClient({
   monthlyWealthData,
   dailyChanges,
 }: DashboardClientProps) {
-  // Handle product deletion
   const handleDelete = async (productId: string) => {
     const result = await deleteProductAction(productId);
     if (!result.success) {
       alert(result.error || 'Failed to delete product');
     }
-    // Page will revalidate automatically
   };
 
-  // Calculate portfolio statistics
   const stats = productsWithValues.reduce(
     (acc, product) => {
       const totalValue = product.currentValue * product.quantity;
-
       acc.totalValue += totalValue;
       acc.productCount += 1;
 
       if (product.type === 'CUSTOM') {
-        const initialInvestment =
+        acc.totalInvestment +=
           product.custom.initialInvestment * product.quantity;
-        acc.totalInvestment += initialInvestment;
       } else if (product.type === 'YAHOO_FINANCE') {
-        const initialInvestment =
-          product.yahoo.purchasePrice * product.quantity;
-        acc.totalInvestment += initialInvestment;
+        acc.totalInvestment += product.yahoo.purchasePrice * product.quantity;
       }
 
       return acc;
     },
-    {
-      totalValue: 0,
-      totalInvestment: 0,
-      productCount: 0,
-    },
+    { totalValue: 0, totalInvestment: 0, productCount: 0 },
   );
 
   const totalReturn = stats.totalValue - stats.totalInvestment;
   const totalReturnPercentage =
     stats.totalInvestment > 0 ? (totalReturn / stats.totalInvestment) * 100 : 0;
 
-  // Calculate profit rates for custom products only
   const profitRates = calculateProfitRatesSync(productsWithValues);
 
   return (
-    <>
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-            Portfolio Overview
-          </h2>
-        </div>
-
+    <div className="space-y-6 sm:space-y-8">
+      {/* Stats */}
+      <div className="animate-fade-up" style={{ animationDelay: '100ms' }}>
+        <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-4">
+          Portfolio Overview
+        </h2>
         <PortfolioStats
           totalValue={stats.totalValue}
           totalReturn={totalReturn}
@@ -101,45 +103,63 @@ export function DashboardClient({
           productCount={stats.productCount}
           profitRates={profitRates}
         />
+      </div>
 
+      {/* Monthly Wealth */}
+      <div className="animate-fade-up" style={{ animationDelay: '200ms' }}>
         <MonthlyWealthChart data={monthlyWealthData} />
       </div>
 
-      {/* Charts Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      {/* Side-by-side Charts */}
+      <div
+        className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
+        style={{ animationDelay: '300ms' }}
+      >
         <PortfolioEvolutionChart data={evolutionData} />
         <DailyChangesChart data={dailyChanges} />
       </div>
 
-      {/* Products List */}
-      <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 mb-4">
-        Your Products
-      </h2>
+      {/* Products */}
+      <div className="animate-fade-up" style={{ animationDelay: '400ms' }}>
+        <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-4">
+          Your Products
+        </h2>
+        {productsWithValues.length === 0 ? (
+          <EmptyProductsState />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {productsWithValues.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                currentValue={product.currentValue}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-      {productsWithValues.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-slate-600 dark:text-slate-400 mb-4">
-            No products yet. Add your first product to get started!
-          </p>
-          <Link
-            href="/products/add"
-            className="inline-block px-6 py-3 bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg font-medium hover:bg-slate-800 dark:hover:bg-slate-200 transition-colors"
-          >
-            Add Product
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {productsWithValues.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              currentValue={product.currentValue}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
-      )}
-    </>
+/**
+ * Empty state when no products exist
+ *
+ * @returns Empty state element
+ */
+function EmptyProductsState() {
+  return (
+    <div className="text-center py-16 glass-card rounded-2xl border border-border bg-card">
+      <p className="text-muted-foreground mb-4">
+        No products yet. Add your first product to get started!
+      </p>
+      <Link
+        href="/products/add"
+        className="inline-block px-6 py-3 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity"
+      >
+        Add Product
+      </Link>
+    </div>
   );
 }

@@ -53,6 +53,13 @@ export interface CustomProduct extends BaseProduct {
 export type FinancialProduct = YahooFinanceProduct | CustomProduct;
 
 /**
+ * Product with enriched current value data
+ */
+export type ProductWithValue = FinancialProduct & {
+  currentValue: number;
+};
+
+/**
  * Product snapshot representing value at a specific date
  */
 export interface ProductSnapshot {

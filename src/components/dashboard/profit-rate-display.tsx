@@ -7,29 +7,21 @@
 'use client';
 
 import { useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 
-/**
- * Period type for profit display
- */
 type ProfitPeriod = 'daily' | 'weekly' | 'monthly' | 'annual';
 
-/**
- * Period configuration
- */
 const PERIOD_CONFIG: Record<
   ProfitPeriod,
-  { label: string; key: keyof ProfitRates }
+  { label: string; key: keyof ProfitRates; next: string }
 > = {
-  daily: { label: 'Daily', key: 'daily' },
-  weekly: { label: 'Weekly', key: 'weekly' },
-  monthly: { label: 'Monthly', key: 'monthly' },
-  annual: { label: 'Annual', key: 'annual' },
+  daily: { label: 'Daily', key: 'daily', next: 'Weekly' },
+  weekly: { label: 'Weekly', key: 'weekly', next: 'Monthly' },
+  monthly: { label: 'Monthly', key: 'monthly', next: 'Annual' },
+  annual: { label: 'Annual', key: 'annual', next: 'Daily' },
 };
 
-/**
- * Order of periods for cycling
- */
 const PERIOD_ORDER: ProfitPeriod[] = ['daily', 'weekly', 'monthly', 'annual'];
 
 interface ProfitRateDisplayProps {
@@ -53,7 +45,7 @@ function formatCurrency(value: number): string {
 
 /**
  * Profit rate display component
- * Cycles through daily/weekly/monthly on button click
+ * Cycles through daily/weekly/monthly/annual on button click
  *
  * @param props - Component props
  * @returns Profit rate display element
@@ -71,33 +63,29 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   const value = profitRates[config.key];
 
   return (
-    <div className="p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+    <div className="p-4 sm:p-5 h-full flex flex-col justify-between">
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
           {config.label} Profit
         </p>
         <button
           onClick={handleCycle}
-          className="text-xs px-2 py-1 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-slate-300 rounded hover:bg-slate-300 dark:hover:bg-slate-500 transition-colors"
+          className="inline-flex items-center gap-1 text-[10px] sm:text-xs px-2 py-1 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent transition-colors"
           aria-label="Cycle profit period"
         >
-          {currentPeriod === 'daily' && '→ Weekly'}
-          {currentPeriod === 'weekly' && '→ Monthly'}
-          {currentPeriod === 'monthly' && '→ Annual'}
-          {currentPeriod === 'annual' && '→ Daily'}
+          {config.next}
+          <ArrowRight className="w-3 h-3" />
         </button>
       </div>
       <p
-        className={`text-2xl font-bold ${
-          value >= 0
-            ? 'text-green-600 dark:text-green-400'
-            : 'text-red-600 dark:text-red-400'
+        className={`text-lg sm:text-2xl font-bold tabular-nums ${
+          value >= 0 ? 'text-gain' : 'text-loss'
         }`}
       >
         {formatCurrency(value)}
       </p>
-      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-        Based on custom products only
+      <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
+        Based on custom products
       </p>
     </div>
   );

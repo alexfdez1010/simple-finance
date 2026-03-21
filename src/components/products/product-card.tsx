@@ -9,9 +9,6 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
-/**
- * Product card props
- */
 interface ProductCardProps {
   product: FinancialProduct;
   currentValue?: number;
@@ -42,7 +39,7 @@ function formatPercentage(value: number): string {
 }
 
 /**
- * Product card component
+ * Product card component with refined design
  *
  * @param props - Component props
  * @returns Product card element
@@ -52,49 +49,45 @@ export function ProductCard({
   currentValue = 0,
   onDelete,
 }: ProductCardProps) {
-  const isYahooFinance = product.type === 'YAHOO_FINANCE';
+  const isYahoo = product.type === 'YAHOO_FINANCE';
   const totalValue = currentValue * product.quantity;
   const [dateString, setDateString] = useState('');
 
   let returnValue = 0;
-  let returnPercentage = 0;
+  let returnPct = 0;
   let initialInvestment = 0;
 
-  if (isYahooFinance && product.yahoo) {
+  if (isYahoo && product.yahoo) {
     initialInvestment = product.yahoo.purchasePrice * product.quantity;
-    returnValue = totalValue - initialInvestment;
-    returnPercentage =
-      initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
-  } else if (!isYahooFinance && product.custom) {
+  } else if (!isYahoo && product.custom) {
     initialInvestment = product.custom.initialInvestment * product.quantity;
-    returnValue = totalValue - initialInvestment;
-    returnPercentage =
-      initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
   }
+  returnValue = totalValue - initialInvestment;
+  returnPct =
+    initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
 
-  // Render date on client to avoid hydration mismatch
+  const isPositive = returnValue >= 0;
+
   useEffect(() => {
     setDateString(new Date(product.createdAt).toLocaleDateString());
   }, [product.createdAt]);
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-shadow">
+    <div className="bg-white dark:bg-slate-800 rounded-lg glass-card p-5 border border-border shadow-sm hover:shadow-md transition-all duration-200">
       {/* Header */}
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+      <div className="flex justify-between items-start mb-3">
+        <div className="min-w-0 flex-1 mr-2">
+          <h3 className="text-base font-semibold text-foreground truncate">
             {product.name}
           </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
-            {isYahooFinance
-              ? `Symbol: ${product.yahoo.symbol}`
-              : 'Custom Product'}
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {isYahoo ? `Symbol: ${product.yahoo.symbol}` : 'Custom Product'}
           </p>
         </div>
         <div className="flex gap-2">
           <Link
             href={`/products/edit/${product.id}`}
-            className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm font-medium"
+            className="text-sm font-medium text-primary hover:opacity-80 transition-opacity"
             aria-label="Edit product"
           >
             Edit
@@ -102,7 +95,7 @@ export function ProductCard({
           {onDelete && (
             <button
               onClick={() => onDelete(product.id)}
-              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-sm font-medium"
+              className="text-sm font-medium text-destructive hover:opacity-80 transition-opacity"
               aria-label="Delete product"
             >
               Delete
@@ -111,78 +104,66 @@ export function ProductCard({
         </div>
       </div>
 
-      {/* Quantity */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      {/* Details */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Quantity</p>
-          <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
+            Quantity
+          </p>
+          <p className="text-sm font-semibold text-foreground tabular-nums">
             {product.quantity}
           </p>
         </div>
-        {isYahooFinance ? (
-          <div className="text-right">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Unit Price
-            </p>
-            <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
-              {formatCurrency(currentValue)}
-            </p>
-          </div>
-        ) : (
-          <div className="text-right">
-            <p className="text-sm text-slate-600 dark:text-slate-400">
-              Annual Rate
-            </p>
-            <p className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-              {formatPercentage(product.custom.annualReturnRate * 100)}
-            </p>
-          </div>
-        )}
+        <div className="text-right">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
+            {isYahoo ? 'Unit Price' : 'Annual Rate'}
+          </p>
+          <p className="text-sm font-semibold text-foreground tabular-nums">
+            {isYahoo
+              ? formatCurrency(currentValue)
+              : formatPercentage(product.custom.annualReturnRate * 100)}
+          </p>
+        </div>
       </div>
 
-      {/* Value */}
-      <div className="mb-4">
-        <p className="text-sm text-slate-600 dark:text-slate-400">
+      {/* Current Value */}
+      <div className="mb-3">
+        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
           Current Value
         </p>
-        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        <p className="text-2xl font-bold text-foreground tabular-nums">
           {formatCurrency(totalValue)}
         </p>
       </div>
 
-      <div className="flex justify-between items-center">
+      {/* Return */}
+      <div className="flex justify-between items-center pt-3 border-t border-border">
         <div>
-          <p className="text-sm text-slate-600 dark:text-slate-400">Return</p>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
+            Return
+          </p>
           <p
-            className={`text-lg font-semibold ${
-              returnValue >= 0
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
-            }`}
+            className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
           >
             {formatCurrency(returnValue)}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-slate-600 dark:text-slate-400">Return %</p>
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
+            Return %
+          </p>
           <p
-            className={`text-lg font-semibold ${
-              returnPercentage >= 0
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
-            }`}
+            className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
           >
-            {formatPercentage(returnPercentage)}
+            {formatPercentage(returnPct)}
           </p>
         </div>
       </div>
 
-      {/* Metadata */}
-      <div className="mt-4 pt-4">
-        <p className="text-xs text-slate-500 dark:text-slate-400">
-          Added {dateString}
-        </p>
-      </div>
+      {/* Footer */}
+      <p className="text-[10px] text-muted-foreground mt-3">
+        Added {dateString}
+      </p>
     </div>
   );
 }

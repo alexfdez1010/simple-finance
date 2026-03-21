@@ -5,12 +5,10 @@
 
 'use client';
 
+import { TrendingUp, TrendingDown, Wallet, Package } from 'lucide-react';
 import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 
-/**
- * Portfolio statistics props
- */
 interface PortfolioStatsProps {
   totalValue: number;
   totalReturn: number;
@@ -43,7 +41,7 @@ function formatPercentage(value: number): string {
 }
 
 /**
- * Portfolio statistics component
+ * Portfolio statistics component with responsive card layout
  *
  * @param props - Component props
  * @returns Statistics display element
@@ -55,56 +53,61 @@ export function PortfolioStats({
   productCount,
   profitRates,
 }: PortfolioStatsProps) {
+  const isPositive = totalReturn >= 0;
+  const TrendIcon = isPositive ? TrendingUp : TrendingDown;
+
   return (
-    <div className="flex flex-wrap items-center gap-6 bg-white dark:bg-slate-800 rounded-lg shadow-md p-6 mb-8">
+    <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-stretch sm:gap-4 lg:gap-5">
       {/* Total Value */}
-      <div className="flex-1 min-w-[150px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-          Total Value
-        </p>
-        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px]">
+        <div className="flex items-center gap-2 mb-2">
+          <Wallet className="w-4 h-4 text-primary" />
+          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Total Value
+          </p>
+        </div>
+        <p className="text-lg sm:text-2xl font-bold text-foreground tabular-nums">
           {formatCurrency(totalValue)}
         </p>
       </div>
 
       {/* Total Return */}
-      <div className="flex-1 min-w-[150px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-          Total Return
-        </p>
-        <div className="flex items-baseline gap-2">
-          <p
-            className={`text-xl font-bold ${
-              totalReturn >= 0
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
-            }`}
-          >
-            {formatCurrency(totalReturn)}
+      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px]">
+        <div className="flex items-center gap-2 mb-2">
+          <TrendIcon
+            className={`w-4 h-4 ${isPositive ? 'text-gain' : 'text-loss'}`}
+          />
+          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Return
           </p>
-          <span
-            className={`text-sm font-medium ${
-              totalReturnPercentage >= 0
-                ? 'text-green-600 dark:text-green-400'
-                : 'text-red-600 dark:text-red-400'
-            }`}
-          >
-            {formatPercentage(totalReturnPercentage)}
-          </span>
         </div>
+        <p
+          className={`text-lg sm:text-2xl font-bold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
+        >
+          {formatCurrency(totalReturn)}
+        </p>
+        <span
+          className={`text-xs sm:text-sm font-medium tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
+        >
+          {formatPercentage(totalReturnPercentage)}
+        </span>
       </div>
 
-      {/* Products Count */}
-      <div className="flex-1 min-w-[100px] p-4 bg-slate-50 dark:bg-slate-700 rounded-lg">
-        <p className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">
-          Products
-        </p>
-        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">
+      {/* Products */}
+      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[100px]">
+        <div className="flex items-center gap-2 mb-2">
+          <Package className="w-4 h-4 text-primary" />
+          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            Products
+          </p>
+        </div>
+        <p className="text-lg sm:text-2xl font-bold text-foreground">
           {productCount}
         </p>
       </div>
 
-      <div className="flex-2 min-w-[250px]">
+      {/* Profit Rate */}
+      <div className="glass-card rounded-2xl bg-card shadow-sm border border-border flex-1 min-w-[160px] col-span-2 sm:col-span-1">
         <ProfitRateDisplay profitRates={profitRates} />
       </div>
     </div>
