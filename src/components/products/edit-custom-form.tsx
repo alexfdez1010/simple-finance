@@ -90,7 +90,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               type="number"
               value={formData.quantity}
               onChange={(e) => update('quantity', e.target.value)}
-              step="0.01"
+              step="0.00001"
               min="0.01"
               required
             />
@@ -102,7 +102,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               type="number"
               value={formData.annualReturnRate}
               onChange={(e) => update('annualReturnRate', e.target.value)}
-              step="0.01"
+              step="0.00001"
               min="0"
               max="100"
               required
@@ -133,7 +133,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               type="number"
               value={formData.initialInvestment}
               onChange={(e) => update('initialInvestment', e.target.value)}
-              step="0.01"
+              step="0.00001"
               min="0.01"
               required
             />

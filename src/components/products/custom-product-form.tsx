@@ -86,7 +86,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
               value={formData.annualReturnRate}
               onChange={(e) => update('annualReturnRate', e.target.value)}
               placeholder="5.0"
-              step="0.01"
+              step="0.00001"
               required
             />
           </Field>
@@ -115,7 +115,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
             value={formData.initialInvestment}
             onChange={(e) => update('initialInvestment', e.target.value)}
             placeholder="10000"
-            step="0.01"
+            step="0.00001"
             min="0.01"
             required
           />
@@ -140,7 +140,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
               value={formData.quantity}
               onChange={(e) => update('quantity', e.target.value)}
               placeholder="1"
-              step="0.01"
+              step="0.00001"
               min="0.01"
               required
             />

@@ -98,22 +98,13 @@ test.describe('Authentication', () => {
     await page.getByRole('button', { name: 'Continue' }).click();
     await expect(page).toHaveURL('http://localhost:3000/dashboard');
 
-    // Navigate to add product page
-    await page.goto('http://localhost:3000/products/add');
+    // Navigate to root and back to dashboard
+    await page.goto('http://localhost:3000/');
 
-    // Should NOT be redirected to auth page
-    await expect(page).toHaveURL('http://localhost:3000/products/add');
+    // Should redirect to dashboard (authenticated)
+    await expect(page).toHaveURL('http://localhost:3000/dashboard');
     await expect(
-      page.getByRole('heading', { name: 'Add Yahoo Finance Product' }),
-    ).toBeVisible();
-
-    // Navigate to add custom product page
-    await page.goto('http://localhost:3000/products/add-custom');
-
-    // Should still be authenticated
-    await expect(page).toHaveURL('http://localhost:3000/products/add-custom');
-    await expect(
-      page.getByRole('heading', { name: 'Add Custom Product' }),
+      page.getByRole('heading', { name: 'Portfolio Overview' }),
     ).toBeVisible();
   });
 
@@ -138,8 +129,6 @@ test.describe('Authentication', () => {
     const protectedRoutes = [
       'http://localhost:3000/',
       'http://localhost:3000/dashboard',
-      'http://localhost:3000/products/add',
-      'http://localhost:3000/products/add-custom',
     ];
 
     for (const route of protectedRoutes) {

@@ -5,7 +5,14 @@
 
 'use client';
 
-import { TrendingUp, TrendingDown, Wallet, Package } from 'lucide-react';
+import {
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  Package,
+  PiggyBank,
+  BarChart3,
+} from 'lucide-react';
 import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 
@@ -13,8 +20,10 @@ interface PortfolioStatsProps {
   totalValue: number;
   totalReturn: number;
   totalReturnPercentage: number;
+  totalInvestment: number;
   productCount: number;
   profitRates: ProfitRates;
+  dailyChange: number;
 }
 
 /**
@@ -50,37 +59,46 @@ export function PortfolioStats({
   totalValue,
   totalReturn,
   totalReturnPercentage,
+  totalInvestment,
   productCount,
   profitRates,
+  dailyChange,
 }: PortfolioStatsProps) {
   const isPositive = totalReturn >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
+  const isDailyPositive = dailyChange >= 0;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:items-stretch sm:gap-4 lg:gap-5">
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
       {/* Total Value */}
-      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px] hover:shadow-md transition-shadow duration-300">
-        <div className="flex items-center gap-2 mb-2">
-          <Wallet className="w-4 h-4 text-primary" />
-          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Total Value
-          </p>
-        </div>
+      <StatCard
+        icon={<Wallet className="w-4 h-4 text-primary" />}
+        label="Total Value"
+      >
         <p className="text-lg sm:text-2xl font-bold text-foreground tabular-nums">
           {formatCurrency(totalValue)}
         </p>
-      </div>
+      </StatCard>
+
+      {/* Total Investment */}
+      <StatCard
+        icon={<PiggyBank className="w-4 h-4 text-primary" />}
+        label="Invested"
+      >
+        <p className="text-lg sm:text-2xl font-bold text-foreground tabular-nums">
+          {formatCurrency(totalInvestment)}
+        </p>
+      </StatCard>
 
       {/* Total Return */}
-      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[140px] hover:shadow-md transition-shadow duration-300">
-        <div className="flex items-center gap-2 mb-2">
+      <StatCard
+        icon={
           <TrendIcon
             className={`w-4 h-4 ${isPositive ? 'text-gain' : 'text-loss'}`}
           />
-          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Return
-          </p>
-        </div>
+        }
+        label="Return"
+      >
         <p
           className={`text-lg sm:text-2xl font-bold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
         >
@@ -91,25 +109,66 @@ export function PortfolioStats({
         >
           {formatPercentage(totalReturnPercentage)}
         </span>
-      </div>
+      </StatCard>
+
+      {/* Daily Change */}
+      <StatCard
+        icon={
+          <BarChart3
+            className={`w-4 h-4 ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
+          />
+        }
+        label="Today"
+      >
+        <p
+          className={`text-lg sm:text-2xl font-bold tabular-nums ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
+        >
+          {formatCurrency(dailyChange)}
+        </p>
+      </StatCard>
 
       {/* Products */}
-      <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm border border-border flex-1 min-w-[100px] hover:shadow-md transition-shadow duration-300">
-        <div className="flex items-center gap-2 mb-2">
-          <Package className="w-4 h-4 text-primary" />
-          <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-            Products
-          </p>
-        </div>
+      <StatCard
+        icon={<Package className="w-4 h-4 text-primary" />}
+        label="Products"
+      >
         <p className="text-lg sm:text-2xl font-bold text-foreground">
           {productCount}
         </p>
-      </div>
+      </StatCard>
 
       {/* Profit Rate */}
-      <div className="glass-card rounded-2xl bg-card shadow-sm border border-border flex-1 min-w-[160px] col-span-2 sm:col-span-1 hover:shadow-md transition-shadow duration-300">
+      <div className="glass-card rounded-2xl bg-card shadow-sm col-span-2 sm:col-span-1 hover:shadow-md transition-shadow duration-300">
         <ProfitRateDisplay profitRates={profitRates} />
       </div>
+    </div>
+  );
+}
+
+/**
+ * Reusable stat card wrapper
+ *
+ * @param props - icon, label, and children content
+ * @returns Stat card element
+ */
+function StatCard({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center gap-2 mb-2">
+        {icon}
+        <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+          {label}
+        </p>
+      </div>
+      {children}
     </div>
   );
 }

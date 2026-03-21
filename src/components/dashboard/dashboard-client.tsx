@@ -2,7 +2,6 @@
 'use client';
 
 import { useState } from 'react';
-import dynamic from 'next/dynamic';
 import { ProductCard } from '@/components/products/product-card';
 import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
@@ -11,38 +10,20 @@ import { EditProductDialog } from '@/components/products/edit-product-dialog';
 import { DeleteProductDialog } from '@/components/products/delete-product-dialog';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
-import { ChartLoadingSkeleton } from '@/components/dashboard/loading-skeletons';
+import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import {
+  MonthlyWealthChart,
+  PortfolioEvolutionChart,
+  DailyChangesChart,
+  PortfolioAllocationChart,
+  TopPerformers,
+} from '@/components/dashboard/lazy-charts';
 import type {
   ProductWithValue,
   FinancialProduct,
 } from '@/lib/domain/models/product.types';
-
-/** Lazy-load chart components to reduce initial bundle size */
-const MonthlyWealthChart = dynamic(
-  () =>
-    import('@/components/dashboard/monthly-wealth-chart').then(
-      (m) => m.MonthlyWealthChart,
-    ),
-  { loading: () => <ChartLoadingSkeleton />, ssr: false },
-);
-
-const PortfolioEvolutionChart = dynamic(
-  () =>
-    import('@/components/dashboard/portfolio-evolution-chart').then(
-      (m) => m.PortfolioEvolutionChart,
-    ),
-  { loading: () => <ChartLoadingSkeleton />, ssr: false },
-);
-
-const DailyChangesChart = dynamic(
-  () =>
-    import('@/components/dashboard/daily-changes-chart').then(
-      (m) => m.DailyChangesChart,
-    ),
-  { loading: () => <ChartLoadingSkeleton />, ssr: false },
-);
 
 interface DashboardClientProps {
   productsWithValues: ProductWithValue[];
@@ -73,9 +54,7 @@ export function DashboardClient({
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     const result = await deleteProductAction(deleteTarget.id);
-    if (!result.success) {
-      console.error(result.error || 'Failed to delete product');
-    }
+    if (!result.success) console.error(result.error || 'Failed to delete');
     setDeleteTarget(null);
   };
 
@@ -84,18 +63,8 @@ export function DashboardClient({
     setAddDialogOpen(true);
   };
 
-  const stats = productsWithValues.reduce(
-    (acc, p) => {
-      acc.totalValue += p.currentValue * p.quantity;
-      acc.productCount += 1;
-      acc.totalInvestment +=
-        (p.type === 'CUSTOM'
-          ? p.custom.initialInvestment
-          : p.yahoo.purchasePrice) * p.quantity;
-      return acc;
-    },
-    { totalValue: 0, totalInvestment: 0, productCount: 0 },
-  );
+  const { stats, allocationData, performersData, dailyChange } =
+    computeDashboardData(productsWithValues, dailyChanges);
   const totalReturn = stats.totalValue - stats.totalInvestment;
   const totalReturnPct =
     stats.totalInvestment > 0 ? (totalReturn / stats.totalInvestment) * 100 : 0;
@@ -107,28 +76,23 @@ export function DashboardClient({
         onAddYahoo={() => openAddDialog('yahoo')}
         onAddCustom={() => openAddDialog('custom')}
       />
-
       <div className="flex flex-col gap-6 sm:gap-8">
-        {/* Stats */}
-        <div className="animate-fade-up" style={{ animationDelay: '100ms' }}>
-          <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-4">
-            Portfolio Overview
-          </h2>
+        <Section delay="100ms" title="Portfolio Overview">
           <PortfolioStats
             totalValue={stats.totalValue}
             totalReturn={totalReturn}
             totalReturnPercentage={totalReturnPct}
+            totalInvestment={stats.totalInvestment}
             productCount={stats.productCount}
             profitRates={profitRates}
+            dailyChange={dailyChange}
           />
-        </div>
+        </Section>
 
-        {/* Monthly Wealth */}
         <div className="animate-fade-up" style={{ animationDelay: '200ms' }}>
           <MonthlyWealthChart data={monthlyWealthData} />
         </div>
 
-        {/* Side-by-side Charts */}
         <div
           className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
           style={{ animationDelay: '300ms' }}
@@ -137,13 +101,28 @@ export function DashboardClient({
           <DailyChangesChart data={dailyChanges} />
         </div>
 
-        {/* Products */}
-        <div className="animate-fade-up" style={{ animationDelay: '400ms' }}>
-          <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-4">
-            Your Products
-          </h2>
+        <div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
+          style={{ animationDelay: '350ms' }}
+        >
+          <PortfolioAllocationChart data={allocationData} />
+          <TopPerformers performers={performersData} />
+        </div>
+
+        <Section delay="400ms" title="Your Products">
           {productsWithValues.length === 0 ? (
-            <EmptyProductsState onAdd={() => openAddDialog('yahoo')} />
+            <div className="text-center py-16 glass-card rounded-2xl bg-card">
+              <p className="text-muted-foreground mb-4">
+                No products yet. Add your first product to get started!
+              </p>
+              <Button
+                onClick={() => openAddDialog('yahoo')}
+                className="rounded-xl"
+              >
+                <Plus data-icon="inline-start" />
+                Add Product
+              </Button>
+            </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {productsWithValues.map((product) => (
@@ -157,10 +136,9 @@ export function DashboardClient({
               ))}
             </div>
           )}
-        </div>
+        </Section>
       </div>
 
-      {/* Dialogs */}
       <AddProductDialog
         open={addDialogOpen}
         onOpenChange={setAddDialogOpen}
@@ -181,17 +159,22 @@ export function DashboardClient({
   );
 }
 
-/** Empty state when no products exist */
-function EmptyProductsState({ onAdd }: { onAdd: () => void }) {
+/** Section wrapper with title and animation delay */
+function Section({
+  delay,
+  title,
+  children,
+}: {
+  delay: string;
+  title: string;
+  children: React.ReactNode;
+}) {
   return (
-    <div className="text-center py-16 glass-card rounded-2xl border border-border bg-card">
-      <p className="text-muted-foreground mb-4">
-        No products yet. Add your first product to get started!
-      </p>
-      <Button onClick={onAdd} className="rounded-xl">
-        <Plus data-icon="inline-start" />
-        Add Product
-      </Button>
+    <div className="animate-fade-up" style={{ animationDelay: delay }}>
+      <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-4">
+        {title}
+      </h2>
+      {children}
     </div>
   );
 }

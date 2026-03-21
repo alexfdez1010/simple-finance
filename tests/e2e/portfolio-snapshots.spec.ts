@@ -25,7 +25,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
     const monthlyChart = page.locator('text=Monthly Wealth Evolution').first();
     await expect(monthlyChart).toBeVisible();
 
-    const dailyChart = page.locator('text=Daily Change').first();
+    const dailyChart = page.locator('text=Daily Changes').first();
     await expect(dailyChart).toBeVisible();
 
     // Check for empty state message (either chart can have it)
@@ -35,20 +35,15 @@ test.describe('Portfolio Snapshots and Charts', () => {
     await expect(emptyMessage).toBeVisible({ timeout: 10000 });
   });
 
-  test('should not show daily change statistics in Portfolio Overview', async ({
+  test('should show daily change statistics in Portfolio Overview', async ({
     page,
   }) => {
-    // Navigate to dashboard
     await page.goto('http://localhost:3000/dashboard');
-
-    // Wait for page to load
     await page.waitForLoadState('networkidle');
 
-    // Daily change stats title should NOT be present in the stats grid
-    const dailyChangeStats = page
-      .locator('div.bg-white >> text=Daily Change')
-      .first();
-    await expect(dailyChangeStats).not.toBeVisible();
+    // "Today" stat card should be visible in the stats section
+    const todayStats = page.locator('text=Today').first();
+    await expect(todayStats).toBeVisible({ timeout: 10000 });
   });
 
   test('should create snapshot via API endpoint with valid token', async ({

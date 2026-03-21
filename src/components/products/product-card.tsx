@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { DetailItem } from '@/components/products/detail-item';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 interface ProductCardProps {
@@ -18,12 +19,7 @@ interface ProductCardProps {
   onDelete?: (product: FinancialProduct) => void;
 }
 
-/**
- * Formats currency value in EUR
- *
- * @param value - Value to format
- * @returns Formatted currency string in EUR
- */
+/** Formats currency value in EUR */
 function formatCurrency(value: number): string {
   return new Intl.NumberFormat('es-ES', {
     style: 'currency',
@@ -31,12 +27,7 @@ function formatCurrency(value: number): string {
   }).format(value);
 }
 
-/**
- * Formats percentage value
- *
- * @param value - Value to format
- * @returns Formatted percentage string
- */
+/** Formats percentage value with sign */
 function formatPercentage(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
 }
@@ -57,29 +48,31 @@ export function ProductCard({
   const totalValue = currentValue * product.quantity;
   const [dateString, setDateString] = useState('');
 
-  let returnValue = 0;
-  let returnPct = 0;
-  let initialInvestment = 0;
-
-  if (isYahoo && product.yahoo) {
-    initialInvestment = product.yahoo.purchasePrice * product.quantity;
-  } else if (!isYahoo && product.custom) {
-    initialInvestment = product.custom.initialInvestment * product.quantity;
-  }
-  returnValue = totalValue - initialInvestment;
-  returnPct =
+  const initialInvestment = isYahoo
+    ? product.yahoo.purchasePrice * product.quantity
+    : product.custom.initialInvestment * product.quantity;
+  const returnValue = totalValue - initialInvestment;
+  const returnPct =
     initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
-
   const isPositive = returnValue >= 0;
 
   useEffect(() => {
-    setDateString(new Date(product.createdAt).toLocaleDateString());
-  }, [product.createdAt]);
+    const date = isYahoo
+      ? product.yahoo.purchaseDate
+      : product.custom.investmentDate;
+    setDateString(
+      new Date(date).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+      }),
+    );
+  }, [product, isYahoo]);
 
   return (
-    <div className="group bg-card rounded-xl glass-card p-5 border border-border shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
+    <div className="group bg-card rounded-xl glass-card p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full flex flex-col">
       {/* Header */}
-      <div className="flex justify-between items-start mb-3">
+      <div className="flex justify-between items-start mb-4">
         <div className="min-w-0 flex-1 mr-2">
           <h3 className="text-base font-semibold text-foreground truncate">
             {product.name}
@@ -88,6 +81,9 @@ export function ProductCard({
             <Badge variant="secondary" className="text-[10px]">
               {isYahoo ? product.yahoo.symbol : 'Custom'}
             </Badge>
+            <span className="text-[10px] text-muted-foreground">
+              {dateString}
+            </span>
           </div>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -115,66 +111,55 @@ export function ProductCard({
         </div>
       </div>
 
-      {/* Details */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
-            Quantity
-          </p>
-          <p className="text-sm font-semibold text-foreground tabular-nums">
-            {product.quantity}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
-            {isYahoo ? 'Unit Price' : 'Annual Rate'}
-          </p>
-          <p className="text-sm font-semibold text-foreground tabular-nums">
-            {isYahoo
-              ? formatCurrency(currentValue)
-              : formatPercentage(product.custom.annualReturnRate * 100)}
-          </p>
-        </div>
-      </div>
-
-      {/* Current Value */}
-      <div className="mb-3">
-        <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
-          Current Value
-        </p>
+      {/* Current Value + Return */}
+      <div className="mb-4">
         <p className="text-2xl font-bold text-foreground tabular-nums">
           {formatCurrency(totalValue)}
         </p>
+        <p
+          className={`text-sm font-semibold tabular-nums mt-0.5 ${isPositive ? 'text-gain' : 'text-loss'}`}
+        >
+          {formatCurrency(returnValue)} ({formatPercentage(returnPct)})
+        </p>
       </div>
 
-      {/* Return */}
-      <div className="flex justify-between items-center pt-3 border-t border-border">
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
-            Return
-          </p>
-          <p
-            className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
-          >
-            {formatCurrency(returnValue)}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-0.5">
-            Return %
-          </p>
-          <p
-            className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
-          >
-            {formatPercentage(returnPct)}
-          </p>
-        </div>
+      {/* Details grid */}
+      <div className="grid grid-cols-2 gap-y-2.5 gap-x-3 mt-auto text-center">
+        <DetailItem label="Quantity" value={String(product.quantity)} />
+        {isYahoo ? (
+          <>
+            <DetailItem
+              label="Current Price"
+              value={formatCurrency(currentValue)}
+            />
+            <DetailItem
+              label="Avg. Purchase"
+              value={formatCurrency(product.yahoo.purchasePrice)}
+            />
+            <DetailItem
+              label="Price Change"
+              value={formatCurrency(currentValue - product.yahoo.purchasePrice)}
+              className={
+                currentValue >= product.yahoo.purchasePrice
+                  ? 'text-gain'
+                  : 'text-loss'
+              }
+            />
+          </>
+        ) : (
+          <>
+            <DetailItem
+              label="Annual Rate"
+              value={formatPercentage(product.custom.annualReturnRate * 100)}
+            />
+            <DetailItem
+              label="Investment"
+              value={formatCurrency(product.custom.initialInvestment)}
+            />
+            <DetailItem label="Currency" value={product.custom.currency} />
+          </>
+        )}
       </div>
-
-      {/* Footer */}
-      <p className="text-[10px] text-muted-foreground mt-3">
-        Added {dateString}
-      </p>
     </div>
   );
 }

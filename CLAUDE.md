@@ -48,7 +48,7 @@ Path alias: `@/*` maps to `./src/*`
 3. **TSDoc documentation** — Document every function, class, and hook with purpose, params, returns, side effects.
 4. **Testing** — Unit tests for all logic. E2E tests for user flows. High meaningful coverage.
 5. **TailwindCSS 4** — All styling via Tailwind utility classes. Use shadcn/ui for foundational components.
-6. **Post-coding** — Always run `npm run lint-format` before considering code complete.
+6. **Post-coding** — Always run `npm run lint-format`, `npm run test:unit`, AND `npm run test:e2e` after any code change before considering it complete. Update any broken tests to match the new behavior.
 7. **Design patterns** — Use appropriate patterns for maintainability, scalability, testability.
 8. **Documentation first** — Consult official docs before implementing. Provide URLs when referencing.
 

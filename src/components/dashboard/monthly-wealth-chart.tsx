@@ -42,7 +42,7 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="glass-card bg-card p-3 border border-border rounded-xl shadow-lg">
+    <div className="glass-card bg-card p-3 rounded-xl shadow-lg">
       <p className="text-xs font-semibold text-foreground mb-1">
         {payload[0].payload.month}
       </p>
@@ -65,11 +65,11 @@ function CustomTooltip({
 export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
   if (!data || data.length === 0) {
     return (
-      <div className="glass-card rounded-2xl bg-card p-5 shadow-sm border border-border">
+      <div className="glass-card rounded-2xl bg-card p-5 shadow-sm">
         <h3 className="font-serif text-lg text-foreground mb-4">
           Monthly Wealth Evolution
         </h3>
-        <div className="h-[250px] flex items-center justify-center border border-dashed border-border rounded-xl">
+        <div className="h-[250px] flex items-center justify-center rounded-xl">
           <p className="text-muted-foreground text-sm">
             No historical data available yet.
           </p>
@@ -79,7 +79,7 @@ export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
   }
 
   return (
-    <div className="glass-card rounded-2xl bg-card shadow-sm border border-border px-4 sm:px-6 pt-5 pb-2">
+    <div className="glass-card rounded-2xl bg-card shadow-sm px-4 sm:px-6 pt-5 pb-2">
       <h3 className="font-serif text-lg text-foreground mb-4 px-1">
         Monthly Wealth Evolution
       </h3>

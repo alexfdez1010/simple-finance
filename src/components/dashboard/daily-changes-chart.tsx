@@ -41,7 +41,7 @@ const chartConfig = {
 export function DailyChangesChart({ data }: DailyChangesChartProps) {
   if (data.length === 0) {
     return (
-      <Card className="glass-card border-border">
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle className="font-serif text-lg">Daily Changes</CardTitle>
           <CardDescription>
@@ -57,7 +57,7 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
   const negativeCount = data.filter((d) => d.change < 0).length;
 
   return (
-    <Card className="glass-card border-border">
+    <Card className="glass-card">
       <CardHeader className="pb-2">
         <CardTitle className="font-serif text-lg">Daily Changes</CardTitle>
         <CardDescription>Last {data.length} days</CardDescription>

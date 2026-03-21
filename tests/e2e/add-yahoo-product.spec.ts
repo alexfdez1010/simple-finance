@@ -69,17 +69,17 @@ test.describe('Add Yahoo Finance Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     // Verify the product appears in the dashboard
-    await expect(page.getByText(productName)).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible({ timeout: 15000 });
 
     // Verify product card displays key information
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
     await expect(productCard.getByText('AAPL').nth(0)).toBeVisible();
     await expect(productCard).toContainText('Quantity');
-    await expect(productCard).toContainText('Unit Price');
-    await expect(productCard).toContainText('Current Value');
+    await expect(productCard).toContainText('Current Price');
+    await expect(productCard).toContainText('Avg. Purchase');
   });
 
   /**

@@ -67,7 +67,7 @@ export function PortfolioEvolutionChart({
 
   if (data.length === 0) {
     return (
-      <Card className="glass-card border-border">
+      <Card className="glass-card">
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Portfolio Evolution
@@ -94,7 +94,7 @@ export function PortfolioEvolutionChart({
   const domainMax = maxValue + padding;
 
   return (
-    <Card className="glass-card border-border">
+    <Card className="glass-card">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>

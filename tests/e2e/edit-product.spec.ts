@@ -35,7 +35,7 @@ async function createCustomProduct(
     page.getByRole('heading', { name: 'Add Product' }),
   ).not.toBeVisible({ timeout: 10000 });
   await page.reload({ waitUntil: 'networkidle' });
-  await expect(page.getByText(name)).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole('heading', { name })).toBeVisible({ timeout: 15000 });
 }
 
 /**
@@ -72,7 +72,7 @@ async function createYahooProduct(
     page.getByRole('heading', { name: 'Add Product' }),
   ).not.toBeVisible({ timeout: 10000 });
   await page.reload({ waitUntil: 'networkidle' });
-  await expect(page.getByText(name)).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole('heading', { name })).toBeVisible({ timeout: 15000 });
 }
 
 /**
@@ -101,7 +101,7 @@ test.describe('Edit Product', () => {
 
     // Hover over card to reveal edit button, then click
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: originalName })
       .first();
     await productCard.hover();
@@ -144,7 +144,7 @@ test.describe('Edit Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     const updatedCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: updatedName })
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });
@@ -162,7 +162,7 @@ test.describe('Edit Product', () => {
 
     // Hover and click edit
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: originalName })
       .first();
     await productCard.hover();
@@ -198,7 +198,7 @@ test.describe('Edit Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     const updatedCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: updatedName })
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });
@@ -215,7 +215,7 @@ test.describe('Edit Product', () => {
     await createCustomProduct(page, productName, '5.5', '1000', '2024-01-01');
 
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
 
@@ -234,7 +234,7 @@ test.describe('Edit Product', () => {
 
     // Open edit dialog
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: originalName })
       .first();
     await productCard.hover();
@@ -251,7 +251,7 @@ test.describe('Edit Product', () => {
     // Verify original name is still there
     await page.reload({ waitUntil: 'networkidle' });
     const unchangedCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: originalName })
       .first();
     await expect(unchangedCard).toBeVisible({ timeout: 15000 });
@@ -267,7 +267,7 @@ test.describe('Edit Product', () => {
 
     // Hover and click delete
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
     await productCard.hover();
@@ -288,7 +288,7 @@ test.describe('Edit Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     // Verify product is gone
-    await expect(page.getByText(productName)).not.toBeVisible({
+    await expect(page.getByRole('heading', { name: productName })).not.toBeVisible({
       timeout: 10000,
     });
   });
@@ -302,7 +302,7 @@ test.describe('Edit Product', () => {
 
     // Hover and click delete
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
     await productCard.hover();
@@ -319,7 +319,7 @@ test.describe('Edit Product', () => {
     await page.getByRole('button', { name: 'Cancel' }).click();
 
     // Verify product is still there
-    await expect(page.getByText(productName)).toBeVisible();
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible();
   });
 
   /**
@@ -330,7 +330,7 @@ test.describe('Edit Product', () => {
     await createCustomProduct(page, productName, '5.5', '1000', '2024-01-01');
 
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
     await productCard.hover();
@@ -366,7 +366,7 @@ test.describe('Edit Product', () => {
 
     // Verify it shows MSFT badge
     const productCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
     await expect(productCard).toContainText('MSFT');
@@ -387,7 +387,7 @@ test.describe('Edit Product', () => {
 
     // Verify it's still a Yahoo Finance product
     const updatedCard = page
-      .locator('.glass-card')
+      .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });

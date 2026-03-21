@@ -156,7 +156,7 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
               value={formData.purchasePrice}
               onChange={(e) => update('purchasePrice', e.target.value)}
               placeholder="150.25"
-              step="0.01"
+              step="0.00001"
               min="0.01"
               required
             />

@@ -94,7 +94,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
               type="number"
               value={formData.quantity}
               onChange={(e) => update('quantity', e.target.value)}
-              step="0.01"
+              step="0.00001"
               min="0.01"
               required
             />
@@ -108,7 +108,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
               type="number"
               value={formData.purchasePrice}
               onChange={(e) => update('purchasePrice', e.target.value)}
-              step="0.01"
+              step="0.00001"
               min="0.01"
               required
             />
