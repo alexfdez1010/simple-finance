@@ -67,7 +67,9 @@ test.describe('Add Custom Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     // Verify the product appears in the dashboard
-    await expect(page.getByRole('heading', { name: productName })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible({
+      timeout: 15000,
+    });
 
     // Verify product card displays key information
     const productCard = page
@@ -109,7 +111,9 @@ test.describe('Add Custom Product', () => {
 
     await page.reload({ waitUntil: 'networkidle' });
 
-    await expect(page.getByRole('heading', { name: productName })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible({
+      timeout: 15000,
+    });
     const highYieldCard = page
       .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
@@ -145,7 +149,9 @@ test.describe('Add Custom Product', () => {
 
     await page.reload({ waitUntil: 'networkidle' });
 
-    await expect(page.getByRole('heading', { name: productName })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible({
+      timeout: 15000,
+    });
   });
 
   /**
@@ -227,6 +233,8 @@ test.describe('Add Custom Product', () => {
 
     await page.reload({ waitUntil: 'networkidle' });
 
-    await expect(page.getByRole('heading', { name: productName })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible({
+      timeout: 15000,
+    });
   });
 });

@@ -69,7 +69,9 @@ test.describe('Add Yahoo Finance Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
 
     // Verify the product appears in the dashboard
-    await expect(page.getByRole('heading', { name: productName })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('heading', { name: productName })).toBeVisible({
+      timeout: 15000,
+    });
 
     // Verify product card displays key information
     const productCard = page
