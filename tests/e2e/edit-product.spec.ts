@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase } from './test-helpers';
+import { cleanDatabase, openProductsTab } from './test-helpers';
 
 /**
  * Helper to create a custom product via dialog
@@ -35,6 +35,7 @@ async function createCustomProduct(
     page.getByRole('heading', { name: 'Add Product' }),
   ).not.toBeVisible({ timeout: 10000 });
   await page.reload({ waitUntil: 'networkidle' });
+  await openProductsTab(page);
   await expect(page.getByRole('heading', { name })).toBeVisible({
     timeout: 15000,
   });
@@ -74,6 +75,7 @@ async function createYahooProduct(
     page.getByRole('heading', { name: 'Add Product' }),
   ).not.toBeVisible({ timeout: 10000 });
   await page.reload({ waitUntil: 'networkidle' });
+  await openProductsTab(page);
   await expect(page.getByRole('heading', { name })).toBeVisible({
     timeout: 15000,
   });
@@ -146,6 +148,7 @@ test.describe('Edit Product', () => {
 
     // Reload to verify changes persisted
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     const updatedCard = page
       .locator('.glass-card.rounded-xl')
@@ -200,6 +203,7 @@ test.describe('Edit Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     const updatedCard = page
       .locator('.glass-card.rounded-xl')
@@ -254,6 +258,7 @@ test.describe('Edit Product', () => {
 
     // Verify original name is still there
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
     const unchangedCard = page
       .locator('.glass-card.rounded-xl')
       .filter({ hasText: originalName })
@@ -286,10 +291,16 @@ test.describe('Edit Product', () => {
     await expect(page.getByText(/Are you sure.*delete/i)).toBeVisible();
 
     // Confirm deletion
-    await page.getByRole('button', { name: 'Delete' }).click();
+    await page.getByRole('button', { name: 'Delete', exact: true }).click();
+
+    // Wait for dialog to close (server action completed)
+    await expect(
+      page.getByRole('heading', { name: 'Delete Product' }),
+    ).not.toBeVisible({ timeout: 10000 });
 
     // Wait and reload
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     // Verify product is gone
     await expect(
@@ -392,6 +403,7 @@ test.describe('Edit Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     // Verify it's still a Yahoo Finance product
     const updatedCard = page

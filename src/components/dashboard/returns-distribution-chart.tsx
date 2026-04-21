@@ -33,7 +33,7 @@ const chartConfig = {
 
 const GAIN_COLOR = 'oklch(0.55 0.17 155)';
 const LOSS_COLOR = 'oklch(0.55 0.20 25)';
-const BIN_COUNT = 11;
+const BIN_COUNT = 31;
 
 interface Bin {
   label: string;
@@ -150,7 +150,7 @@ export function ReturnsDistributionChart({
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 10 }}
-              interval={1}
+              interval={2}
             />
             <YAxis
               tickLine={false}

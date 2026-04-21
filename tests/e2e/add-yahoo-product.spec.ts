@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase } from './test-helpers';
+import { cleanDatabase, openProductsTab } from './test-helpers';
 
 /**
  * Test suite for Yahoo Finance product creation flow
@@ -67,6 +67,7 @@ test.describe('Add Yahoo Finance Product', () => {
 
     // Reload the page to ensure fresh data
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     // Verify the product appears in the dashboard
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({

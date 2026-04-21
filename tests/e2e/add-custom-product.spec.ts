@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase } from './test-helpers';
+import { cleanDatabase, openProductsTab } from './test-helpers';
 
 /**
  * Test suite for custom product creation flow
@@ -65,6 +65,7 @@ test.describe('Add Custom Product', () => {
 
     // Reload the page to ensure fresh data
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     // Verify the product appears in the dashboard
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
@@ -110,6 +111,7 @@ test.describe('Add Custom Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
       timeout: 15000,
@@ -148,6 +150,7 @@ test.describe('Add Custom Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
       timeout: 15000,
@@ -232,6 +235,7 @@ test.describe('Add Custom Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
 
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
       timeout: 15000,

@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -16,6 +16,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+
+interface TooltipState {
+  text: string;
+  x: number;
+  y: number;
+}
+
+/** Format ISO date as "Mon, Apr 14" for the hover tooltip. */
+function formatTooltipDate(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric',
+  });
+}
 
 interface DailyHeatmapChartProps {
   data: Array<{ date: string; value: number }>;
@@ -93,6 +109,8 @@ function cellColor(pct: number | null, maxAbs: number): string {
  * @returns Chart element
  */
 export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
+  const [tooltip, setTooltip] = useState<TooltipState | null>(null);
+
   const { grid, maxAbs, up, down, best, worst } = useMemo(() => {
     const map = buildPctMap(data);
     const g = buildGrid(map);
@@ -167,25 +185,43 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
               </span>
             ))}
           </div>
-          <div className="flex flex-1 gap-[3px] overflow-x-auto">
+          <div
+            className="flex flex-1 gap-[3px] overflow-x-auto"
+            onMouseLeave={() => setTooltip(null)}
+          >
             {grid.map((col, ci) => (
               <div key={ci} className="flex flex-col gap-[3px]">
-                {col.map((cell, ri) => (
-                  <div
-                    key={ri}
-                    title={
-                      cell.pct !== null
-                        ? `${cell.date}: ${cell.pct >= 0 ? '+' : ''}${cell.pct.toFixed(2)}%`
-                        : cell.date
-                    }
-                    className="h-3.5 w-3.5 rounded-sm transition-transform hover:scale-125"
-                    style={{ background: cellColor(cell.pct, maxAbs) }}
-                  />
-                ))}
+                {col.map((cell, ri) => {
+                  const label =
+                    cell.pct !== null
+                      ? `${formatTooltipDate(cell.date)} · ${cell.pct >= 0 ? '+' : ''}${cell.pct.toFixed(2)}%`
+                      : `${formatTooltipDate(cell.date)} · no data`;
+                  const onMove = (e: React.MouseEvent) =>
+                    setTooltip({ text: label, x: e.clientX, y: e.clientY });
+                  return (
+                    <div
+                      key={ri}
+                      aria-label={label}
+                      onMouseEnter={onMove}
+                      onMouseMove={onMove}
+                      className="h-3.5 w-3.5 rounded-sm transition-transform hover:scale-125"
+                      style={{ background: cellColor(cell.pct, maxAbs) }}
+                    />
+                  );
+                })}
               </div>
             ))}
           </div>
         </div>
+        {tooltip && (
+          <div
+            role="tooltip"
+            className="pointer-events-none fixed z-50 rounded-md border border-border bg-popover px-2 py-1 text-[11px] font-medium tabular-nums text-popover-foreground shadow-md"
+            style={{ left: tooltip.x + 12, top: tooltip.y - 30 }}
+          >
+            {tooltip.text}
+          </div>
+        )}
         <div className="mt-3 flex items-center justify-end gap-2 text-[10px] text-muted-foreground">
           <span>Loss</span>
           {[0.85, 0.55, 0.3].map((o) => (
