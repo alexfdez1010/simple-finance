@@ -21,7 +21,7 @@ const CURRENCY_META: Record<DisplayCurrency, CurrencyMeta> = {
   USD: { intl: false, code: 'USD', symbol: '$', maxFrac: 2 },
   BTC: { intl: false, code: 'BTC', symbol: '₿', maxFrac: 6 },
   ETH: { intl: false, code: 'ETH', symbol: 'Ξ', maxFrac: 6 },
-  XAUT: { intl: false, code: 'XAUT', symbol: 'Au', maxFrac: 6 },
+  XAUT: { intl: false, code: 'XAUT', symbol: '🜚', maxFrac: 6 },
 };
 
 export interface FormatOptions {
