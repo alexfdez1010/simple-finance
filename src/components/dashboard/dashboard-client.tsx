@@ -13,15 +13,16 @@ import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calc
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import {
-  MonthlyWealthChart,
-  PortfolioEvolutionChart,
-  DailyChangesChart,
-  PortfolioAllocationChart,
-  TopPerformers,
-  ContributionChart,
-  DrawdownChart,
-} from '@/components/dashboard/lazy-charts';
+import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
+import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
+import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
+import { PortfolioAllocationChart } from '@/components/dashboard/portfolio-allocation-chart';
+import { TopPerformers } from '@/components/dashboard/top-performers';
+import { ContributionChart } from '@/components/dashboard/contribution-chart';
+import { DrawdownChart } from '@/components/dashboard/drawdown-chart';
+import { ReturnsDistributionChart } from '@/components/dashboard/returns-distribution-chart';
+import { DailyHeatmapChart } from '@/components/dashboard/daily-heatmap-chart';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DisplayCurrencyProvider } from '@/components/dashboard/display-currency-context';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
 import type {
@@ -95,62 +96,79 @@ export function DashboardClient({
           />
         </Section>
 
-        <div className="animate-fade-up" style={{ animationDelay: '200ms' }}>
-          <MonthlyWealthChart data={monthlyWealthData} />
-        </div>
-
-        <div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
-          style={{ animationDelay: '300ms' }}
+        <Tabs
+          defaultValue="charts"
+          className="animate-fade-up"
+          style={{ animationDelay: '200ms' }}
         >
-          <PortfolioEvolutionChart data={evolutionData} />
-          <DailyChangesChart data={dailyChanges} />
-        </div>
+          <TabsList className="mx-auto mb-4 h-12 rounded-xl p-1.5">
+            <TabsTrigger
+              value="charts"
+              className="px-8 text-base font-semibold"
+            >
+              Charts
+            </TabsTrigger>
+            <TabsTrigger
+              value="products"
+              className="px-8 text-base font-semibold"
+            >
+              Products
+            </TabsTrigger>
+          </TabsList>
 
-        <div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
-          style={{ animationDelay: '350ms' }}
-        >
-          <PortfolioAllocationChart data={allocationData} />
-          <TopPerformers performers={performersData} />
-        </div>
+          <TabsContent value="charts" className="flex flex-col gap-6 sm:gap-8">
+            <MonthlyWealthChart data={monthlyWealthData} />
 
-        <div
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
-          style={{ animationDelay: '375ms' }}
-        >
-          <ContributionChart data={performersData} />
-          <DrawdownChart data={evolutionData} />
-        </div>
-
-        <Section delay="400ms" title="Your Products">
-          {productsWithValues.length === 0 ? (
-            <div className="text-center py-16 glass-card rounded-2xl bg-card">
-              <p className="text-muted-foreground mb-4">
-                No products yet. Add your first product to get started!
-              </p>
-              <Button
-                onClick={() => openAddDialog('yahoo')}
-                className="rounded-xl"
-              >
-                <Plus data-icon="inline-start" />
-                Add Product
-              </Button>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <PortfolioEvolutionChart data={evolutionData} />
+              <DailyChangesChart data={dailyChanges} />
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {productsWithValues.map((product) => (
-                <ProductCard
-                  key={product.id}
-                  product={product}
-                  currentValue={product.currentValue}
-                  onEdit={setEditProduct}
-                  onDelete={setDeleteTarget}
-                />
-              ))}
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <PortfolioAllocationChart data={allocationData} />
+              <TopPerformers performers={performersData} />
             </div>
-          )}
-        </Section>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <ContributionChart data={performersData} />
+              <DrawdownChart data={evolutionData} />
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <ReturnsDistributionChart data={evolutionData} />
+              <DailyHeatmapChart data={evolutionData} />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="products">
+            {productsWithValues.length === 0 ? (
+              <div className="text-center py-16 glass-card rounded-2xl bg-card">
+                <p className="text-muted-foreground mb-4">
+                  No products yet. Add your first product to get started!
+                </p>
+                <Button
+                  onClick={() => openAddDialog('yahoo')}
+                  className="rounded-xl"
+                >
+                  <Plus data-icon="inline-start" />
+                  Add Product
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {productsWithValues.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    currentValue={product.currentValue}
+                    onEdit={setEditProduct}
+                    onDelete={setDeleteTarget}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
 
       <AddProductDialog
