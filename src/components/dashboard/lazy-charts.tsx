@@ -50,3 +50,21 @@ export const TopPerformers = dynamic(
     ),
   { loading: () => <ChartLoadingSkeleton />, ssr: false },
 );
+
+/** Contribution to return diverging bar chart */
+export const ContributionChart = dynamic(
+  () =>
+    import('@/components/dashboard/contribution-chart').then(
+      (m) => m.ContributionChart,
+    ),
+  { loading: () => <ChartLoadingSkeleton />, ssr: false },
+);
+
+/** Drawdown area chart */
+export const DrawdownChart = dynamic(
+  () =>
+    import('@/components/dashboard/drawdown-chart').then(
+      (m) => m.DrawdownChart,
+    ),
+  { loading: () => <ChartLoadingSkeleton />, ssr: false },
+);

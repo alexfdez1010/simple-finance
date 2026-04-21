@@ -19,6 +19,8 @@ import {
   DailyChangesChart,
   PortfolioAllocationChart,
   TopPerformers,
+  ContributionChart,
+  DrawdownChart,
 } from '@/components/dashboard/lazy-charts';
 import { DisplayCurrencyProvider } from '@/components/dashboard/display-currency-context';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
@@ -111,6 +113,14 @@ export function DashboardClient({
         >
           <PortfolioAllocationChart data={allocationData} />
           <TopPerformers performers={performersData} />
+        </div>
+
+        <div
+          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 animate-fade-up"
+          style={{ animationDelay: '375ms' }}
+        >
+          <ContributionChart data={performersData} />
+          <DrawdownChart data={evolutionData} />
         </div>
 
         <Section delay="400ms" title="Your Products">
