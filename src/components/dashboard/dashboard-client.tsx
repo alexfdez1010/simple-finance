@@ -20,6 +20,8 @@ import {
   PortfolioAllocationChart,
   TopPerformers,
 } from '@/components/dashboard/lazy-charts';
+import { DisplayCurrencyProvider } from '@/components/dashboard/display-currency-context';
+import type { DisplayCurrency } from '@/lib/utils/format-currency';
 import type {
   ProductWithValue,
   FinancialProduct,
@@ -30,6 +32,7 @@ interface DashboardClientProps {
   evolutionData: Array<{ date: string; value: number }>;
   monthlyWealthData: Array<{ month: string; value: number }>;
   dailyChanges: Array<{ date: string; change: number }>;
+  displayRates: Record<DisplayCurrency, number>;
 }
 
 /**
@@ -43,6 +46,7 @@ export function DashboardClient({
   evolutionData,
   monthlyWealthData,
   dailyChanges,
+  displayRates,
 }: DashboardClientProps) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogTab, setAddDialogTab] = useState<'yahoo' | 'custom'>('yahoo');
@@ -71,7 +75,7 @@ export function DashboardClient({
   const profitRates = calculateProfitRatesSync(productsWithValues);
 
   return (
-    <>
+    <DisplayCurrencyProvider rates={displayRates}>
       <DashboardHeader
         onAddYahoo={() => openAddDialog('yahoo')}
         onAddCustom={() => openAddDialog('custom')}
@@ -155,7 +159,7 @@ export function DashboardClient({
         productName={deleteTarget?.name ?? ''}
         onConfirm={handleDeleteConfirm}
       />
-    </>
+    </DisplayCurrencyProvider>
   );
 }
 

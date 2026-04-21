@@ -19,6 +19,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface DailyChangesChartProps {
   data: Array<{ date: string; change: number }>;
@@ -39,6 +40,7 @@ const chartConfig = {
  * @returns Chart element
  */
 export function DailyChangesChart({ data }: DailyChangesChartProps) {
+  const { format } = useDisplayCurrency();
   if (data.length === 0) {
     return (
       <Card className="glass-card">
@@ -67,11 +69,8 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
           <p
             className={`text-xl sm:text-2xl font-bold tabular-nums ${totalChange >= 0 ? 'text-gain' : 'text-loss'}`}
           >
-            {totalChange >= 0 ? '+' : ''}&euro;
-            {totalChange.toLocaleString('es-ES', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {totalChange >= 0 ? '+' : ''}
+            {format(totalChange)}
           </p>
           <div className="flex gap-3 text-xs font-medium">
             <span className="text-gain">{positiveCount} up</span>
@@ -106,10 +105,7 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
                   formatter={(v) => {
                     const n = Number(v);
                     const prefix = n >= 0 ? '+' : '';
-                    return [
-                      `${prefix}€${n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                      'Change',
-                    ];
+                    return [`${prefix}${format(n)}`, 'Change'];
                   }}
                 />
               }

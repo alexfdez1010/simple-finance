@@ -8,6 +8,7 @@
 import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface AllocationItem {
   name: string;
@@ -31,19 +32,6 @@ const COLORS = [
 ];
 
 /**
- * Formats currency value in EUR
- *
- * @param value - Value to format
- * @returns Formatted currency string
- */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(value);
-}
-
-/**
  * Custom tooltip for allocation chart
  *
  * @param props - Recharts tooltip props
@@ -52,9 +40,11 @@ function formatCurrency(value: number): string {
 function CustomTooltip({
   active,
   payload,
+  format,
 }: {
   active?: boolean;
   payload?: Array<{ payload: AllocationItem & { pct: number } }>;
+  format: (value: number) => string;
 }) {
   if (!active || !payload?.length) return null;
   const item = payload[0].payload;
@@ -63,7 +53,7 @@ function CustomTooltip({
     <div className="glass-card bg-card p-3 rounded-xl shadow-lg">
       <p className="text-xs font-semibold text-foreground mb-1">{item.name}</p>
       <p className="text-sm text-primary font-bold tabular-nums">
-        {formatCurrency(item.value)}
+        {format(item.value)}
       </p>
       <p className="text-xs text-muted-foreground">{item.pct.toFixed(1)}%</p>
     </div>
@@ -79,6 +69,7 @@ function CustomTooltip({
 export function PortfolioAllocationChart({
   data,
 }: PortfolioAllocationChartProps) {
+  const { format } = useDisplayCurrency();
   const chartData = useMemo(() => {
     const total = data.reduce((sum, d) => sum + d.value, 0);
     return data
@@ -124,7 +115,7 @@ export function PortfolioAllocationChart({
                   <Cell key={`cell-${i}`} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<CustomTooltip format={format} />} />
             </PieChart>
           </ResponsiveContainer>
         </ChartContainer>

@@ -10,6 +10,7 @@ import { Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DetailItem } from '@/components/products/detail-item';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 interface ProductCardProps {
@@ -17,14 +18,6 @@ interface ProductCardProps {
   currentValue?: number;
   onEdit?: (product: FinancialProduct) => void;
   onDelete?: (product: FinancialProduct) => void;
-}
-
-/** Formats currency value in EUR */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(value);
 }
 
 /** Formats percentage value with sign */
@@ -44,6 +37,7 @@ export function ProductCard({
   onEdit,
   onDelete,
 }: ProductCardProps) {
+  const { format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
   const totalValue = currentValue * product.quantity;
   const [dateString, setDateString] = useState('');

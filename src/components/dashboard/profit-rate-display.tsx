@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 
 type ProfitPeriod = 'daily' | 'weekly' | 'monthly' | 'annual';
@@ -29,21 +30,6 @@ interface ProfitRateDisplayProps {
 }
 
 /**
- * Formats currency value in EUR with sign
- *
- * @param value - Value to format
- * @returns Formatted currency string
- */
-function formatCurrency(value: number): string {
-  const formatted = new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(Math.abs(value));
-
-  return value >= 0 ? `+${formatted}` : `-${formatted}`;
-}
-
-/**
  * Profit rate display component
  * Cycles through daily/weekly/monthly/annual on button click
  *
@@ -51,7 +37,13 @@ function formatCurrency(value: number): string {
  * @returns Profit rate display element
  */
 export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
+  const { format } = useDisplayCurrency();
   const [currentPeriod, setCurrentPeriod] = useState<ProfitPeriod>('daily');
+
+  const formatSigned = (value: number): string => {
+    const formatted = format(value, { absolute: true });
+    return value >= 0 ? `+${formatted}` : `-${formatted}`;
+  };
 
   const handleCycle = () => {
     const currentIndex = PERIOD_ORDER.indexOf(currentPeriod);
@@ -82,7 +74,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
           value >= 0 ? 'text-gain' : 'text-loss'
         }`}
       >
-        {formatCurrency(value)}
+        {formatSigned(value)}
       </p>
       <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
         Based on custom products

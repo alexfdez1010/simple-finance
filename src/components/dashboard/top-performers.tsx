@@ -7,6 +7,7 @@
 
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface PerformerData {
   name: string;
@@ -21,26 +22,18 @@ interface TopPerformersProps {
 }
 
 /**
- * Formats currency value in EUR with sign
- *
- * @param value - Value to format
- * @returns Formatted currency string
- */
-function formatCurrency(value: number): string {
-  const formatted = new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(Math.abs(value));
-  return value >= 0 ? `+${formatted}` : `-${formatted}`;
-}
-
-/**
  * Top and bottom performers ranked by return percentage
  *
  * @param props - Component props with performer data
  * @returns Performers list element
  */
 export function TopPerformers({ performers }: TopPerformersProps) {
+  const { format } = useDisplayCurrency();
+  const formatSigned = (value: number): string => {
+    const formatted = format(value, { absolute: true });
+    return value >= 0 ? `+${formatted}` : `-${formatted}`;
+  };
+
   if (performers.length === 0) {
     return (
       <div className="glass-card rounded-2xl bg-card p-5 shadow-sm">
@@ -95,7 +88,7 @@ export function TopPerformers({ performers }: TopPerformersProps) {
                 <p
                   className={`text-[10px] tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
                 >
-                  {formatCurrency(item.returnValue)}
+                  {formatSigned(item.returnValue)}
                 </p>
               </div>
             </div>

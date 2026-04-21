@@ -20,6 +20,8 @@ import {
   fetchYahooQuoteServer,
   type YahooQuote,
 } from '@/lib/infrastructure/yahoo-finance/server-client';
+import { convertToEur } from '@/lib/domain/services/currency-converter';
+import { convertCryptoAssetToEur } from '@/lib/domain/services/crypto-converter';
 import type {
   CreateYahooFinanceProductInput,
   CreateCustomProductInput,
@@ -77,7 +79,7 @@ export async function createYahooProduct(
  * @param initialInvestment - Initial investment amount in original currency
  * @param investmentDate - Date of investment
  * @param quantity - Quantity
- * @param currency - Currency ('EUR' or 'USD')
+ * @param currency - Currency ('EUR', 'USD', 'BTC', 'ETH', 'XAUT')
  * @returns Created product
  */
 export async function createCustomProductAction(
@@ -89,12 +91,18 @@ export async function createCustomProductAction(
   currency: string = 'EUR',
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
-    // Convert to EUR at creation time if USD
     let initialInvestmentEur = initialInvestment;
     if (currency === 'USD') {
-      const { convertToEur } =
-        await import('@/lib/domain/services/currency-converter');
       initialInvestmentEur = await convertToEur(initialInvestment);
+    } else if (
+      currency === 'BTC' ||
+      currency === 'ETH' ||
+      currency === 'XAUT'
+    ) {
+      initialInvestmentEur = await convertCryptoAssetToEur(
+        initialInvestment,
+        currency,
+      );
     }
 
     const input: CreateCustomProductInput = {

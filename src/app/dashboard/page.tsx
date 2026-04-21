@@ -9,6 +9,7 @@ import { getProducts } from '@/lib/actions/product-actions';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { calculateCustomProductValue } from '@/lib/domain/services/custom-product-calculator';
+import { getDisplayRates } from '@/lib/domain/services/display-rates';
 import { getPortfolioSnapshotsLastNDays } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import {
   StatsLoadingSkeleton,
@@ -94,9 +95,10 @@ async function getSnapshotData() {
  * @returns Dashboard content element
  */
 async function DashboardContent() {
-  const [productsWithValues, snapshotData] = await Promise.all([
+  const [productsWithValues, snapshotData, displayRates] = await Promise.all([
     getProductsWithValues(),
     getSnapshotData(),
+    getDisplayRates(),
   ]);
 
   return (
@@ -105,6 +107,7 @@ async function DashboardContent() {
       evolutionData={snapshotData.evolutionData}
       monthlyWealthData={snapshotData.monthlyWealthData}
       dailyChanges={snapshotData.dailyChanges}
+      displayRates={displayRates}
     />
   );
 }

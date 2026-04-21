@@ -21,6 +21,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface PortfolioEvolutionChartProps {
   data: Array<{ date: string; value: number }>;
@@ -38,21 +39,6 @@ type DayRange = 30 | 60 | 90;
 const DAY_OPTIONS: DayRange[] = [30, 60, 90];
 
 /**
- * Formats EUR value in compact notation
- *
- * @param v - Value to format
- * @returns Formatted string
- */
-function formatCompactEur(v: number): string {
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-    notation: 'compact',
-  }).format(v);
-}
-
-/**
  * Portfolio Evolution Chart with Y-axis values and day range selector
  *
  * @param data - Array of date/value pairs (up to 90 days)
@@ -61,6 +47,7 @@ function formatCompactEur(v: number): string {
 export function PortfolioEvolutionChart({
   data,
 }: PortfolioEvolutionChartProps) {
+  const { format } = useDisplayCurrency();
   const [range, setRange] = useState<DayRange>(30);
 
   const filteredData = useMemo(() => data.slice(-range), [data, range]);
@@ -121,21 +108,13 @@ export function PortfolioEvolutionChart({
       <CardContent>
         <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
           <p className="text-xl sm:text-2xl font-bold tabular-nums">
-            &euro;
-            {lastValue.toLocaleString('es-ES', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {format(lastValue)}
           </p>
           <p
             className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
           >
-            {isPositive ? '+' : ''}&euro;
-            {change.toLocaleString('es-ES', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}{' '}
-            ({isPositive ? '+' : ''}
+            {isPositive ? '+' : ''}
+            {format(change)} ({isPositive ? '+' : ''}
             {pct}%)
           </p>
         </div>
@@ -158,7 +137,7 @@ export function PortfolioEvolutionChart({
               tickLine={false}
               axisLine={false}
               width={60}
-              tickFormatter={formatCompactEur}
+              tickFormatter={(v) => format(v, { compact: true })}
               domain={[domainMin, domainMax]}
             />
             <ChartTooltip
@@ -171,10 +150,7 @@ export function PortfolioEvolutionChart({
                       year: 'numeric',
                     })
                   }
-                  formatter={(v) => [
-                    `€${Number(v).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-                    'Value',
-                  ]}
+                  formatter={(v) => [format(Number(v)), 'Value']}
                 />
               }
             />

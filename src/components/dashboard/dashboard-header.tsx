@@ -7,6 +7,7 @@
 
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CurrencySelector } from '@/components/dashboard/currency-selector';
 
 interface DashboardHeaderProps {
   onAddYahoo: () => void;
@@ -36,7 +37,8 @@ export function DashboardHeader({
         </div>
 
         {/* Quick Actions */}
-        <div className="flex gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+          <CurrencySelector />
           <Button onClick={onAddYahoo} size="sm" className="rounded-xl">
             <Plus data-icon="inline-start" />
             <span>Yahoo Product</span>

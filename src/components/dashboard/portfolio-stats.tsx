@@ -14,6 +14,7 @@ import {
   BarChart3,
 } from 'lucide-react';
 import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 
 interface PortfolioStatsProps {
@@ -24,19 +25,6 @@ interface PortfolioStatsProps {
   productCount: number;
   profitRates: ProfitRates;
   dailyChange: number;
-}
-
-/**
- * Formats currency value in EUR
- *
- * @param value - Value to format
- * @returns Formatted currency string in EUR
- */
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('es-ES', {
-    style: 'currency',
-    currency: 'EUR',
-  }).format(value);
 }
 
 /**
@@ -64,6 +52,7 @@ export function PortfolioStats({
   profitRates,
   dailyChange,
 }: PortfolioStatsProps) {
+  const { format: formatCurrency } = useDisplayCurrency();
   const isPositive = totalReturn >= 0;
   const TrendIcon = isPositive ? TrendingUp : TrendingDown;
   const isDailyPositive = dailyChange >= 0;

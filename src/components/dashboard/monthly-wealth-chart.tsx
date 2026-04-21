@@ -16,6 +16,7 @@ import {
   Cell,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
+import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface MonthlyWealthData {
   month: string;
@@ -35,9 +36,11 @@ interface MonthlyWealthChartProps {
 function CustomTooltip({
   active,
   payload,
+  format,
 }: {
   active?: boolean;
   payload?: Array<{ payload: MonthlyWealthData; value: number }>;
+  format: (value: number) => string;
 }) {
   if (!active || !payload?.length) return null;
 
@@ -47,10 +50,7 @@ function CustomTooltip({
         {payload[0].payload.month}
       </p>
       <p className="text-sm text-primary font-bold tabular-nums">
-        {new Intl.NumberFormat('es-ES', {
-          style: 'currency',
-          currency: 'EUR',
-        }).format(payload[0].value)}
+        {format(payload[0].value)}
       </p>
     </div>
   );
@@ -63,6 +63,7 @@ function CustomTooltip({
  * @returns Monthly wealth chart element
  */
 export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
+  const { format } = useDisplayCurrency();
   if (!data || data.length === 0) {
     return (
       <div className="glass-card rounded-2xl bg-card p-5 shadow-sm">
@@ -111,16 +112,9 @@ export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
               tickLine={false}
               tick={{ fontSize: 11 }}
               width={65}
-              tickFormatter={(v) =>
-                new Intl.NumberFormat('es-ES', {
-                  style: 'currency',
-                  currency: 'EUR',
-                  maximumFractionDigits: 0,
-                  notation: 'compact',
-                }).format(v)
-              }
+              tickFormatter={(v) => format(v, { compact: true })}
             />
-            <Tooltip content={<CustomTooltip />} />
+            <Tooltip content={<CustomTooltip format={format} />} />
             <Bar dataKey="value" radius={[6, 6, 0, 0]}>
               {data.map((_, index) => (
                 <Cell

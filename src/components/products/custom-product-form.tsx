@@ -11,6 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError } from '@/components/products/form-actions';
+import {
+  CURRENCY_OPTIONS,
+  currencySymbol,
+} from '@/components/products/currency-options';
 
 interface CustomProductFormProps {
   onSuccess: () => void;
@@ -37,7 +41,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
 
-  const currencySymbol = formData.currency === 'EUR' ? '\u20AC' : '$';
+  const symbol = currencySymbol(formData.currency);
 
   /** Handles form submission */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,15 +103,18 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
               className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               required
             >
-              <option value="EUR">EUR ({currencySymbol})</option>
-              <option value="USD">USD ($)</option>
+              {CURRENCY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label} ({opt.symbol})
+                </option>
+              ))}
             </select>
           </Field>
         </div>
 
         <Field>
           <FieldLabel htmlFor="custom-investment">
-            Initial Investment ({currencySymbol})
+            Initial Investment ({symbol})
           </FieldLabel>
           <Input
             id="custom-investment"

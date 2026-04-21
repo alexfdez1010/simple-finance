@@ -121,3 +121,38 @@ export async function fetchHistoricalUsdToEurRate(
 export function convertUsdToEur(usdAmount: number, rate: number): number {
   return Math.round(usdAmount * rate * 100) / 100;
 }
+
+/**
+ * Yahoo Finance tickers for crypto / commodity-backed assets supported as
+ * custom product currencies. BTC-EUR and ETH-EUR quote directly in EUR;
+ * XAUT (Tether Gold) has no native EUR pair on Yahoo — use XAUT-USD and
+ * let the existing server-client convert USD→EUR via the cached USD rate.
+ */
+const YAHOO_CRYPTO_TICKERS = {
+  BTC: 'BTC-USD',
+  ETH: 'ETH-USD',
+  XAUT: 'XAUT-USD',
+} as const;
+
+export type CryptoCurrency = keyof typeof YAHOO_CRYPTO_TICKERS;
+
+/**
+ * Returns the Yahoo Finance ticker for a supported crypto/commodity currency.
+ *
+ * @param symbol - Asset symbol
+ * @returns Yahoo ticker (e.g. 'BTC-EUR')
+ */
+export function getCryptoYahooTicker(symbol: CryptoCurrency): string {
+  return YAHOO_CRYPTO_TICKERS[symbol];
+}
+
+/**
+ * Converts an amount denominated in a crypto/commodity asset to EUR.
+ *
+ * @param amount - Amount in source asset
+ * @param rateEur - Rate (1 unit of asset in EUR)
+ * @returns Amount in EUR, rounded to 2 decimal places
+ */
+export function convertCryptoToEur(amount: number, rateEur: number): number {
+  return Math.round(amount * rateEur * 100) / 100;
+}
