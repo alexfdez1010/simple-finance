@@ -51,6 +51,8 @@ export default async function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
       >
+        <div className="aurora" aria-hidden />
+        <div className="grain" aria-hidden />
         {isAuthPage ? (
           children
         ) : (

@@ -59,37 +59,29 @@ export function PortfolioStats({
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
-      {/* Total Value */}
       <StatCard
-        icon={<Wallet className="w-4 h-4 text-primary" />}
+        icon={<Wallet className="w-3.5 h-3.5" />}
         label="Total Value"
+        featured
       >
-        <p className="text-lg sm:text-2xl font-bold text-foreground tabular-nums">
+        <p className="display-number text-xl sm:text-3xl font-semibold font-serif text-foreground">
           {formatCurrency(totalValue)}
         </p>
       </StatCard>
 
-      {/* Total Investment */}
-      <StatCard
-        icon={<PiggyBank className="w-4 h-4 text-primary" />}
-        label="Invested"
-      >
-        <p className="text-lg sm:text-2xl font-bold text-foreground tabular-nums">
+      <StatCard icon={<PiggyBank className="w-3.5 h-3.5" />} label="Invested">
+        <p className="display-number text-xl sm:text-3xl font-semibold font-serif text-foreground">
           {formatCurrency(totalInvestment)}
         </p>
       </StatCard>
 
-      {/* Total Return */}
       <StatCard
-        icon={
-          <TrendIcon
-            className={`w-4 h-4 ${isPositive ? 'text-gain' : 'text-loss'}`}
-          />
-        }
+        icon={<TrendIcon className="w-3.5 h-3.5" />}
         label="Return"
+        tone={isPositive ? 'gain' : 'loss'}
       >
         <p
-          className={`text-lg sm:text-2xl font-bold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
+          className={`display-number text-xl sm:text-3xl font-semibold font-serif ${isPositive ? 'text-gain' : 'text-loss'}`}
         >
           {formatCurrency(totalReturn)}
         </p>
@@ -100,34 +92,25 @@ export function PortfolioStats({
         </span>
       </StatCard>
 
-      {/* Daily Change */}
       <StatCard
-        icon={
-          <BarChart3
-            className={`w-4 h-4 ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
-          />
-        }
+        icon={<BarChart3 className="w-3.5 h-3.5" />}
         label="Today"
+        tone={isDailyPositive ? 'gain' : 'loss'}
       >
         <p
-          className={`text-lg sm:text-2xl font-bold tabular-nums ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
+          className={`display-number text-xl sm:text-3xl font-semibold font-serif ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
         >
           {formatCurrency(dailyChange)}
         </p>
       </StatCard>
 
-      {/* Products */}
-      <StatCard
-        icon={<Package className="w-4 h-4 text-primary" />}
-        label="Products"
-      >
-        <p className="text-lg sm:text-2xl font-bold text-foreground">
+      <StatCard icon={<Package className="w-3.5 h-3.5" />} label="Products">
+        <p className="display-number text-xl sm:text-3xl font-semibold font-serif text-foreground">
           {productCount}
         </p>
       </StatCard>
 
-      {/* Profit Rate */}
-      <div className="glass-card rounded-2xl bg-card shadow-sm col-span-2 sm:col-span-1 hover:shadow-md transition-shadow duration-300">
+      <div className="glass-card gradient-border beam lift relative rounded-2xl bg-card shadow-sm col-span-2 sm:col-span-1">
         <ProfitRateDisplay profitRates={profitRates} />
       </div>
     </div>
@@ -144,19 +127,28 @@ function StatCard({
   icon,
   label,
   children,
+  tone,
+  featured,
 }: {
   icon: React.ReactNode;
   label: string;
   children: React.ReactNode;
+  tone?: 'gain' | 'loss';
+  featured?: boolean;
 }) {
+  const iconColor =
+    tone === 'gain' ? 'text-gain' : tone === 'loss' ? 'text-loss' : 'text-gold';
   return (
-    <div className="glass-card rounded-2xl bg-card p-4 sm:p-5 shadow-sm hover:shadow-md transition-shadow duration-300">
-      <div className="flex items-center gap-2 mb-2">
-        {icon}
-        <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
+    <div
+      className={`glass-card gradient-border beam lift relative rounded-2xl bg-card p-4 sm:p-5 shadow-sm overflow-hidden ${featured ? 'ring-1 ring-[oklch(0.68_0.13_78/25%)]' : ''}`}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <span className={`${iconColor}`}>{icon}</span>
+        <p className="eyebrow !text-[0.62rem] !tracking-[0.2em] text-muted-foreground">
           {label}
         </p>
       </div>
+      <div className="hairline mb-3 opacity-60" />
       {children}
     </div>
   );

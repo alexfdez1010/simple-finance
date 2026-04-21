@@ -25,14 +25,15 @@ export function DashboardHeader({
   onAddCustom,
 }: DashboardHeaderProps) {
   return (
-    <header className="mb-6 sm:mb-8 animate-fade-up">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <header className="mb-8 sm:mb-12 animate-fade-up">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
         <div>
-          <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl tracking-tight gradient-text">
+          <p className="eyebrow mb-3">Portfolio · Private Wealth</p>
+          <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight gradient-text leading-[0.95] gold-underline">
             Simple Finance
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm sm:text-base">
-            Track your portfolio performance
+          <p className="text-muted-foreground mt-4 text-sm sm:text-base italic font-serif">
+            A considered view of your capital, compounded.
           </p>
         </div>
 

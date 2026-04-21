@@ -175,9 +175,12 @@ function Section({
 }) {
   return (
     <div className="animate-fade-up" style={{ animationDelay: delay }}>
-      <h2 className="font-serif text-xl sm:text-2xl text-foreground mb-4">
-        {title}
-      </h2>
+      <div className="mb-5 flex items-baseline gap-4">
+        <h2 className="font-serif text-2xl sm:text-3xl text-foreground tracking-tight">
+          {title}
+        </h2>
+        <div className="flex-1 hairline" />
+      </div>
       {children}
     </div>
   );
