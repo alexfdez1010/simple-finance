@@ -16,18 +16,6 @@ import {
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
 
-/**
- * Fallback EUR→X multipliers (order-of-magnitude), used when external
- * lookups fail so the dashboard still renders.
- */
-const FALLBACK: Record<DisplayCurrency, number> = {
-  EUR: 1,
-  USD: 1 / 0.92,
-  BTC: 1 / 90000,
-  ETH: 1 / 3000,
-  XAUT: 1 / 3000,
-};
-
 const getUsdPriceOfCrypto = unstable_cache(
   async (symbol: CryptoCurrency): Promise<number | null> => {
     const quote = await fetchYahooQuoteServer(getCryptoYahooTicker(symbol));
@@ -40,6 +28,7 @@ const getUsdPriceOfCrypto = unstable_cache(
 /**
  * Returns EUR → target multipliers for every supported display currency.
  * One cached Yahoo/FX call per asset / hour; reused everywhere.
+ * Throws if any upstream lookup fails — no silent fallback.
  *
  * @returns Record mapping currency to multiplier (EUR × rate = target units)
  */
@@ -53,14 +42,19 @@ export async function getDisplayRates(): Promise<
     getUsdPriceOfCrypto('XAUT'),
   ]);
 
+  if (!usdToEur?.rate) throw new Error('Missing USD→EUR rate');
+  if (!btcUsd) throw new Error('Missing BTC-USD price');
+  if (!ethUsd) throw new Error('Missing ETH-USD price');
+  if (!xautUsd) throw new Error('Missing XAUT-USD price');
+
   // 1 USD = usdInEur EUR  →  1 EUR = eurInUsd USD
-  const eurInUsd = usdToEur?.rate ? 1 / usdToEur.rate : FALLBACK.USD;
+  const eurInUsd = 1 / usdToEur.rate;
 
   return {
     EUR: 1,
     USD: eurInUsd,
-    BTC: btcUsd ? eurInUsd / btcUsd : FALLBACK.BTC,
-    ETH: ethUsd ? eurInUsd / ethUsd : FALLBACK.ETH,
-    XAUT: xautUsd ? eurInUsd / xautUsd : FALLBACK.XAUT,
+    BTC: eurInUsd / btcUsd,
+    ETH: eurInUsd / ethUsd,
+    XAUT: eurInUsd / xautUsd,
   };
 }

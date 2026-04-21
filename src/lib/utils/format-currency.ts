@@ -18,7 +18,7 @@ interface CurrencyMeta {
 
 const CURRENCY_META: Record<DisplayCurrency, CurrencyMeta> = {
   EUR: { intl: true, code: 'EUR', symbol: '€', maxFrac: 2 },
-  USD: { intl: true, code: 'USD', symbol: '$', maxFrac: 2 },
+  USD: { intl: false, code: 'USD', symbol: '$', maxFrac: 2 },
   BTC: { intl: false, code: 'BTC', symbol: '₿', maxFrac: 6 },
   ETH: { intl: false, code: 'ETH', symbol: 'Ξ', maxFrac: 6 },
   XAUT: { intl: false, code: 'XAUT', symbol: 'Au', maxFrac: 6 },
