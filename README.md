@@ -136,7 +136,7 @@ cp .env.example .env
 The default configuration works out of the box:
 
 ```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/db"
+DATABASE_URL="postgresql://postgres:postgres@localhost:5434/db"
 PASSWORD="12345678"
 CRON_SECRET="your-secure-cron-token-here"
 ```
@@ -149,7 +149,7 @@ CRON_SECRET="your-secure-cron-token-here"
 npm run database
 ```
 
-This starts a PostgreSQL container using Docker Compose. The database will be available at `localhost:5432`.
+This starts a PostgreSQL container using Docker Compose. The database will be available at `localhost:5434`.
 
 ### 5. Run Database Migrations
 
@@ -576,7 +576,7 @@ This project follows **Clean Architecture** principles with clear separation of 
 Required environment variables:
 
 ```env
-DATABASE_URL="postgresql://user:password@host:5432/database"
+DATABASE_URL="postgresql://user:password@host:5434/database"
 PASSWORD="your-secure-password-here"
 CRON_SECRET="your-secure-cron-token-here"
 ```
