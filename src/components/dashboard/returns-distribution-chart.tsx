@@ -33,7 +33,7 @@ const chartConfig = {
 
 const GAIN_COLOR = 'oklch(0.55 0.17 155)';
 const LOSS_COLOR = 'oklch(0.55 0.20 25)';
-const BIN_COUNT = 31;
+const BIN_COUNT = 51;
 
 interface Bin {
   label: string;
