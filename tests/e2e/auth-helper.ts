@@ -1,22 +1,31 @@
 /**
- * Helper functions for authentication in E2E tests
+ * Helper functions for authentication in E2E tests.
  * @module tests/e2e/auth-helper
  */
 
+import { createHash } from 'node:crypto';
 import { Page } from '@playwright/test';
 
+const PASSWORD = process.env.PASSWORD ?? '12345678';
+const AUTH_COOKIE_NAME = 'simple-finance-auth';
+
 /**
- * Authenticates a test user by navigating to auth page and entering password.
- * This helper should be called in test setup to bypass authentication for tests
- * that don't specifically test auth functionality.
+ * Sets the auth cookie directly so tests skip the UI login flow.
+ * The cookie value is sha256(PASSWORD) — same shape as
+ * `generateAuthToken` in src/lib/auth/auth-utils.ts.
  *
  * @param page - Playwright page object
  */
 export async function authenticateTestUser(page: Page): Promise<void> {
-  await page.goto('http://localhost:3000/auth');
-  await page.getByLabel('Password').fill('12345678');
-  await page.getByRole('button', { name: 'Continue' }).click();
-
-  // Wait for redirect to complete
-  await page.waitForURL('http://localhost:3000/dashboard');
+  const token = createHash('sha256').update(PASSWORD).digest('hex');
+  await page.context().addCookies([
+    {
+      name: AUTH_COOKIE_NAME,
+      value: token,
+      domain: 'localhost',
+      path: '/',
+      httpOnly: true,
+      sameSite: 'Lax',
+    },
+  ]);
 }

@@ -24,6 +24,7 @@ import { ReturnsDistributionChart } from '@/components/dashboard/returns-distrib
 import { DailyHeatmapChart } from '@/components/dashboard/daily-heatmap-chart';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DisplayCurrencyProvider } from '@/components/dashboard/display-currency-context';
+import { SkillTab } from '@/components/dashboard/skill-tab';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
 import type {
   ProductWithValue,
@@ -36,6 +37,12 @@ interface DashboardClientProps {
   monthlyWealthData: Array<{ month: string; value: number }>;
   dailyChanges: Array<{ date: string; change: number }>;
   displayRates: Record<DisplayCurrency, number>;
+  skill: {
+    serverUrl: string;
+    token: string;
+    mcpJson: string;
+    tokenEnvVar: string;
+  };
 }
 
 /**
@@ -50,6 +57,7 @@ export function DashboardClient({
   monthlyWealthData,
   dailyChanges,
   displayRates,
+  skill,
 }: DashboardClientProps) {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [addDialogTab, setAddDialogTab] = useState<'yahoo' | 'custom'>('yahoo');
@@ -114,6 +122,9 @@ export function DashboardClient({
             >
               Products
             </TabsTrigger>
+            <TabsTrigger value="skill" className="px-8 text-base font-semibold">
+              Skill
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="charts" className="flex flex-col gap-6 sm:gap-8">
@@ -138,6 +149,15 @@ export function DashboardClient({
               <ReturnsDistributionChart data={evolutionData} />
               <DailyHeatmapChart data={evolutionData} />
             </div>
+          </TabsContent>
+
+          <TabsContent value="skill">
+            <SkillTab
+              serverUrl={skill.serverUrl}
+              token={skill.token}
+              mcpJson={skill.mcpJson}
+              tokenEnvVar={skill.tokenEnvVar}
+            />
           </TabsContent>
 
           <TabsContent value="products">

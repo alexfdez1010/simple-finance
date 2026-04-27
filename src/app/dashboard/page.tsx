@@ -5,6 +5,7 @@
  */
 
 import { Suspense } from 'react';
+import { headers } from 'next/headers';
 import { getProducts } from '@/lib/actions/product-actions';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
@@ -16,6 +17,8 @@ import {
   ChartLoadingSkeleton,
   ProductsLoadingSkeleton,
 } from '@/components/dashboard/loading-skeletons';
+import { expectedMcpToken } from '@/lib/mcp/auth';
+import { TOKEN_ENV_VAR, buildMcpJson } from '@/lib/mcp/skill';
 import type { ProductWithValue } from '@/lib/domain/models/product.types';
 
 export const revalidate = 60;
@@ -90,16 +93,34 @@ async function getSnapshotData() {
 }
 
 /**
- * Dashboard content - fetches all data in parallel
+ * Resolve the public MCP server URL from request headers.
  *
- * @returns Dashboard content element
+ * @returns Absolute URL of the MCP HTTP endpoint
  */
+async function getSkillProps() {
+  const h = await headers();
+  const host = h.get('x-forwarded-host') ?? h.get('host') ?? 'localhost:3000';
+  const proto =
+    h.get('x-forwarded-proto') ??
+    (host.startsWith('localhost') ? 'http' : 'https');
+  const serverUrl = `${proto}://${host}/api/mcp/mcp`;
+  const token = expectedMcpToken();
+  return {
+    serverUrl,
+    token,
+    mcpJson: buildMcpJson(serverUrl),
+    tokenEnvVar: TOKEN_ENV_VAR,
+  };
+}
+
 async function DashboardContent() {
-  const [productsWithValues, snapshotData, displayRates] = await Promise.all([
-    getProductsWithValues(),
-    getSnapshotData(),
-    getDisplayRates(),
-  ]);
+  const [productsWithValues, snapshotData, displayRates, skill] =
+    await Promise.all([
+      getProductsWithValues(),
+      getSnapshotData(),
+      getDisplayRates(),
+      getSkillProps(),
+    ]);
 
   return (
     <DashboardClient
@@ -108,6 +129,7 @@ async function DashboardContent() {
       monthlyWealthData={snapshotData.monthlyWealthData}
       dailyChanges={snapshotData.dailyChanges}
       displayRates={displayRates}
+      skill={skill}
     />
   );
 }
