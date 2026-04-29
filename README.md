@@ -105,10 +105,12 @@ Built following **SOLID principles** and enterprise-level best practices with co
 
 Before you begin, ensure you have the following installed:
 
-- **[Node.js](https://nodejs.org/)** 20.x or higher
-- **[npm](https://www.npmjs.com/)** 10.x or higher
+- **[Bun](https://bun.com/)** 1.3.x or higher (package manager + script runner)
+- **[Node.js](https://nodejs.org/)** 20.x or higher (Next.js runtime)
 - **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (for PostgreSQL database)
 - **[Git](https://git-scm.com/)** for version control
+
+> Bun replaces npm for installs and script execution — faster cold installs, content-addressable cache, and stricter lockfile integrity (`bun.lock`). Install via `curl -fsSL https://bun.com/install | bash`.
 
 ## 🚀 Quick Start
 
@@ -122,7 +124,7 @@ cd simple-finance
 ### 2. Install Dependencies
 
 ```bash
-npm install
+bun install
 ```
 
 This will install all required packages including Next.js, React, Prisma, and testing tools.
@@ -146,7 +148,7 @@ CRON_SECRET="your-secure-cron-token-here"
 ### 4. Start the Database
 
 ```bash
-npm run database
+bun run database
 ```
 
 This starts a PostgreSQL container using Docker Compose. The database will be available at `localhost:5434`.
@@ -156,7 +158,7 @@ This starts a PostgreSQL container using Docker Compose. The database will be av
 Open a new terminal and run:
 
 ```bash
-npm run database:dev
+bun run database:dev
 ```
 
 This creates the database schema and generates the Prisma client.
@@ -164,7 +166,7 @@ This creates the database schema and generates the Prisma client.
 ### 6. Start the Development Server
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser. You'll be prompted to enter the password (default: `12345678`). After authentication, you'll see the Simple Finance dashboard!
@@ -172,7 +174,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser. You'll be p
 ### 7. Stop the Database (when done)
 
 ```bash
-npm run database:down
+bun run database:down
 ```
 
 ## 🎬 Usage
@@ -255,40 +257,40 @@ curl -X POST http://localhost:3000/api/cron/snapshot \
 
 | Command          | Description                                                    |
 | ---------------- | -------------------------------------------------------------- |
-| `npm run dev`    | Start development server with Turbopack (auto-starts database) |
-| `npm run build`  | Build optimized production bundle                              |
-| `npm run start`  | Start production server                                        |
-| `npm run launch` | Build and start with database                                  |
+| `bun run dev`    | Start development server with Turbopack (auto-starts database) |
+| `bun run build`  | Build optimized production bundle                              |
+| `bun run start`  | Start production server                                        |
+| `bun run launch` | Build and start with database                                  |
 
 ### Testing Commands
 
 | Command                    | Description                                          |
 | -------------------------- | ---------------------------------------------------- |
-| `npm test`                 | Run all tests (unit + integration + E2E)             |
-| `npm run test:unit`        | Run unit tests with Vitest                           |
-| `npm run test:integration` | Run integration tests                                |
-| `npm run test:e2e`         | Run E2E tests with Playwright (auto-manages test DB) |
-| `npm run playwright`       | Open Playwright UI for debugging tests               |
+| `bun test`                 | Run all tests (unit + integration + E2E)             |
+| `bun run test:unit`        | Run unit tests with Vitest                           |
+| `bun run test:integration` | Run integration tests                                |
+| `bun run test:e2e`         | Run E2E tests with Playwright (auto-manages test DB) |
+| `bun run playwright`       | Open Playwright UI for debugging tests               |
 
 ### Database Commands
 
 | Command                   | Description                             |
 | ------------------------- | --------------------------------------- |
-| `npm run database`        | Start PostgreSQL container              |
-| `npm run database:down`   | Stop and remove database container      |
-| `npm run database:dev`    | Create and run migrations (development) |
-| `npm run database:deploy` | Deploy migrations (production)          |
-| `npm run database:studio` | Open Prisma Studio (database GUI)       |
-| `npm run database:create` | Generate Prisma client and push schema  |
+| `bun run database`        | Start PostgreSQL container              |
+| `bun run database:down`   | Stop and remove database container      |
+| `bun run database:dev`    | Create and run migrations (development) |
+| `bun run database:deploy` | Deploy migrations (production)          |
+| `bun run database:studio` | Open Prisma Studio (database GUI)       |
+| `bun run database:create` | Generate Prisma client and push schema  |
 
 ### Code Quality Commands
 
 | Command               | Description                          |
 | --------------------- | ------------------------------------ |
-| `npm run lint`        | Run ESLint and Prisma format check   |
-| `npm run format`      | Format all code with Prettier        |
-| `npm run lint-format` | Lint and format (run before commits) |
-| `npm run pre-commit`  | Run all tests + lint + format        |
+| `bun run lint`        | Run ESLint and Prisma format check   |
+| `bun run format`      | Format all code with Prettier        |
+| `bun run lint-format` | Lint and format (run before commits) |
+| `bun run pre-commit`  | Run all tests + lint + format        |
 
 ## 🏗️ Project Structure
 
@@ -391,7 +393,7 @@ Located in `tests/unit/`, these test business logic in isolation:
 - **`useYahooFinance.test.ts`** - React hook for Yahoo Finance API
 
 ```bash
-npm run test:unit
+bun run test:unit
 ```
 
 **Technologies:** Vitest, JSDOM, Testing Library
@@ -446,7 +448,7 @@ Located in `tests/e2e/`, these test complete user workflows:
 - ⚠️ API error handling (skipped - Playwright auth limitations)
 
 ```bash
-npm run test:e2e
+bun run test:e2e
 ```
 
 **Technologies:** Playwright, Chromium
@@ -462,7 +464,7 @@ E2E tests use an isolated test database that is automatically:
 ### Running All Tests
 
 ```bash
-npm run test
+bun run test
 ```
 
 This runs unit tests, integration tests, and E2E tests sequentially.
@@ -531,10 +533,10 @@ A = 1000 × (1 + 0.055/365)^365 = €1,056.54
 
 ```bash
 # Create a new migration after schema changes
-npm run database:dev
+bun run database:dev
 
 # View database in GUI
-npm run database:studio
+bun run database:studio
 ```
 
 ## 🏛️ Architecture
@@ -585,10 +587,10 @@ CRON_SECRET="your-secure-cron-token-here"
 
 ```bash
 # Build optimized bundle
-npm run build
+bun run build
 
 # Start production server
-npm run start
+bun run start
 ```
 
 ### Authentication Setup
@@ -637,15 +639,15 @@ Contributions are welcome! Please follow these guidelines:
 3. **File Size Limit** - Max 200 lines per file
 4. **Documentation** - TSDoc comments on all functions
 5. **Testing** - Add tests for new features
-6. **Code Quality** - Run `npm run lint-format` before committing
+6. **Code Quality** - Run `bun run lint-format` before committing
 
 ### Workflow
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
-4. Run tests (`npm test`)
-5. Run linting (`npm run lint-format`)
+4. Run tests (`bun test`)
+5. Run linting (`bun run lint-format`)
 6. Commit your changes (`git commit -m 'Add amazing feature'`)
 7. Push to the branch (`git push origin feature/amazing-feature`)
 8. Open a Pull Request

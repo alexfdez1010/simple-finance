@@ -29,15 +29,19 @@ The project follows a layered, domain-driven architecture:
 
 Path alias: `@/*` maps to `./src/*`
 
+## Package Manager
+
+This project uses **Bun** (>=1.3) as the package manager and script runner. Use `bun install` to install deps and `bun run <script>` to invoke scripts. `package-lock.json` is replaced by `bun.lock`.
+
 ## Commands
 
-- `npm run dev` — Start development server with Turbopack + database
-- `npm run build` — Production build
-- `npm run lint-format` — **MUST run after any code change** (ESLint + Prettier)
-- `npm run test:unit` — Run unit tests (Vitest)
-- `npm run test:e2e` — Run E2E tests (Playwright, requires Docker)
-- `npm run database` — Start PostgreSQL via Docker Compose
-- `npm run database:studio` — Open Prisma Studio
+- `bun run dev` — Start development server with Turbopack + database
+- `bun run build` — Production build
+- `bun run lint-format` — **MUST run after any code change** (ESLint + Prettier)
+- `bun run test:unit` — Run unit tests (Vitest)
+- `bun run test:e2e` — Run E2E tests (Playwright, requires Docker)
+- `bun run database` — Start PostgreSQL via Docker Compose
+- `bun run database:studio` — Open Prisma Studio
 
 ## Code Standards (from AGENTS.md)
 
@@ -48,7 +52,7 @@ Path alias: `@/*` maps to `./src/*`
 3. **TSDoc documentation** — Document every function, class, and hook with purpose, params, returns, side effects.
 4. **Testing** — Unit tests for all logic. E2E tests for user flows. High meaningful coverage.
 5. **TailwindCSS 4** — All styling via Tailwind utility classes. Use shadcn/ui for foundational components.
-6. **Post-coding** — Always run `npm run lint-format`, `npm run test:unit`, AND `npm run test:e2e` after any code change before considering it complete. Update any broken tests to match the new behavior.
+6. **Post-coding** — Always run `bun run lint-format`, `bun run test:unit`, AND `bun run test:e2e` after any code change before considering it complete. Update any broken tests to match the new behavior.
 7. **Design patterns** — Use appropriate patterns for maintainability, scalability, testability.
 8. **Documentation first** — Consult official docs before implementing. Provide URLs when referencing.
 

@@ -23,7 +23,7 @@ You **MUST** strictly adhere to the following principles and workflow for **ALL*
 4. **Rigorous Post-Coding Process & Compliance:**
    - After **ANY** code generation or modification, it is **MANDATORY** to perform the following steps (or explicitly state their necessity and assume they will be done):
      - **Linting:** Code **MUST** pass strict linting rules (e.g., ESLint with relevant plugins for React/Next.js/TypeScript).
-     - **Formatting & Linting Execution:** Crucially, you **MUST** execute (or assume the execution of) the command: `npm run lint-format`. This step is **non-negotiable** for ensuring code style consistency and quality checks _before_ considering the code complete.
+     - **Formatting & Linting Execution:** Crucially, you **MUST** execute (or assume the execution of) the command: `bun run lint-format`. This step is **non-negotiable** for ensuring code style consistency and quality checks _before_ considering the code complete.
      - **Testing:** Emphasize the critical importance of **comprehensive testing** (unit, integration, potentially E2E). Solutions **MUST** be designed for testability. Assume tests are required.
 
 5. **Frontend Excellence with TailwindCSS 4:**
