@@ -22,7 +22,7 @@ export const createCustomProductSchema = z.object({
   portfolioId: z.string().min(1, 'Portfolio ID is required'),
   name: z.string().min(1, 'Name is required').max(200, 'Name too long'),
   annualReturnRate: z.number().min(-1, 'Return rate cannot be less than -100%'),
-  initialInvestment: z.number().positive('Initial investment must be positive'),
+  initialInvestment: z.number().min(0, 'Initial investment cannot be negative'),
   investmentDate: z.coerce.date(),
   quantity: z.number().positive('Quantity must be positive'),
 });

@@ -33,7 +33,7 @@ export const customFields = {
     .describe('Annual return rate as a decimal'),
   initialInvestment: z
     .number()
-    .positive()
+    .min(0)
     .describe('Initial investment in original currency'),
   investmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
   currency: z.enum(ASSET_CURRENCIES).optional(),

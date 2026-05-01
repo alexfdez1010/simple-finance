@@ -141,7 +141,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               value={formData.initialInvestment}
               onChange={(e) => update('initialInvestment', e.target.value)}
               step="0.00001"
-              min="0.01"
+              min="0"
               required
             />
           </Field>

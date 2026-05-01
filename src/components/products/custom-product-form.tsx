@@ -123,7 +123,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
             onChange={(e) => update('initialInvestment', e.target.value)}
             placeholder="10000"
             step="0.00001"
-            min="0.01"
+            min="0"
             required
           />
         </Field>
