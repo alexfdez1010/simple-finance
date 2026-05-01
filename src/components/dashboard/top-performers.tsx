@@ -17,7 +17,6 @@ interface PerformerData {
   type: 'YAHOO_FINANCE' | 'CUSTOM';
 }
 
-
 interface TopPerformersProps {
   performers: PerformerData[];
 }
