@@ -95,7 +95,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               value={formData.quantity}
               onChange={(e) => update('quantity', e.target.value)}
               step="0.00001"
-              min="0.00001"
+              min="0"
               required
             />
           </Field>

@@ -170,7 +170,7 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
               onChange={(e) => update('quantity', e.target.value)}
               placeholder="10"
               step="0.0000001"
-              min="0.0000001"
+              min="0"
               required
             />
           </Field>

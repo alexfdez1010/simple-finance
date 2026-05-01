@@ -95,7 +95,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
               value={formData.quantity}
               onChange={(e) => update('quantity', e.target.value)}
               step="0.00001"
-              min="0.00001"
+              min="0"
               required
             />
           </Field>

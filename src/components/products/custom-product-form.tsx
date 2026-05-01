@@ -148,7 +148,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
               onChange={(e) => update('quantity', e.target.value)}
               placeholder="1"
               step="0.00001"
-              min="0.00001"
+              min="0"
               required
             />
           </Field>
