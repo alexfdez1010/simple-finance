@@ -22,7 +22,7 @@ const getUsdPriceOfCrypto = unstable_cache(
     return quote?.regularMarketPriceUsd ?? null;
   },
   ['display-crypto-usd-price'],
-  { revalidate: 3600 },
+  { revalidate: 60 },
 );
 
 /**

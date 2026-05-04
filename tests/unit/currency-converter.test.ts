@@ -45,13 +45,10 @@ describe('Currency Converter Service', () => {
       expect(fetchUsdToEurRate).toHaveBeenCalledTimes(1);
     });
 
-    it('should use fallback rate when API fails', async () => {
+    it('should throw when API fails', async () => {
       vi.mocked(fetchUsdToEurRate).mockResolvedValue(null);
 
-      const result = await convertToEur(100);
-
-      // Fallback rate is 0.92
-      expect(result).toBe(92);
+      await expect(convertToEur(100)).rejects.toThrow('Missing USD→EUR rate');
     });
 
     it('should handle zero amount', async () => {
@@ -103,15 +100,14 @@ describe('Currency Converter Service', () => {
       expect(fetchHistoricalUsdToEurRate).toHaveBeenCalledWith(date);
     });
 
-    it('should use fallback rate when historical rate unavailable', async () => {
+    it('should throw when historical rate unavailable', async () => {
       const date = new Date('2024-01-01');
 
       vi.mocked(fetchHistoricalUsdToEurRate).mockResolvedValue(null);
 
-      const result = await convertToEurHistorical(100, date);
-
-      // Fallback rate is 0.92
-      expect(result).toBe(92);
+      await expect(convertToEurHistorical(100, date)).rejects.toThrow(
+        'Missing historical USD→EUR rate',
+      );
     });
   });
 
@@ -131,15 +127,12 @@ describe('Currency Converter Service', () => {
       expect(result).toEqual(mockRate);
     });
 
-    it('should return fallback rate when API fails', async () => {
+    it('should throw when API fails', async () => {
       vi.mocked(fetchUsdToEurRate).mockResolvedValue(null);
 
-      const result = await getCurrentExchangeRate();
-
-      expect(result.from).toBe('USD');
-      expect(result.to).toBe('EUR');
-      expect(result.rate).toBe(0.92);
-      expect(result.timestamp).toBeInstanceOf(Date);
+      await expect(getCurrentExchangeRate()).rejects.toThrow(
+        'Missing USD→EUR rate',
+      );
     });
   });
 
@@ -160,17 +153,14 @@ describe('Currency Converter Service', () => {
       expect(result).toEqual(mockRate);
     });
 
-    it('should return fallback rate when historical rate unavailable', async () => {
+    it('should throw when historical rate unavailable', async () => {
       const date = new Date('2024-01-01');
 
       vi.mocked(fetchHistoricalUsdToEurRate).mockResolvedValue(null);
 
-      const result = await getHistoricalExchangeRate(date);
-
-      expect(result.from).toBe('USD');
-      expect(result.to).toBe('EUR');
-      expect(result.rate).toBe(0.92);
-      expect(result.timestamp).toEqual(date);
+      await expect(getHistoricalExchangeRate(date)).rejects.toThrow(
+        'Missing historical USD→EUR rate',
+      );
     });
   });
 });

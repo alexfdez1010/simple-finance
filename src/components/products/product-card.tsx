@@ -14,6 +14,11 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DetailItem } from '@/components/products/detail-item';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
+import { calculateNetInvestedFromContributions } from '@/lib/domain/services/custom-product-calculator';
+import {
+  formatInCurrency,
+  type DisplayCurrency,
+} from '@/lib/utils/format-currency';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 interface ProductCardProps {
@@ -158,7 +163,13 @@ export function ProductCard({
             />
             <DetailItem
               label="Net Investment"
-              value={formatCurrency(invested)}
+              value={formatInCurrency(
+                calculateNetInvestedFromContributions(
+                  product.custom.contributions,
+                ),
+                product.custom.currency as DisplayCurrency,
+                1,
+              )}
             />
             <DetailItem label="Currency" value={product.custom.currency} />
             <DetailItem

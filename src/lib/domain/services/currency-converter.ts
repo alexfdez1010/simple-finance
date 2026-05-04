@@ -12,27 +12,22 @@ import {
 } from '@/lib/infrastructure/currency/exchange-rate-client';
 
 /**
- * Default fallback exchange rate if API fails
- * Based on approximate USD/EUR rate (updated periodically)
- */
-const FALLBACK_USD_TO_EUR_RATE = 0.92;
-
-/**
- * Converts a USD amount to EUR using current exchange rate
- * Falls back to default rate if API fails
+ * Converts a USD amount to EUR using current exchange rate.
+ * Throws if the rate is unavailable — better to surface the failure than
+ * silently render a stale or made-up value.
  *
  * @param usdAmount - Amount in USD
  * @returns Amount in EUR
  */
 export async function convertToEur(usdAmount: number): Promise<number> {
   const exchangeRate = await fetchUsdToEurRate();
-  const rate = exchangeRate?.rate ?? FALLBACK_USD_TO_EUR_RATE;
-  return convertUsdToEur(usdAmount, rate);
+  if (!exchangeRate?.rate) throw new Error('Missing USD→EUR rate');
+  return convertUsdToEur(usdAmount, exchangeRate.rate);
 }
 
 /**
- * Converts a USD amount to EUR using historical exchange rate
- * Falls back to current rate if historical rate unavailable
+ * Converts a USD amount to EUR using historical exchange rate.
+ * Throws if no rate is available.
  *
  * @param usdAmount - Amount in USD
  * @param date - Historical date for exchange rate
@@ -43,31 +38,23 @@ export async function convertToEurHistorical(
   date: Date,
 ): Promise<number> {
   const exchangeRate = await fetchHistoricalUsdToEurRate(date);
-  const rate = exchangeRate?.rate ?? FALLBACK_USD_TO_EUR_RATE;
-  return convertUsdToEur(usdAmount, rate);
+  if (!exchangeRate?.rate) throw new Error('Missing historical USD→EUR rate');
+  return convertUsdToEur(usdAmount, exchangeRate.rate);
 }
 
 /**
- * Gets current USD to EUR exchange rate
- * Returns fallback rate if API fails
+ * Gets current USD to EUR exchange rate. Throws on failure.
  *
  * @returns Exchange rate object
  */
 export async function getCurrentExchangeRate(): Promise<ExchangeRate> {
   const exchangeRate = await fetchUsdToEurRate();
-  return (
-    exchangeRate ?? {
-      from: 'USD',
-      to: 'EUR',
-      rate: FALLBACK_USD_TO_EUR_RATE,
-      timestamp: new Date(),
-    }
-  );
+  if (!exchangeRate) throw new Error('Missing USD→EUR rate');
+  return exchangeRate;
 }
 
 /**
- * Gets historical USD to EUR exchange rate
- * Returns current rate if historical unavailable
+ * Gets historical USD to EUR exchange rate. Throws on failure.
  *
  * @param date - Historical date
  * @returns Exchange rate object
@@ -76,12 +63,6 @@ export async function getHistoricalExchangeRate(
   date: Date,
 ): Promise<ExchangeRate> {
   const exchangeRate = await fetchHistoricalUsdToEurRate(date);
-  return (
-    exchangeRate ?? {
-      from: 'USD',
-      to: 'EUR',
-      rate: FALLBACK_USD_TO_EUR_RATE,
-      timestamp: date,
-    }
-  );
+  if (!exchangeRate) throw new Error('Missing historical USD→EUR rate');
+  return exchangeRate;
 }

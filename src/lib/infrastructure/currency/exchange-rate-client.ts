@@ -28,7 +28,7 @@ export async function fetchUsdToEurRate(): Promise<ExchangeRate | null> {
     const response = await fetch(
       'https://api.exchangerate-api.com/v4/latest/USD',
       {
-        next: { revalidate: 3600 }, // Cache for 1 hour
+        next: { revalidate: 60 },
       },
     );
 

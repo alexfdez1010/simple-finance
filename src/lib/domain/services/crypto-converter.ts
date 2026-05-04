@@ -14,15 +14,9 @@ import {
 } from '@/lib/infrastructure/currency/exchange-rate-client';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 
-const FALLBACK_CRYPTO_TO_EUR_RATES: Record<CryptoCurrency, number> = {
-  BTC: 90000,
-  ETH: 3000,
-  XAUT: 3000,
-};
-
 /**
- * Cached per-asset EUR spot rate. One Yahoo call per asset / hour,
- * reused everywhere (same strategy as the USD→EUR fetch cache).
+ * Cached per-asset EUR spot rate. One Yahoo call per asset / minute,
+ * reused everywhere.
  */
 const getCryptoRateEur = unstable_cache(
   async (symbol: CryptoCurrency): Promise<number | null> => {
@@ -30,11 +24,13 @@ const getCryptoRateEur = unstable_cache(
     return quote?.regularMarketPrice ?? null;
   },
   ['crypto-eur-rate'],
-  { revalidate: 3600 },
+  { revalidate: 60 },
 );
 
 /**
  * Converts an amount in BTC/ETH/XAUT to EUR using the cached Yahoo rate.
+ * Throws if the rate is unavailable — better to surface the failure than
+ * silently render a stale or made-up value.
  *
  * @param amount - Amount in source asset
  * @param symbol - Asset symbol
@@ -44,7 +40,7 @@ export async function convertCryptoAssetToEur(
   amount: number,
   symbol: CryptoCurrency,
 ): Promise<number> {
-  const cachedRate = await getCryptoRateEur(symbol);
-  const rate = cachedRate ?? FALLBACK_CRYPTO_TO_EUR_RATES[symbol];
+  const rate = await getCryptoRateEur(symbol);
+  if (!rate) throw new Error(`Missing ${symbol}→EUR rate`);
   return convertCryptoToEur(amount, rate);
 }
