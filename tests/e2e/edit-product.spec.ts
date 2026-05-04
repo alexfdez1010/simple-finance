@@ -27,7 +27,7 @@ async function createCustomProduct(
   await page.getByRole('tab', { name: 'Custom Product' }).click();
   await page.getByLabel('Product Name').fill(name);
   await page.getByLabel('Annual Rate (%)').fill(rate);
-  await page.getByLabel(/Initial Investment/).fill(investment);
+  await page.getByLabel(/Initial Deposit/).fill(investment);
   await page.getByLabel('Quantity').fill('1');
   await page.getByLabel('Investment Date').fill(date);
   await page.getByRole('button', { name: 'Add Product' }).click();
@@ -182,12 +182,12 @@ test.describe('Edit Product', () => {
       page.getByRole('heading', { name: 'Edit Product' }),
     ).toBeVisible();
 
-    // Verify form is pre-populated
+    // Verify form is pre-populated. Initial deposit + date are managed in
+    // the Movements list, not the metadata form.
     await expect(page.getByLabel('Product Name')).toHaveValue(originalName);
     await expect(page.getByLabel('Quantity')).toHaveValue('1');
     await expect(page.getByLabel('Annual Rate (%)')).toHaveValue('5.5');
-    await expect(page.getByLabel(/Investment \(/)).toHaveValue('1000');
-    await expect(page.getByLabel('Investment Date')).toHaveValue('2024-01-01');
+    await expect(page.getByText(/Movements \(1\)/)).toBeVisible();
 
     // Edit all fields
     const updatedName = `Custom Investment Updated ${Date.now()}`;

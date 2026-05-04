@@ -22,9 +22,10 @@ export const yahooFields = {
 };
 
 /**
- * Common Zod fields for a custom (fixed-rate) asset.
+ * Fields used when creating a custom (fixed-rate) asset. Includes the
+ * initial deposit, which becomes the asset's first contribution.
  */
-export const customFields = {
+export const customCreateFields = {
   name: z.string().min(1).max(200),
   quantity: z.number().positive(),
   annualReturnRate: z
@@ -34,9 +35,38 @@ export const customFields = {
   initialInvestment: z
     .number()
     .min(0)
-    .describe('Initial investment in original currency'),
+    .describe(
+      'Initial deposit, in the product currency. Stored as the first contribution.',
+    ),
   investmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
   currency: z.enum(ASSET_CURRENCIES).optional(),
+};
+
+/**
+ * Fields used when updating a custom asset's metadata. Contributions are
+ * managed via the dedicated contribution tools.
+ */
+export const customUpdateFields = {
+  name: z.string().min(1).max(200),
+  quantity: z.number().positive(),
+  annualReturnRate: z
+    .number()
+    .min(-1)
+    .describe('Annual return rate as a decimal'),
+  currency: z.enum(ASSET_CURRENCIES).optional(),
+};
+
+/**
+ * Fields used when adding or updating a single contribution.
+ */
+export const contributionFields = {
+  amount: z
+    .number()
+    .describe(
+      'Signed amount in product currency: positive = deposit, negative = withdrawal.',
+    ),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
+  note: z.string().max(500).optional(),
 };
 
 /**

@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findAllProducts } from '@/lib/infrastructure/database/product-repository';
-import { calculatePortfolioStatistics } from '@/lib/domain/services/portfolio-statistics';
+import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enrichment';
 import { upsertPortfolioSnapshot } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
-import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
-import { calculateCustomProductValue } from '@/lib/domain/services/custom-product-calculator';
 import { generateAuthToken } from '@/lib/auth/auth-utils';
 
 /**
@@ -15,7 +13,6 @@ import { generateAuthToken } from '@/lib/auth/auth-utils';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Verify bearer token
     const authHeader = request.headers.get('authorization');
     const expectedToken = process.env.CRON_SECRET;
 
@@ -34,7 +31,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    const token = authHeader.substring(7);
 
     if (generateAuthToken(token) !== generateAuthToken(expectedToken)) {
       return NextResponse.json(
@@ -43,46 +40,30 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get all products
     const products = await findAllProducts();
 
     if (products.length === 0) {
       return NextResponse.json(
-        {
-          message: 'No products found, snapshot not created',
-          totalValue: 0,
-        },
+        { message: 'No products found, snapshot not created', totalValue: 0 },
         { status: 200 },
       );
     }
 
-    // Fetch current prices for Yahoo Finance products
-    const currentPrices = new Map<string, number>();
+    const enriched = await enrichProductsWithEurValues(products);
 
-    for (const product of products) {
-      if (product.type === 'YAHOO_FINANCE') {
-        const quote = await fetchYahooQuoteServer(product.yahoo.symbol);
-        if (quote) {
-          currentPrices.set(product.id, quote.regularMarketPrice);
-        }
-      } else if (product.type === 'CUSTOM') {
-        const value = await calculateCustomProductValue(
-          product.custom.initialInvestment,
-          product.custom.annualReturnRate,
-          product.custom.investmentDate,
-        );
-        currentPrices.set(product.id, value);
-      }
-    }
+    const totalValue = enriched.reduce((acc, p) => acc + p.currentValueEur, 0);
+    const totalInvestment = enriched.reduce((acc, p) => acc + p.investedEur, 0);
+    const totalReturn = totalValue - totalInvestment;
+    const totalReturnPercentage =
+      totalInvestment > 0 ? (totalReturn / totalInvestment) * 100 : 0;
 
-    // Calculate portfolio statistics
-    const stats = await calculatePortfolioStatistics(products, currentPrices);
-
-    // Create snapshot for today
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to midnight
+    today.setHours(0, 0, 0, 0);
 
-    const snapshot = await upsertPortfolioSnapshot(today, stats.totalValue);
+    const snapshot = await upsertPortfolioSnapshot(
+      today,
+      Math.round(totalValue * 100) / 100,
+    );
 
     return NextResponse.json(
       {
@@ -92,9 +73,9 @@ export async function GET(request: NextRequest) {
           value: snapshot.value,
         },
         stats: {
-          totalValue: stats.totalValue,
-          totalReturn: stats.totalReturn,
-          totalReturnPercentage: stats.totalReturnPercentage,
+          totalValue: Math.round(totalValue * 100) / 100,
+          totalReturn: Math.round(totalReturn * 100) / 100,
+          totalReturnPercentage: Math.round(totalReturnPercentage * 100) / 100,
         },
       },
       { status: 200 },

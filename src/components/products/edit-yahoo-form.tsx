@@ -122,6 +122,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
             type="date"
             value={formData.purchaseDate}
             onChange={(e) => update('purchaseDate', e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
             required
           />
         </Field>

@@ -25,6 +25,9 @@ const TOOL_NAMES = [
   'update_yahoo_asset',
   'update_custom_asset',
   'delete_asset',
+  'add_custom_contribution',
+  'update_custom_contribution',
+  'delete_custom_contribution',
 ];
 
 function parseToolJson<T>(result: unknown): T {
@@ -138,13 +141,45 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
           name: `MCP E2E Custom ${stamp} (renamed)`,
           quantity: 2,
           annualReturnRate: 0.07,
-          initialInvestment: 1000,
-          investmentDate: today,
           currency: 'EUR',
         },
       }),
     );
     expect(updated.custom.annualReturnRate).toBeCloseTo(0.07, 4);
+
+    const contribution = parseToolJson<{ id: string; amount: number }>(
+      await client.callTool({
+        name: 'add_custom_contribution',
+        arguments: {
+          assetId: custom.id,
+          amount: 500,
+          date: today,
+          note: 'Monthly deposit',
+        },
+      }),
+    );
+    expect(contribution.amount).toBe(500);
+
+    const updatedContribution = parseToolJson<{ id: string; amount: number }>(
+      await client.callTool({
+        name: 'update_custom_contribution',
+        arguments: {
+          id: contribution.id,
+          amount: -100,
+          date: today,
+          note: 'Withdrawal',
+        },
+      }),
+    );
+    expect(updatedContribution.amount).toBe(-100);
+
+    const deletedContribution = parseToolJson<{ deleted: string }>(
+      await client.callTool({
+        name: 'delete_custom_contribution',
+        arguments: { id: contribution.id },
+      }),
+    );
+    expect(deletedContribution.deleted).toBe(contribution.id);
 
     for (const id of [yahoo.id, custom.id]) {
       const deleted = parseToolJson<{ deleted: string }>(

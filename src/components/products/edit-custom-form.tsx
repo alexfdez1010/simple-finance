@@ -1,20 +1,22 @@
 /**
- * Custom product edit form component
+ * Custom product edit form. Splits product metadata (name, quantity, rate,
+ * currency) from the contributions list, which is managed by its own
+ * component with full add/edit/delete CRUD.
+ *
  * @module components/products/edit-custom-form
  */
 
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateCustomProductAction } from '@/lib/actions/product-actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError } from '@/components/products/form-actions';
-import {
-  CURRENCY_OPTIONS,
-  currencySymbol,
-} from '@/components/products/currency-options';
+import { CURRENCY_OPTIONS } from '@/components/products/currency-options';
+import { CustomContributions } from '@/components/products/custom-contributions';
 import type { CustomProduct } from '@/lib/domain/models/product.types';
 
 interface EditCustomFormProps {
@@ -23,29 +25,26 @@ interface EditCustomFormProps {
 }
 
 /**
- * Edit form for custom products
+ * Edit form for custom products. Saving updates metadata; contribution
+ * changes are persisted immediately by the embedded list and trigger a
+ * router refresh so derived totals stay in sync.
  *
  * @param props - Product to edit with optional success callback
  * @returns Form element
  */
 export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
+  const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: product.name,
     quantity: product.quantity.toString(),
     annualReturnRate: (product.custom.annualReturnRate * 100).toString(),
-    initialInvestment: product.custom.initialInvestment.toString(),
-    investmentDate: new Date(product.custom.investmentDate)
-      .toISOString()
-      .split('T')[0],
     currency: product.custom.currency,
   });
 
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
-
-  const symbol = currencySymbol(formData.currency);
 
   /** Handles form submission */
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,8 +58,6 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
         formData.name,
         parseFloat(formData.quantity),
         parseFloat(formData.annualReturnRate) / 100,
-        parseFloat(formData.initialInvestment),
-        new Date(formData.investmentDate),
         formData.currency,
       );
       if (!result.success) {
@@ -74,47 +71,49 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <FieldGroup className="gap-4">
-        <Field>
-          <FieldLabel htmlFor="edit-custom-name">Product Name</FieldLabel>
-          <Input
-            id="edit-custom-name"
-            value={formData.name}
-            onChange={(e) => update('name', e.target.value)}
-            required
-          />
-        </Field>
-
-        <div className="grid grid-cols-2 gap-4">
+    <div className="flex flex-col gap-6">
+      <form onSubmit={handleSubmit}>
+        <FieldGroup className="gap-4">
           <Field>
-            <FieldLabel htmlFor="edit-custom-qty">Quantity</FieldLabel>
+            <FieldLabel htmlFor="edit-custom-name">Product Name</FieldLabel>
             <Input
-              id="edit-custom-qty"
-              type="number"
-              value={formData.quantity}
-              onChange={(e) => update('quantity', e.target.value)}
-              step="0.00001"
-              min="0"
+              id="edit-custom-name"
+              value={formData.name}
+              onChange={(e) => update('name', e.target.value)}
               required
             />
           </Field>
-          <Field>
-            <FieldLabel htmlFor="edit-custom-rate">Annual Rate (%)</FieldLabel>
-            <Input
-              id="edit-custom-rate"
-              type="number"
-              value={formData.annualReturnRate}
-              onChange={(e) => update('annualReturnRate', e.target.value)}
-              step="0.00001"
-              min="0"
-              max="100"
-              required
-            />
-          </Field>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-4">
+            <Field>
+              <FieldLabel htmlFor="edit-custom-qty">Quantity</FieldLabel>
+              <Input
+                id="edit-custom-qty"
+                type="number"
+                value={formData.quantity}
+                onChange={(e) => update('quantity', e.target.value)}
+                step="0.00001"
+                min="0"
+                required
+              />
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="edit-custom-rate">
+                Annual Rate (%)
+              </FieldLabel>
+              <Input
+                id="edit-custom-rate"
+                type="number"
+                value={formData.annualReturnRate}
+                onChange={(e) => update('annualReturnRate', e.target.value)}
+                step="0.00001"
+                min="0"
+                max="100"
+                required
+              />
+            </Field>
+          </div>
+
           <Field>
             <FieldLabel htmlFor="edit-custom-currency">Currency</FieldLabel>
             <select
@@ -131,39 +130,23 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               ))}
             </select>
           </Field>
-          <Field>
-            <FieldLabel htmlFor="edit-custom-inv">
-              Investment ({symbol})
-            </FieldLabel>
-            <Input
-              id="edit-custom-inv"
-              type="number"
-              value={formData.initialInvestment}
-              onChange={(e) => update('initialInvestment', e.target.value)}
-              step="0.00001"
-              min="0"
-              required
-            />
-          </Field>
-        </div>
 
-        <Field>
-          <FieldLabel htmlFor="edit-custom-date">Investment Date</FieldLabel>
-          <Input
-            id="edit-custom-date"
-            type="date"
-            value={formData.investmentDate}
-            onChange={(e) => update('investmentDate', e.target.value)}
-            required
-          />
-        </Field>
+          <FormError error={error} />
 
-        <FormError error={error} />
+          <Button type="submit" disabled={submitting}>
+            {submitting ? 'Updating...' : 'Update Product'}
+          </Button>
+        </FieldGroup>
+      </form>
 
-        <Button type="submit" disabled={submitting} className="w-full">
-          {submitting ? 'Updating...' : 'Update Product'}
-        </Button>
-      </FieldGroup>
-    </form>
+      <div className="border-t border-border pt-4">
+        <CustomContributions
+          customProductDataId={product.custom.id}
+          currency={formData.currency}
+          contributions={product.custom.contributions}
+          onChanged={() => router.refresh()}
+        />
+      </div>
+    </div>
   );
 }

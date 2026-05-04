@@ -39,12 +39,9 @@ export function computeDashboardData(
 ): DashboardData {
   const stats = products.reduce(
     (acc, p) => {
-      acc.totalValue += p.currentValue * p.quantity;
+      acc.totalValue += p.currentValueEur;
+      acc.totalInvestment += p.investedEur;
       acc.productCount += 1;
-      acc.totalInvestment +=
-        (p.type === 'CUSTOM'
-          ? p.custom.initialInvestment
-          : p.yahoo.purchasePrice) * p.quantity;
       return acc;
     },
     { totalValue: 0, totalInvestment: 0, productCount: 0 },
@@ -52,16 +49,13 @@ export function computeDashboardData(
 
   const allocationData = products.map((p) => ({
     name: p.name,
-    value: p.currentValue * p.quantity,
+    value: p.currentValueEur,
     type: p.type,
   }));
 
   const performersData = products.map((p) => {
-    const invested =
-      (p.type === 'CUSTOM'
-        ? p.custom.initialInvestment
-        : p.yahoo.purchasePrice) * p.quantity;
-    const current = p.currentValue * p.quantity;
+    const invested = p.investedEur;
+    const current = p.currentValueEur;
     const ret = current - invested;
     return {
       name: p.name,

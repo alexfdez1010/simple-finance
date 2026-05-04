@@ -63,9 +63,30 @@ model CustomProductData {
   updatedAt         DateTime @updatedAt
   currency          String   @default("EUR")
 
-  product FinancialProduct @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product       FinancialProduct            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  contributions CustomProductContribution[]
 
   @@map("custom_product_data")
+}
+
+/// A single deposit (positive amount) or withdrawal (negative amount)
+/// on a custom product. Each contribution accrues compound interest from
+/// its own date at the product's annual return rate.
+/// `amount` is stored in the parent product's currency; conversion to
+/// other currencies is performed at display/aggregation time.
+model CustomProductContribution {
+  id                  String   @id @default(cuid())
+  customProductDataId String
+  amount              Float // Signed: > 0 = deposit, < 0 = withdrawal. In product currency.
+  date                DateTime
+  note                String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  customProduct CustomProductData @relation(fields: [customProductDataId], references: [id], onDelete: Cascade)
+
+  @@index([customProductDataId, date])
+  @@map("custom_product_contributions")
 }
 
 /// Daily snapshot of product value

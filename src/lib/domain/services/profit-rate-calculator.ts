@@ -1,126 +1,47 @@
 /**
- * Service for calculating profit rates from custom products
- * Only considers custom products as variable income products cannot be predicted
+ * Service for calculating projected profit rates from custom (fixed-rate)
+ * products. Variable-income products are excluded because their daily
+ * return cannot be predicted.
+ *
+ * Daily profit per product is computed as `investedEur · annualRate / 365`
+ * where `investedEur` is the net invested amount in EUR (sum of every
+ * contribution converted at the time the product was enriched).
+ *
  * @module domain/services/profit-rate-calculator
  */
 
-import type { FinancialProduct } from '@/lib/domain/models/product.types';
-import { convertToEur } from '@/lib/domain/services/currency-converter';
+import type { ProductWithValue } from '@/lib/domain/models/product.types';
 
-/**
- * Profit rate calculation result
- */
 export interface ProfitRates {
-  /** Daily profit in EUR */
   daily: number;
-  /** Weekly profit in EUR */
   weekly: number;
-  /** Monthly profit in EUR (30 days) */
   monthly: number;
-  /** Annual profit in EUR (365 days) */
   annual: number;
 }
 
 /**
- * Calculates the daily profit rate for a single custom product
- * Uses compound interest: daily profit = P * ((1 + r/365) - 1)
+ * Aggregates projected profit rates over the custom products of a portfolio.
  *
- * @param initialInvestmentEur - Initial investment in EUR
- * @param annualReturnRate - Annual return rate as decimal (e.g., 0.05 for 5%)
- * @param quantity - Product quantity
- * @returns Daily profit in EUR
- */
-function calculateDailyProfit(
-  initialInvestmentEur: number,
-  annualReturnRate: number,
-  quantity: number,
-): number {
-  const totalInvestment = initialInvestmentEur * quantity;
-  const dailyRate = annualReturnRate / 365;
-  const dailyProfit = totalInvestment * dailyRate;
-  return dailyProfit;
-}
-
-/**
- * Calculates profit rates for all custom products
- * Only includes custom products (fixed income) as variable income cannot be predicted
- *
- * @param products - Array of financial products with current values
- * @returns Profit rates (daily, weekly, monthly) in EUR
- */
-export async function calculateProfitRates(
-  products: Array<FinancialProduct & { currentValue: number }>,
-): Promise<ProfitRates> {
-  const customProducts = products.filter((p) => p.type === 'CUSTOM');
-
-  if (customProducts.length === 0) {
-    return { daily: 0, weekly: 0, monthly: 0, annual: 0 };
-  }
-
-  let totalDailyProfit = 0;
-
-  for (const product of customProducts) {
-    if (!product.custom) continue;
-
-    let investmentEur = product.custom.initialInvestment;
-
-    // Convert USD to EUR if needed
-    if (product.custom.currency === 'USD') {
-      investmentEur = await convertToEur(product.custom.initialInvestment);
-    }
-
-    const dailyProfit = calculateDailyProfit(
-      investmentEur,
-      product.custom.annualReturnRate,
-      product.quantity,
-    );
-
-    totalDailyProfit += dailyProfit;
-  }
-
-  // Round to 2 decimal places
-  const daily = Math.round(totalDailyProfit * 100) / 100;
-  const weekly = Math.round(totalDailyProfit * 7 * 100) / 100;
-  const monthly = Math.round(totalDailyProfit * 30 * 100) / 100;
-  const annual = Math.round(totalDailyProfit * 365 * 100) / 100;
-
-  return { daily, weekly, monthly, annual };
-}
-
-/**
- * Calculates profit rates synchronously (when all values are already in EUR)
- *
- * @param products - Array of financial products with current values
- * @returns Profit rates (daily, weekly, monthly) in EUR
+ * @param products - Products already enriched with `investedEur`
+ * @returns Daily / weekly / monthly / annual EUR projections
  */
 export function calculateProfitRatesSync(
-  products: Array<FinancialProduct & { currentValue: number }>,
+  products: ProductWithValue[],
 ): ProfitRates {
-  const customProducts = products.filter((p) => p.type === 'CUSTOM');
-
-  if (customProducts.length === 0) {
-    return { daily: 0, weekly: 0, monthly: 0, annual: 0 };
-  }
-
   let totalDailyProfit = 0;
 
-  for (const product of customProducts) {
-    if (!product.custom) continue;
-
-    // Assume already in EUR for sync version
-    const dailyProfit = calculateDailyProfit(
-      product.custom.initialInvestment,
-      product.custom.annualReturnRate,
-      product.quantity,
-    );
-
-    totalDailyProfit += dailyProfit;
+  for (const product of products) {
+    if (product.type !== 'CUSTOM') continue;
+    if (product.investedEur <= 0) continue;
+    const dailyRate = product.custom.annualReturnRate / 365;
+    totalDailyProfit += product.investedEur * dailyRate;
   }
 
-  const daily = Math.round(totalDailyProfit * 100) / 100;
-  const weekly = Math.round(totalDailyProfit * 7 * 100) / 100;
-  const monthly = Math.round(totalDailyProfit * 30 * 100) / 100;
-  const annual = Math.round(totalDailyProfit * 365 * 100) / 100;
-
-  return { daily, weekly, monthly, annual };
+  const round = (n: number) => Math.round(n * 100) / 100;
+  return {
+    daily: round(totalDailyProfit),
+    weekly: round(totalDailyProfit * 7),
+    monthly: round(totalDailyProfit * 30),
+    annual: round(totalDailyProfit * 365),
+  };
 }

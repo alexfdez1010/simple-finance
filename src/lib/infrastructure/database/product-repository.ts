@@ -4,6 +4,7 @@
  */
 
 import { prisma } from './prisma-client';
+import { mapCustomData } from './product-mappers';
 import type {
   FinancialProduct,
   YahooFinanceProduct,
@@ -13,7 +14,6 @@ import type {
   UpdateProductQuantityInput,
   UpdateYahooFinanceProductInput,
   UpdateCustomProductInput,
-  ProductSnapshot,
 } from '@/lib/domain/models/product.types';
 
 /**
@@ -38,9 +38,7 @@ export async function createYahooFinanceProduct(
         },
       },
     },
-    include: {
-      yahoo: true,
-    },
+    include: { yahoo: true },
   });
 
   return {
@@ -51,9 +49,11 @@ export async function createYahooFinanceProduct(
 }
 
 /**
- * Creates a custom product
+ * Creates a custom product with an initial contribution.
+ * Legacy `initialInvestment`/`investmentDate` mirror the first contribution
+ * for backwards compatibility with old snapshots and reports.
  *
- * @param input - Product creation data
+ * @param input - Product creation data (initialInvestment is in EUR)
  * @returns Created product
  */
 export async function createCustomProduct(
@@ -70,24 +70,23 @@ export async function createCustomProduct(
           initialInvestment: input.initialInvestment,
           investmentDate: input.investmentDate,
           currency: input.currency,
+          contributions: {
+            create: {
+              amount: input.initialInvestment,
+              date: input.investmentDate,
+              note: 'Initial investment',
+            },
+          },
         },
       },
     },
-    include: {
-      custom: true,
-    },
+    include: { custom: { include: { contributions: true } } },
   });
 
   return {
     ...product,
     type: 'CUSTOM',
-    custom: {
-      id: product.custom!.id,
-      annualReturnRate: product.custom!.annualReturnRate,
-      initialInvestment: product.custom!.initialInvestment,
-      investmentDate: product.custom!.investmentDate,
-      currency: product.custom!.currency,
-    },
+    custom: mapCustomData(product.custom!),
   } as CustomProduct;
 }
 
@@ -104,13 +103,11 @@ export async function findProductById(
     where: { id: productId },
     include: {
       yahoo: true,
-      custom: true,
+      custom: { include: { contributions: true } },
     },
   });
 
-  if (!product) {
-    return null;
-  }
+  if (!product) return null;
 
   if (product.type === 'YAHOO_FINANCE' && product.yahoo) {
     return {
@@ -124,13 +121,7 @@ export async function findProductById(
     return {
       ...product,
       type: 'CUSTOM',
-      custom: {
-        id: product.custom.id,
-        annualReturnRate: product.custom.annualReturnRate,
-        initialInvestment: product.custom.initialInvestment,
-        investmentDate: product.custom.investmentDate,
-        currency: product.custom.currency,
-      },
+      custom: mapCustomData(product.custom),
     } as CustomProduct;
   }
 
@@ -138,21 +129,20 @@ export async function findProductById(
 }
 
 /**
- * Finds all products in a portfolio
+ * Finds all products in the portfolio.
  *
- * @param portfolioId - Portfolio ID
- * @returns Array of products
+ * @returns Array of products with embedded contributions for custom ones
  */
 export async function findAllProducts(): Promise<FinancialProduct[]> {
   const products = await prisma.financialProduct.findMany({
     include: {
       yahoo: true,
-      custom: true,
+      custom: { include: { contributions: true } },
     },
     orderBy: { createdAt: 'desc' },
   });
 
-  return products.map((product: (typeof products)[0]): FinancialProduct => {
+  return products.map((product): FinancialProduct => {
     if (product.type === 'YAHOO_FINANCE' && product.yahoo) {
       return {
         ...product,
@@ -163,61 +153,28 @@ export async function findAllProducts(): Promise<FinancialProduct[]> {
     return {
       ...product,
       type: 'CUSTOM',
-      custom: {
-        id: product.custom!.id,
-        annualReturnRate: product.custom!.annualReturnRate,
-        initialInvestment: product.custom!.initialInvestment,
-        investmentDate: product.custom!.investmentDate,
-        currency: product.custom!.currency,
-      },
+      custom: mapCustomData(product.custom!),
     } as CustomProduct;
   });
 }
 
 /**
- * Updates product quantity
- *
- * @param input - Update data
- * @returns Updated product
+ * Updates product quantity.
  */
 export async function updateProductQuantity(
   input: UpdateProductQuantityInput,
 ): Promise<FinancialProduct> {
-  const product = await prisma.financialProduct.update({
+  await prisma.financialProduct.update({
     where: { id: input.productId },
     data: { quantity: input.quantity },
-    include: {
-      yahoo: true,
-      custom: true,
-    },
   });
-
-  if (product.type === 'YAHOO_FINANCE' && product.yahoo) {
-    return {
-      ...product,
-      type: 'YAHOO_FINANCE',
-      yahoo: product.yahoo,
-    } as YahooFinanceProduct;
-  }
-
-  return {
-    ...product,
-    type: 'CUSTOM',
-    custom: {
-      id: product.custom!.id,
-      annualReturnRate: product.custom!.annualReturnRate,
-      initialInvestment: product.custom!.initialInvestment,
-      investmentDate: product.custom!.investmentDate,
-      currency: product.custom!.currency,
-    },
-  } as CustomProduct;
+  const product = await findProductById(input.productId);
+  if (!product) throw new Error('Product not found after update');
+  return product;
 }
 
 /**
- * Updates a Yahoo Finance product
- *
- * @param input - Update data
- * @returns Updated product
+ * Updates a Yahoo Finance product.
  */
 export async function updateYahooFinanceProduct(
   input: UpdateYahooFinanceProductInput,
@@ -234,9 +191,7 @@ export async function updateYahooFinanceProduct(
         },
       },
     },
-    include: {
-      yahoo: true,
-    },
+    include: { yahoo: true },
   });
 
   return {
@@ -247,15 +202,13 @@ export async function updateYahooFinanceProduct(
 }
 
 /**
- * Updates a custom product
- *
- * @param input - Update data
- * @returns Updated product
+ * Updates a custom product's metadata (name, quantity, rate, currency).
+ * Contributions are managed via contribution-repository.
  */
 export async function updateCustomProduct(
   input: UpdateCustomProductInput,
 ): Promise<CustomProduct> {
-  const product = await prisma.financialProduct.update({
+  await prisma.financialProduct.update({
     where: { id: input.productId },
     data: {
       name: input.name,
@@ -263,87 +216,21 @@ export async function updateCustomProduct(
       custom: {
         update: {
           annualReturnRate: input.annualReturnRate,
-          initialInvestment: input.initialInvestment,
-          investmentDate: input.investmentDate,
           currency: input.currency,
         },
       },
     },
-    include: {
-      custom: true,
-    },
   });
-
-  return {
-    ...product,
-    type: 'CUSTOM',
-    custom: {
-      id: product.custom!.id,
-      annualReturnRate: product.custom!.annualReturnRate,
-      initialInvestment: product.custom!.initialInvestment,
-      investmentDate: product.custom!.investmentDate,
-      currency: product.custom!.currency,
-    },
-  } as CustomProduct;
+  const product = await findProductById(input.productId);
+  if (!product || product.type !== 'CUSTOM') {
+    throw new Error('Custom product not found after update');
+  }
+  return product;
 }
 
 /**
- * Deletes a product
- *
- * @param productId - Product ID
+ * Deletes a product (cascade removes its custom data and contributions).
  */
 export async function deleteProduct(productId: string): Promise<void> {
-  await prisma.financialProduct.delete({
-    where: { id: productId },
-  });
-}
-
-/**
- * Creates a product snapshot
- *
- * @param productId - Product ID
- * @param date - Snapshot date
- * @param value - Product value
- * @param quantity - Product quantity
- * @returns Created snapshot
- */
-export async function createProductSnapshot(
-  productId: string,
-  date: Date,
-  value: number,
-  quantity: number,
-): Promise<ProductSnapshot> {
-  return await prisma.productSnapshot.create({
-    data: {
-      productId,
-      date,
-      value,
-      quantity,
-    },
-  });
-}
-
-/**
- * Finds snapshots for a product within a date range
- *
- * @param productId - Product ID
- * @param startDate - Start date
- * @param endDate - End date
- * @returns Array of snapshots
- */
-export async function findProductSnapshots(
-  productId: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<ProductSnapshot[]> {
-  return await prisma.productSnapshot.findMany({
-    where: {
-      productId,
-      date: {
-        gte: startDate,
-        lte: endDate,
-      },
-    },
-    orderBy: { date: 'asc' },
-  });
+  await prisma.financialProduct.delete({ where: { id: productId } });
 }

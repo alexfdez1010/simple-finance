@@ -183,6 +183,7 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
             type="date"
             value={formData.purchaseDate}
             onChange={(e) => update('purchaseDate', e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
             required
           />
         </Field>

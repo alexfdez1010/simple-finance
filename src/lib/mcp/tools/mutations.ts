@@ -12,23 +12,20 @@ import {
   updateYahooFinanceProduct,
   updateCustomProduct,
   deleteProduct,
+  findProductById,
 } from '@/lib/infrastructure/database/product-repository';
-import { convertToEur } from '@/lib/domain/services/currency-converter';
-import { convertCryptoAssetToEur } from '@/lib/domain/services/crypto-converter';
-import { customFields, ok, yahooFields } from './shared';
-
-/**
- * Convert an initial investment to EUR following the same rules as the
- * browser server action: USD via FX, BTC/ETH/XAUT via crypto rates,
- * everything else passed through.
- */
-async function toEur(amount: number, currency: string): Promise<number> {
-  if (currency === 'USD') return convertToEur(amount);
-  if (currency === 'BTC' || currency === 'ETH' || currency === 'XAUT') {
-    return convertCryptoAssetToEur(amount, currency);
-  }
-  return amount;
-}
+import {
+  addContribution,
+  updateContribution,
+  deleteContribution,
+} from '@/lib/infrastructure/database/contribution-repository';
+import {
+  contributionFields,
+  customCreateFields,
+  customUpdateFields,
+  ok,
+  yahooFields,
+} from './shared';
 
 /**
  * Registers add/update/delete tools on the MCP server.
@@ -61,22 +58,17 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Add a custom fixed-rate asset',
       description:
-        'Create a custom asset with a fixed annual return rate (e.g. savings account, bond). investmentDate is YYYY-MM-DD; initialInvestment is in the given currency and stored converted to EUR.',
-      inputSchema: customFields,
+        'Create a custom asset with a fixed annual return rate (e.g. savings account, bond). investmentDate is YYYY-MM-DD; initialInvestment is stored as the first contribution in the product currency (no EUR conversion).',
+      inputSchema: customCreateFields,
     },
     async (input) => {
-      const currency = input.currency ?? 'EUR';
-      const initialInvestmentEur = await toEur(
-        input.initialInvestment,
-        currency,
-      );
       const created = await createCustomProduct({
         name: input.name,
         annualReturnRate: input.annualReturnRate,
-        initialInvestment: initialInvestmentEur,
+        initialInvestment: input.initialInvestment,
         investmentDate: new Date(input.investmentDate),
         quantity: input.quantity,
-        currency,
+        currency: input.currency ?? 'EUR',
       });
       return ok(created);
     },
@@ -106,8 +98,8 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Update a custom fixed-rate asset',
       description:
-        'Replace metadata of an existing custom asset by id. initialInvestment is treated as already in EUR (no currency conversion is applied on update).',
-      inputSchema: { id: z.string().min(1), ...customFields },
+        'Replace metadata (name, quantity, rate, currency) of a custom asset. Contributions are managed via add_custom_contribution / update_custom_contribution / delete_custom_contribution.',
+      inputSchema: { id: z.string().min(1), ...customUpdateFields },
     },
     async ({ id, ...rest }) => {
       const updated = await updateCustomProduct({
@@ -115,8 +107,6 @@ export function registerMutationTools(server: McpServer): void {
         name: rest.name,
         quantity: rest.quantity,
         annualReturnRate: rest.annualReturnRate,
-        initialInvestment: rest.initialInvestment,
-        investmentDate: new Date(rest.investmentDate),
         currency: rest.currency ?? 'EUR',
       });
       return ok(updated);
@@ -132,6 +122,68 @@ export function registerMutationTools(server: McpServer): void {
     },
     async ({ id }) => {
       await deleteProduct(id);
+      return ok({ deleted: id });
+    },
+  );
+
+  server.registerTool(
+    'add_custom_contribution',
+    {
+      title: 'Add a deposit or withdrawal',
+      description:
+        'Add a contribution (deposit if amount > 0, withdrawal if amount < 0) to a custom asset. `assetId` is the FinancialProduct id. Amount is in the product currency.',
+      inputSchema: {
+        assetId: z.string().min(1),
+        ...contributionFields,
+      },
+    },
+    async ({ assetId, amount, date, note }) => {
+      const product = await findProductById(assetId);
+      if (!product || product.type !== 'CUSTOM') {
+        throw new Error(`No custom asset found with id ${assetId}`);
+      }
+      const created = await addContribution({
+        customProductDataId: product.custom.id,
+        amount,
+        date: new Date(date),
+        note: note ?? null,
+      });
+      return ok(created);
+    },
+  );
+
+  server.registerTool(
+    'update_custom_contribution',
+    {
+      title: 'Update a deposit or withdrawal',
+      description:
+        'Update an existing contribution by its id. Amount is signed and in the product currency.',
+      inputSchema: {
+        id: z.string().min(1),
+        ...contributionFields,
+      },
+    },
+    async ({ id, amount, date, note }) => {
+      const updated = await updateContribution({
+        id,
+        amount,
+        date: new Date(date),
+        note: note ?? null,
+      });
+      return ok(updated);
+    },
+  );
+
+  server.registerTool(
+    'delete_custom_contribution',
+    {
+      title: 'Delete a contribution',
+      description:
+        'Permanently delete a contribution (deposit or withdrawal) by id.',
+      inputSchema: { id: z.string().min(1) },
+    },
+    async ({ id }) => {
+      await deleteContribution(id);
       return ok({ deleted: id });
     },
   );

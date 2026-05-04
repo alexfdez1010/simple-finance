@@ -114,7 +114,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
 
         <Field>
           <FieldLabel htmlFor="custom-investment">
-            Initial Investment ({symbol})
+            Initial Deposit ({symbol})
           </FieldLabel>
           <Input
             id="custom-investment"
@@ -136,6 +136,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
               type="date"
               value={formData.investmentDate}
               onChange={(e) => update('investmentDate', e.target.value)}
+              max={new Date().toISOString().split('T')[0]}
               required
             />
           </Field>
@@ -160,7 +161,8 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
             How it works
           </p>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Uses compound interest: A = P(1 + r/365)^days
+            Compound interest A = P(1 + r/365)^days. Add deposits or withdrawals
+            afterwards from the product&apos;s edit dialog.
           </p>
         </div>
 

@@ -8,8 +8,7 @@ import { Suspense } from 'react';
 import { headers } from 'next/headers';
 import { getProducts } from '@/lib/actions/product-actions';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
-import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
-import { calculateCustomProductValue } from '@/lib/domain/services/custom-product-calculator';
+import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enrichment';
 import { getDisplayRates } from '@/lib/domain/services/display-rates';
 import { getPortfolioSnapshotsLastNDays } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import {
@@ -30,31 +29,9 @@ export const revalidate = 60;
  */
 async function getProductsWithValues(): Promise<ProductWithValue[]> {
   const products = await getProducts();
-
-  const productsWithValues: ProductWithValue[] = await Promise.all(
-    products.map(async (product) => {
-      let currentValue = 0;
-
-      if (product.type === 'YAHOO_FINANCE') {
-        const quote = await fetchYahooQuoteServer(product.yahoo.symbol);
-        currentValue = quote ? quote.regularMarketPrice : 0;
-      } else if (product.type === 'CUSTOM') {
-        currentValue = await calculateCustomProductValue(
-          product.custom.initialInvestment,
-          product.custom.annualReturnRate,
-          new Date(product.custom.investmentDate),
-        );
-      }
-
-      return { ...product, currentValue };
-    }),
-  );
-
-  productsWithValues.sort((a, b) => {
-    return b.currentValue * b.quantity - a.currentValue * a.quantity;
-  });
-
-  return productsWithValues;
+  const enriched = await enrichProductsWithEurValues(products);
+  enriched.sort((a, b) => b.currentValueEur - a.currentValueEur);
+  return enriched;
 }
 
 /**

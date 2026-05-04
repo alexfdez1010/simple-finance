@@ -20,8 +20,6 @@ import {
   fetchYahooQuoteServer,
   type YahooQuote,
 } from '@/lib/infrastructure/yahoo-finance/server-client';
-import { convertToEur } from '@/lib/domain/services/currency-converter';
-import { convertCryptoAssetToEur } from '@/lib/domain/services/crypto-converter';
 import type {
   CreateYahooFinanceProductInput,
   CreateCustomProductInput,
@@ -30,15 +28,17 @@ import type {
   FinancialProduct,
 } from '@/lib/domain/models/product.types';
 
+const DEFAULT_CURRENCY = 'EUR';
+
 /**
- * Creates a Yahoo Finance product
+ * Creates a Yahoo Finance product.
  *
  * @param name - Product name
  * @param symbol - Stock symbol
  * @param quantity - Number of shares
  * @param purchasePrice - Purchase price per share in EUR
  * @param purchaseDate - Date of purchase
- * @returns Created product
+ * @returns Created product id or error
  */
 export async function createYahooProduct(
   name: string,
@@ -71,16 +71,17 @@ export async function createYahooProduct(
 }
 
 /**
- * Creates a custom product
- * Converts USD to EUR at creation time if needed
+ * Creates a custom product. The initial investment is stored as-is in the
+ * product's currency — no EUR conversion is performed; the dashboard
+ * converts at display time.
  *
  * @param name - Product name
- * @param annualReturnRate - Annual return rate percentage
- * @param initialInvestment - Initial investment amount in original currency
- * @param investmentDate - Date of investment
- * @param quantity - Quantity
- * @param currency - Currency ('EUR', 'USD', 'BTC', 'ETH', 'XAUT')
- * @returns Created product
+ * @param annualReturnRate - Annual return rate as decimal (0.05 = 5%)
+ * @param initialInvestment - Initial investment in `currency`
+ * @param investmentDate - Date of initial contribution
+ * @param quantity - Quantity (usually 1 for custom products)
+ * @param currency - Product currency (default EUR)
+ * @returns Created product id or error
  */
 export async function createCustomProductAction(
   name: string,
@@ -88,30 +89,16 @@ export async function createCustomProductAction(
   initialInvestment: number,
   investmentDate: Date,
   quantity: number,
-  currency: string = 'EUR',
+  currency: string = DEFAULT_CURRENCY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
-    let initialInvestmentEur = initialInvestment;
-    if (currency === 'USD') {
-      initialInvestmentEur = await convertToEur(initialInvestment);
-    } else if (
-      currency === 'BTC' ||
-      currency === 'ETH' ||
-      currency === 'XAUT'
-    ) {
-      initialInvestmentEur = await convertCryptoAssetToEur(
-        initialInvestment,
-        currency,
-      );
-    }
-
     const input: CreateCustomProductInput = {
       name,
       annualReturnRate,
-      initialInvestment: initialInvestmentEur, // Store in EUR
+      initialInvestment,
       investmentDate,
       quantity,
-      currency,
+      currency: currency || DEFAULT_CURRENCY,
     };
 
     const product = await createCustomProduct(input);
@@ -129,9 +116,7 @@ export async function createCustomProductAction(
 }
 
 /**
- * Gets all products for the default portfolio
- *
- * @returns Array of products
+ * Gets all products in the portfolio.
  */
 export async function getProducts(): Promise<FinancialProduct[]> {
   try {
@@ -143,11 +128,7 @@ export async function getProducts(): Promise<FinancialProduct[]> {
 }
 
 /**
- * Updates product quantity
- *
- * @param productId - Product ID
- * @param quantity - New quantity
- * @returns Success status
+ * Updates product quantity.
  */
 export async function updateProductQuantityAction(
   productId: string,
@@ -168,10 +149,7 @@ export async function updateProductQuantityAction(
 }
 
 /**
- * Deletes a product
- *
- * @param productId - Product ID
- * @returns Success status
+ * Deletes a product.
  */
 export async function deleteProductAction(
   productId: string,
@@ -191,10 +169,7 @@ export async function deleteProductAction(
 }
 
 /**
- * Gets a single product by ID
- *
- * @param productId - Product ID
- * @returns Product or null if not found
+ * Gets a single product by id.
  */
 export async function getProduct(
   productId: string,
@@ -208,14 +183,7 @@ export async function getProduct(
 }
 
 /**
- * Updates a Yahoo Finance product
- *
- * @param productId - Product ID
- * @param name - Product name
- * @param quantity - Number of shares
- * @param purchasePrice - Purchase price per share in EUR
- * @param purchaseDate - Date of purchase
- * @returns Success status
+ * Updates a Yahoo Finance product.
  */
 export async function updateYahooProductAction(
   productId: string,
@@ -248,25 +216,14 @@ export async function updateYahooProductAction(
 }
 
 /**
- * Updates a custom product
- * Initial investment is already in EUR (no conversion needed)
- *
- * @param productId - Product ID
- * @param name - Product name
- * @param quantity - Quantity
- * @param annualReturnRate - Annual return rate percentage
- * @param initialInvestment - Initial investment amount (already in EUR)
- * @param investmentDate - Date of investment
- * @param currency - Currency ('EUR' or 'USD')
- * @returns Success status
+ * Updates a custom product's metadata. Contributions are managed via the
+ * dedicated contribution actions.
  */
 export async function updateCustomProductAction(
   productId: string,
   name: string,
   quantity: number,
   annualReturnRate: number,
-  initialInvestment: number,
-  investmentDate: Date,
   currency: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
@@ -275,9 +232,7 @@ export async function updateCustomProductAction(
       name,
       quantity,
       annualReturnRate,
-      initialInvestment, // Already in EUR
-      investmentDate,
-      currency,
+      currency: currency || DEFAULT_CURRENCY,
     };
 
     await updateCustomProduct(input);
@@ -295,10 +250,7 @@ export async function updateCustomProductAction(
 }
 
 /**
- * Validates a Yahoo Finance symbol by fetching quote data
- *
- * @param symbol - Stock symbol to validate
- * @returns Quote data if valid, null if invalid
+ * Validates a Yahoo Finance symbol by fetching quote data.
  */
 export async function validateYahooSymbol(
   symbol: string,

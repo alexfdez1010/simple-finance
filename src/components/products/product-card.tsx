@@ -16,6 +16,10 @@ import type { FinancialProduct } from '@/lib/domain/models/product.types';
 interface ProductCardProps {
   product: FinancialProduct;
   currentValue?: number;
+  /** Total current value in EUR (already includes quantity). */
+  currentValueEur?: number;
+  /** Total net invested in EUR (signed, already includes quantity). */
+  investedEur?: number;
   onEdit?: (product: FinancialProduct) => void;
   onDelete?: (product: FinancialProduct) => void;
 }
@@ -34,26 +38,29 @@ function formatPercentage(value: number): string {
 export function ProductCard({
   product,
   currentValue = 0,
+  currentValueEur,
+  investedEur,
   onEdit,
   onDelete,
 }: ProductCardProps) {
   const { format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
-  const totalValue = currentValue * product.quantity;
+  const totalValue = currentValueEur ?? currentValue * product.quantity;
   const [dateString, setDateString] = useState('');
 
-  const initialInvestment = isYahoo
+  const fallbackInvested = isYahoo
     ? product.yahoo.purchasePrice * product.quantity
-    : product.custom.initialInvestment * product.quantity;
-  const returnValue = totalValue - initialInvestment;
-  const returnPct =
-    initialInvestment > 0 ? (returnValue / initialInvestment) * 100 : 0;
+    : 0;
+  const invested = investedEur ?? fallbackInvested;
+  const returnValue = totalValue - invested;
+  const returnPct = invested > 0 ? (returnValue / invested) * 100 : 0;
   const isPositive = returnValue >= 0;
 
   useEffect(() => {
     const date = isYahoo
       ? product.yahoo.purchaseDate
-      : product.custom.investmentDate;
+      : (product.custom.contributions[0]?.date ??
+        product.custom.investmentDate);
     setDateString(
       new Date(date).toLocaleDateString('en-US', {
         month: 'short',
@@ -147,10 +154,14 @@ export function ProductCard({
               value={formatPercentage(product.custom.annualReturnRate * 100)}
             />
             <DetailItem
-              label="Investment"
-              value={formatCurrency(product.custom.initialInvestment)}
+              label="Net Investment"
+              value={formatCurrency(invested)}
             />
             <DetailItem label="Currency" value={product.custom.currency} />
+            <DetailItem
+              label="Movements"
+              value={String(product.custom.contributions.length)}
+            />
           </>
         )}
       </div>

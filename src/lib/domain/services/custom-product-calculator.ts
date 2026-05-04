@@ -1,96 +1,139 @@
 /**
- * Service for calculating custom product values based on annual return rate
- * All values are in EUR
+ * Service for calculating custom product values from contributions and a
+ * fixed annual return rate.
+ *
+ * All values returned by this module are denominated in the product's own
+ * currency (the same currency as the input `amount` on contributions).
+ * Conversion to a portfolio currency such as EUR is performed by callers
+ * via the currency-conversion services.
+ *
+ * The calculator uses daily compound interest:
+ *   value(t) = Σ amount_i · (1 + r/365)^days(t − date_i)
+ * where `amount_i` is signed (positive = deposit, negative = withdrawal)
+ * and contributions with `date_i > t` are ignored.
+ *
  * @module domain/services/custom-product-calculator
  */
 
 import { differenceInDays } from 'date-fns';
+import type { CustomContribution } from '@/lib/domain/models/product.types';
 
 /**
- * Calculates the current value of a custom product based on annual return rate
- * Uses compound interest formula: A = P(1 + r/365)^(days)
- * Initial investment is already in EUR (converted at creation time)
- * Returns current value in EUR
+ * Validates an annual return rate. Rates below -100% are rejected because
+ * compound growth at `(1 + r/365)` would otherwise produce non-real results.
+ */
+function assertRate(annualReturnRate: number): void {
+  if (annualReturnRate < -1) {
+    throw new Error('Annual return rate cannot be less than -100%');
+  }
+}
+
+/**
+ * Compounds a single amount forward to `currentDate` at the given rate.
  *
- * @param initialInvestmentEur - Initial investment amount in EUR
- * @param annualReturnRate - Annual return rate as decimal (e.g., 0.05 for 5%)
- * @param investmentDate - Date of initial investment
- * @param currentDate - Current date for calculation (defaults to today)
- * @returns Current value of the investment in EUR
+ * @returns Compounded value in the same currency as `amount`, or 0 if the
+ *          contribution date is after `currentDate`.
+ */
+function compoundContribution(
+  amount: number,
+  annualReturnRate: number,
+  date: Date,
+  currentDate: Date,
+): number {
+  const days = differenceInDays(currentDate, date);
+  if (days < 0) return 0;
+  const dailyRate = annualReturnRate / 365;
+  return amount * Math.pow(1 + dailyRate, days);
+}
+
+/**
+ * Computes the current value of a custom product as the sum of every
+ * contribution compounded from its own date.
+ *
+ * @param contributions - All deposits/withdrawals on the product
+ * @param annualReturnRate - Annual return rate (decimal; 0.05 = 5%)
+ * @param currentDate - Date to compute the value at (defaults to now)
+ * @returns Current value in the product's currency, rounded to 2 decimals
+ */
+export function calculateCustomProductValueFromContributions(
+  contributions: CustomContribution[],
+  annualReturnRate: number,
+  currentDate: Date = new Date(),
+): number {
+  assertRate(annualReturnRate);
+
+  const total = contributions.reduce(
+    (acc, c) =>
+      acc +
+      compoundContribution(c.amount, annualReturnRate, c.date, currentDate),
+    0,
+  );
+
+  return Math.round(total * 100) / 100;
+}
+
+/**
+ * Net amount invested: sum of every contribution (deposits add, withdrawals
+ * subtract). Returned in the product currency.
+ *
+ * Future-dated contributions are included so the displayed total matches
+ * the user's intent — useful when modelling a planned deposit. The
+ * compound-value calculation still ignores future-dated contributions so
+ * money that has not been deposited cannot accrue interest yet.
+ */
+export function calculateNetInvestedFromContributions(
+  contributions: CustomContribution[],
+): number {
+  const net = contributions.reduce((acc, c) => acc + c.amount, 0);
+  return Math.round(net * 100) / 100;
+}
+
+/**
+ * Legacy single-contribution variant kept for tests and backwards
+ * compatibility. New code should use the contributions-based API.
  */
 export async function calculateCustomProductValue(
-  initialInvestmentEur: number,
+  initialInvestment: number,
   annualReturnRate: number,
   investmentDate: Date,
   currentDate: Date = new Date(),
 ): Promise<number> {
-  if (initialInvestmentEur <= 0) {
-    throw new Error('Initial investment must be positive');
-  }
-
-  if (annualReturnRate < -1) {
-    throw new Error('Annual return rate cannot be less than -100%');
-  }
-
-  const daysSinceInvestment = differenceInDays(currentDate, investmentDate);
-
-  if (daysSinceInvestment < 0) {
-    throw new Error('Investment date cannot be in the future');
-  }
-
-  // Compound interest formula (already in EUR)
-  const dailyRate = annualReturnRate / 365;
-  const currentValueEur =
-    initialInvestmentEur * Math.pow(1 + dailyRate, daysSinceInvestment);
-
-  return Math.round(currentValueEur * 100) / 100; // Round to 2 decimal places
+  return calculateCustomProductValueSync(
+    initialInvestment,
+    annualReturnRate,
+    investmentDate,
+    currentDate,
+  );
 }
 
 /**
- * Calculates the current value of a custom product (synchronous version)
- * Used when EUR conversion is already done
- * Uses compound interest formula: A = P(1 + r/365)^(days)
- *
- * @param initialInvestmentEur - Initial investment amount in EUR (already converted)
- * @param annualReturnRate - Annual return rate as decimal (e.g., 0.05 for 5%)
- * @param investmentDate - Date of initial investment
- * @param currentDate - Current date for calculation (defaults to today)
- * @returns Current value of the investment in EUR
+ * Synchronous variant of {@link calculateCustomProductValue}.
  */
 export function calculateCustomProductValueSync(
-  initialInvestmentEur: number,
+  initialInvestment: number,
   annualReturnRate: number,
   investmentDate: Date,
   currentDate: Date = new Date(),
 ): number {
-  if (initialInvestmentEur <= 0) {
+  if (initialInvestment <= 0) {
     throw new Error('Initial investment must be positive');
   }
-
-  if (annualReturnRate < -1) {
-    throw new Error('Annual return rate cannot be less than -100%');
-  }
-
-  const daysSinceInvestment = differenceInDays(currentDate, investmentDate);
-
-  if (daysSinceInvestment < 0) {
+  assertRate(annualReturnRate);
+  const days = differenceInDays(currentDate, investmentDate);
+  if (days < 0) {
     throw new Error('Investment date cannot be in the future');
   }
-
-  // Daily compound interest formula
-  const dailyRate = annualReturnRate / 365;
-  const currentValue =
-    initialInvestmentEur * Math.pow(1 + dailyRate, daysSinceInvestment);
-
-  return Math.round(currentValue * 100) / 100; // Round to 2 decimal places
+  const value = compoundContribution(
+    initialInvestment,
+    annualReturnRate,
+    investmentDate,
+    currentDate,
+  );
+  return Math.round(value * 100) / 100;
 }
 
 /**
- * Calculates the total return amount
- *
- * @param currentValue - Current value of the investment
- * @param initialInvestment - Initial investment amount
- * @returns Total return amount
+ * Total return amount = currentValue − netInvested.
  */
 export function calculateReturn(
   currentValue: number,
@@ -100,31 +143,19 @@ export function calculateReturn(
 }
 
 /**
- * Calculates the return percentage
- *
- * @param currentValue - Current value of the investment
- * @param initialInvestment - Initial investment amount
- * @returns Return percentage
+ * Return percentage relative to net invested. Returns 0 if nothing was invested.
  */
 export function calculateReturnPercentage(
   currentValue: number,
   initialInvestment: number,
 ): number {
-  if (initialInvestment === 0) {
-    return 0;
-  }
-
-  const returnPercentage =
-    ((currentValue - initialInvestment) / initialInvestment) * 100;
-  return Math.round(returnPercentage * 100) / 100;
+  if (initialInvestment === 0) return 0;
+  const pct = ((currentValue - initialInvestment) / initialInvestment) * 100;
+  return Math.round(pct * 100) / 100;
 }
 
 /**
- * Calculates daily change in value
- *
- * @param currentValue - Current value
- * @param previousValue - Previous day value
- * @returns Daily change amount
+ * Daily change in value (today − yesterday).
  */
 export function calculateDailyChange(
   currentValue: number,
@@ -134,21 +165,13 @@ export function calculateDailyChange(
 }
 
 /**
- * Calculates daily change percentage
- *
- * @param currentValue - Current value
- * @param previousValue - Previous day value
- * @returns Daily change percentage
+ * Daily change as a percentage of the previous value.
  */
 export function calculateDailyChangePercentage(
   currentValue: number,
   previousValue: number,
 ): number {
-  if (previousValue === 0) {
-    return 0;
-  }
-
-  const changePercentage =
-    ((currentValue - previousValue) / previousValue) * 100;
-  return Math.round(changePercentage * 100) / 100;
+  if (previousValue === 0) return 0;
+  const pct = ((currentValue - previousValue) / previousValue) * 100;
+  return Math.round(pct * 100) / 100;
 }

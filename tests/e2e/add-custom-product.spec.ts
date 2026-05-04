@@ -44,7 +44,7 @@ test.describe('Add Custom Product', () => {
     await page.getByLabel('Currency', { exact: true }).selectOption('EUR');
 
     // Fill in the initial investment
-    await page.getByLabel(/Initial Investment/).fill('10000');
+    await page.getByLabel(/Initial Deposit/).fill('10000');
 
     // Fill in the investment date (30 days ago)
     const investmentDate = new Date();
@@ -95,7 +95,7 @@ test.describe('Add Custom Product', () => {
     const productName = `High Yield Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('15.75');
-    await page.getByLabel(/Initial Investment/).fill('5000');
+    await page.getByLabel(/Initial Deposit/).fill('5000');
 
     const investmentDate = new Date();
     investmentDate.setDate(investmentDate.getDate() - 90);
@@ -136,7 +136,7 @@ test.describe('Add Custom Product', () => {
     const productName = `Fractional Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('3.5');
-    await page.getByLabel(/Initial Investment/).fill('1000');
+    await page.getByLabel(/Initial Deposit/).fill('1000');
 
     const today = new Date().toISOString().split('T')[0];
     await page.getByLabel('Investment Date').fill(today);
@@ -221,7 +221,7 @@ test.describe('Add Custom Product', () => {
     const productName = `Today Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('4.0');
-    await page.getByLabel(/Initial Investment/).fill('2000');
+    await page.getByLabel(/Initial Deposit/).fill('2000');
 
     const today = new Date().toISOString().split('T')[0];
     await page.getByLabel('Investment Date').fill(today);
