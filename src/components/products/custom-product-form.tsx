@@ -1,8 +1,8 @@
 /**
  * Custom product creation form. Captures product metadata plus the first
- * movement (deposit). The first movement is stored as a contribution in the
- * product's currency — additional movements can be added later from the
- * edit dialog.
+ * movement (deposit). The currency selected here is fixed for the
+ * lifetime of the product — every contribution is stored in that
+ * currency and never converted to EUR at rest.
  *
  * @module components/products/custom-product-form
  */
@@ -39,9 +39,9 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
     currency: 'EUR',
     annualReturnRate: '',
     quantity: '1',
-    initialInvestment: '',
-    investmentDate: todayIso(),
-    initialNote: '',
+    firstMovementAmount: '',
+    firstMovementDate: todayIso(),
+    firstMovementNote: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,10 +52,10 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
   const onMovementChange = (field: 'amount' | 'date' | 'note', value: string) =>
     update(
       field === 'amount'
-        ? 'initialInvestment'
+        ? 'firstMovementAmount'
         : field === 'date'
-          ? 'investmentDate'
-          : 'initialNote',
+          ? 'firstMovementDate'
+          : 'firstMovementNote',
       value,
     );
 
@@ -70,11 +70,11 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
       const result = await createCustomProductAction(
         formData.name,
         parseFloat(formData.annualReturnRate) / 100,
-        parseFloat(formData.initialInvestment),
-        new Date(formData.investmentDate),
+        parseFloat(formData.firstMovementAmount),
+        new Date(formData.firstMovementDate),
         parseFloat(formData.quantity),
         formData.currency,
-        formData.initialNote.trim() || null,
+        formData.firstMovementNote.trim() || null,
       );
       if (!result.success)
         throw new Error(result.error || 'Failed to create product');
@@ -148,9 +148,9 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
         <FirstMovementFields
           currency={formData.currency}
           symbol={symbol}
-          amount={formData.initialInvestment}
-          date={formData.investmentDate}
-          note={formData.initialNote}
+          amount={formData.firstMovementAmount}
+          date={formData.firstMovementDate}
+          note={formData.firstMovementNote}
           maxDate={todayIso()}
           onChange={onMovementChange}
         />
@@ -159,8 +159,8 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             Compound interest A = P(1 + r/365)^days. The first movement above is
             saved as a contribution; add more deposits or withdrawals from the
-            product&apos;s edit dialog. Amounts are stored in the chosen
-            currency, never converted to EUR.
+            product&apos;s edit dialog. Currency is locked once the product is
+            created so amounts cannot be silently reinterpreted.
           </p>
         </div>
 

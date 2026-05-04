@@ -59,8 +59,11 @@ export function ProductCard({
   useEffect(() => {
     const date = isYahoo
       ? product.yahoo.purchaseDate
-      : (product.custom.contributions[0]?.date ??
-        product.custom.investmentDate);
+      : product.custom.contributions[0]?.date;
+    if (!date) {
+      setDateString('');
+      return;
+    }
     setDateString(
       new Date(date).toLocaleDateString('en-US', {
         month: 'short',

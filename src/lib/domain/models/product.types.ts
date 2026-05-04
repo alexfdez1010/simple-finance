@@ -51,15 +51,16 @@ export interface CustomContribution {
 /**
  * Custom product with fixed annual return rate.
  * Value is computed as the sum of compound-interest growth of every
- * contribution from its own date.
+ * contribution from its own date. The product's `currency` is the
+ * single source of truth for every contribution amount — currency is
+ * set on creation and treated as immutable thereafter so existing
+ * amounts cannot be silently reinterpreted.
  */
 export interface CustomProduct extends BaseProduct {
   type: 'CUSTOM';
   custom: {
     id: string;
     annualReturnRate: number;
-    initialInvestment: number; // legacy: snapshot of first contribution in EUR
-    investmentDate: Date; // legacy: date of first contribution
     currency: string; // 'EUR' | 'USD' | 'BTC' | 'ETH' | 'XAUT'
     contributions: CustomContribution[];
   };
@@ -123,18 +124,21 @@ export interface CreateYahooFinanceProductInput {
 }
 
 /**
- * Input for creating a custom product. The initial investment is persisted
- * as the first contribution (in the product's currency) so the create flow
- * and the contributions list stay consistent.
+ * Input for creating a custom product. The first movement (amount + date
+ * + optional note) is persisted as the product's first contribution in
+ * the chosen currency — there is no separate "initial investment" stored
+ * on the product itself.
  */
 export interface CreateCustomProductInput {
   name: string;
   annualReturnRate: number;
-  initialInvestment: number;
-  investmentDate: Date;
   quantity: number;
   currency: string;
-  initialNote?: string | null;
+  firstMovement: {
+    amount: number;
+    date: Date;
+    note?: string | null;
+  };
 }
 
 /**
@@ -159,13 +163,15 @@ export interface UpdateYahooFinanceProductInput {
 /**
  * Input for updating a custom product's metadata
  * (does not modify contributions — use the contribution actions for that).
+ * Currency is intentionally absent: it is fixed at creation time so the
+ * stored contribution amounts cannot be reinterpreted under a different
+ * currency without an explicit data migration.
  */
 export interface UpdateCustomProductInput {
   productId: string;
   name: string;
   quantity: number;
   annualReturnRate: number;
-  currency: string;
 }
 
 /**

@@ -16,14 +16,15 @@ export const createYahooFinanceProductSchema = z.object({
 });
 
 /**
- * Schema for creating a custom product
+ * Schema for creating a custom product. The first movement (amount + date)
+ * is stored as a contribution in the chosen currency.
  */
 export const createCustomProductSchema = z.object({
   portfolioId: z.string().min(1, 'Portfolio ID is required'),
   name: z.string().min(1, 'Name is required').max(200, 'Name too long'),
   annualReturnRate: z.number().min(-1, 'Return rate cannot be less than -100%'),
-  initialInvestment: z.number().min(0, 'Initial investment cannot be negative'),
-  investmentDate: z.coerce.date(),
+  firstMovementAmount: z.number().min(0, 'First movement cannot be negative'),
+  firstMovementDate: z.coerce.date(),
   quantity: z.number().positive('Quantity must be positive'),
 });
 

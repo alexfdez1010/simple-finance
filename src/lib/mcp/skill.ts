@@ -32,16 +32,19 @@ The server exposes the following tools — discover their exact input schemas vi
 | \`add_yahoo_asset\` | Create a Yahoo Finance asset tracked by ticker. |
 | \`add_custom_asset\` | Create a custom fixed-rate asset. |
 | \`update_yahoo_asset\` | Replace metadata of a Yahoo asset. |
-| \`update_custom_asset\` | Replace metadata of a custom asset. |
+| \`update_custom_asset\` | Replace metadata of a custom asset (currency is fixed at creation). |
 | \`delete_asset\` | Permanently delete an asset by id. |
+| \`add_custom_contribution\` | Append a deposit (positive) or withdrawal (negative) to a custom asset. |
+| \`update_custom_contribution\` | Edit an existing contribution by id. |
+| \`delete_custom_contribution\` | Remove a contribution by id. |
 
 ## Conventions
 
-- Dates are \`YYYY-MM-DD\`. Default \`purchaseDate\` / \`investmentDate\` to today (UTC) when the user omits one.
+- Dates are \`YYYY-MM-DD\`. Default \`purchaseDate\` / \`firstMovementDate\` to today (UTC) when the user omits one.
 - Yahoo \`purchasePrice\` is per share, **in EUR**.
-- Custom \`initialInvestment\` on create is in the given \`currency\` (one of EUR, USD, BTC, ETH, XAUT) and stored converted to EUR.
-- Custom \`initialInvestment\` on update is treated as already in EUR — no conversion is performed.
-- Confirm destructive operations (\`delete_asset\`, \`update_*\`) before invoking.
+- Custom \`firstMovementAmount\` is in the given \`currency\` (one of EUR, USD, BTC, ETH, XAUT) and stored as the asset's first contribution. No EUR conversion happens at rest.
+- Currency is locked at creation; subsequent contributions and updates are always in that same currency.
+- Confirm destructive operations (\`delete_asset\`, \`delete_custom_contribution\`, \`update_*\`) before invoking.
 `;
 }
 

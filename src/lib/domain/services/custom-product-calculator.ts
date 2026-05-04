@@ -89,57 +89,13 @@ export function calculateNetInvestedFromContributions(
 }
 
 /**
- * Legacy single-contribution variant kept for tests and backwards
- * compatibility. New code should use the contributions-based API.
- */
-export async function calculateCustomProductValue(
-  initialInvestment: number,
-  annualReturnRate: number,
-  investmentDate: Date,
-  currentDate: Date = new Date(),
-): Promise<number> {
-  return calculateCustomProductValueSync(
-    initialInvestment,
-    annualReturnRate,
-    investmentDate,
-    currentDate,
-  );
-}
-
-/**
- * Synchronous variant of {@link calculateCustomProductValue}.
- */
-export function calculateCustomProductValueSync(
-  initialInvestment: number,
-  annualReturnRate: number,
-  investmentDate: Date,
-  currentDate: Date = new Date(),
-): number {
-  if (initialInvestment <= 0) {
-    throw new Error('Initial investment must be positive');
-  }
-  assertRate(annualReturnRate);
-  const days = differenceInDays(currentDate, investmentDate);
-  if (days < 0) {
-    throw new Error('Investment date cannot be in the future');
-  }
-  const value = compoundContribution(
-    initialInvestment,
-    annualReturnRate,
-    investmentDate,
-    currentDate,
-  );
-  return Math.round(value * 100) / 100;
-}
-
-/**
  * Total return amount = currentValue − netInvested.
  */
 export function calculateReturn(
   currentValue: number,
-  initialInvestment: number,
+  netInvested: number,
 ): number {
-  return Math.round((currentValue - initialInvestment) * 100) / 100;
+  return Math.round((currentValue - netInvested) * 100) / 100;
 }
 
 /**
@@ -147,10 +103,10 @@ export function calculateReturn(
  */
 export function calculateReturnPercentage(
   currentValue: number,
-  initialInvestment: number,
+  netInvested: number,
 ): number {
-  if (initialInvestment === 0) return 0;
-  const pct = ((currentValue - initialInvestment) / initialInvestment) * 100;
+  if (netInvested === 0) return 0;
+  const pct = ((currentValue - netInvested) / netInvested) * 100;
   return Math.round(pct * 100) / 100;
 }
 

@@ -101,7 +101,11 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
     const custom = parseToolJson<{
       id: string;
       type: 'CUSTOM';
-      custom: { initialInvestment: number; annualReturnRate: number };
+      custom: {
+        annualReturnRate: number;
+        currency: string;
+        contributions: Array<{ amount: number }>;
+      };
     }>(
       await client.callTool({
         name: 'add_custom_asset',
@@ -109,14 +113,15 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
           name: `MCP E2E Custom ${stamp}`,
           quantity: 1,
           annualReturnRate: 0.05,
-          initialInvestment: 1000,
-          investmentDate: today,
+          firstMovementAmount: 1000,
+          firstMovementDate: today,
           currency: 'EUR',
         },
       }),
     );
     expect(custom.type).toBe('CUSTOM');
-    expect(custom.custom.initialInvestment).toBeCloseTo(1000, 2);
+    expect(custom.custom.currency).toBe('EUR');
+    expect(custom.custom.contributions[0]?.amount).toBeCloseTo(1000, 2);
 
     const list = parseToolJson<Array<{ id: string }>>(
       await client.callTool({ name: 'list_assets', arguments: {} }),
@@ -141,7 +146,6 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
           name: `MCP E2E Custom ${stamp} (renamed)`,
           quantity: 2,
           annualReturnRate: 0.07,
-          currency: 'EUR',
         },
       }),
     );

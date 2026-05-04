@@ -22,8 +22,9 @@ export const yahooFields = {
 };
 
 /**
- * Fields used when creating a custom (fixed-rate) asset. Includes the
- * initial deposit, which becomes the asset's first contribution.
+ * Fields used when creating a custom (fixed-rate) asset. The first movement
+ * (amount + date + optional note) is stored as the asset's first
+ * contribution in the chosen currency.
  */
 export const customCreateFields = {
   name: z.string().min(1).max(200),
@@ -32,19 +33,21 @@ export const customCreateFields = {
     .number()
     .min(-1)
     .describe('Annual return rate as a decimal'),
-  initialInvestment: z
+  firstMovementAmount: z
     .number()
     .min(0)
     .describe(
-      'Initial deposit, in the product currency. Stored as the first contribution.',
+      'First deposit, in the product currency. Stored as the first contribution.',
     ),
-  investmentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
+  firstMovementDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
+  firstMovementNote: z.string().max(500).optional(),
   currency: z.enum(ASSET_CURRENCIES).optional(),
 };
 
 /**
- * Fields used when updating a custom asset's metadata. Contributions are
- * managed via the dedicated contribution tools.
+ * Fields used when updating a custom asset's metadata. Currency is fixed at
+ * creation and not updatable here. Contributions are managed via the
+ * dedicated contribution tools.
  */
 export const customUpdateFields = {
   name: z.string().min(1).max(200),
@@ -53,7 +56,6 @@ export const customUpdateFields = {
     .number()
     .min(-1)
     .describe('Annual return rate as a decimal'),
-  currency: z.enum(ASSET_CURRENCIES).optional(),
 };
 
 /**

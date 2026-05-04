@@ -52,16 +52,17 @@ model YahooFinanceData {
   @@map("yahoo_finance_data")
 }
 
-/// Custom product specific data
+/// Custom product specific data. The full history of deposits and
+/// withdrawals lives in `custom_product_contributions`; legacy
+/// `initialInvestment` / `investmentDate` columns were removed in
+/// 20260504085819_drop_initial_investment_legacy.
 model CustomProductData {
-  id                String   @id @default(cuid())
-  productId         String   @unique
-  annualReturnRate  Float
-  initialInvestment Float
-  investmentDate    DateTime
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  currency          String   @default("EUR")
+  id               String   @id @default(cuid())
+  productId        String   @unique
+  annualReturnRate Float
+  currency         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   product       FinancialProduct            @relation(fields: [productId], references: [id], onDelete: Cascade)
   contributions CustomProductContribution[]

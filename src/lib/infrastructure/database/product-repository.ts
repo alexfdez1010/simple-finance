@@ -49,18 +49,18 @@ export async function createYahooFinanceProduct(
 }
 
 /**
- * Creates a custom product whose initial deposit is persisted as the first
- * contribution in the product's currency (no EUR conversion). Legacy
- * `initialInvestment`/`investmentDate` mirror that first contribution for
- * backwards compatibility with old snapshots and reports.
+ * Creates a custom product whose first movement is persisted as a single
+ * contribution in the chosen currency. There is no separate
+ * "initial investment" snapshot — the contributions table is the only
+ * source of truth for amounts.
  *
- * @param input - Product creation data; `initialInvestment` is in `currency`
+ * @param input - Product creation data
  * @returns Created product
  */
 export async function createCustomProduct(
   input: CreateCustomProductInput,
 ): Promise<CustomProduct> {
-  const note = input.initialNote?.trim() || 'First movement';
+  const note = input.firstMovement.note?.trim() || 'First movement';
   const product = await prisma.financialProduct.create({
     data: {
       type: 'CUSTOM',
@@ -69,13 +69,11 @@ export async function createCustomProduct(
       custom: {
         create: {
           annualReturnRate: input.annualReturnRate,
-          initialInvestment: input.initialInvestment,
-          investmentDate: input.investmentDate,
           currency: input.currency,
           contributions: {
             create: {
-              amount: input.initialInvestment,
-              date: input.investmentDate,
+              amount: input.firstMovement.amount,
+              date: input.firstMovement.date,
               note,
             },
           },
@@ -204,8 +202,10 @@ export async function updateYahooFinanceProduct(
 }
 
 /**
- * Updates a custom product's metadata (name, quantity, rate, currency).
- * Contributions are managed via contribution-repository.
+ * Updates a custom product's metadata (name, quantity, rate). Currency is
+ * intentionally not updatable here: changing it would silently
+ * reinterpret every existing contribution. Contributions are managed via
+ * contribution-repository.
  */
 export async function updateCustomProduct(
   input: UpdateCustomProductInput,
@@ -218,7 +218,6 @@ export async function updateCustomProduct(
       custom: {
         update: {
           annualReturnRate: input.annualReturnRate,
-          currency: input.currency,
         },
       },
     },

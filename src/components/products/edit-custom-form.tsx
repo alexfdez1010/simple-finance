@@ -1,7 +1,8 @@
 /**
- * Custom product edit form. Splits product metadata (name, quantity, rate,
- * currency) from the contributions list, which is managed by its own
- * component with full add/edit/delete CRUD.
+ * Custom product edit form. Splits product metadata (name, quantity, rate)
+ * from the contributions list, which is managed by its own component with
+ * full add/edit/delete CRUD. Currency is fixed at creation time and shown
+ * read-only here.
  *
  * @module components/products/edit-custom-form
  */
@@ -15,7 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError } from '@/components/products/form-actions';
-import { CURRENCY_OPTIONS } from '@/components/products/currency-options';
+import { currencySymbol } from '@/components/products/currency-options';
 import { CustomContributions } from '@/components/products/custom-contributions';
 import type { CustomProduct } from '@/lib/domain/models/product.types';
 
@@ -40,8 +41,9 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
     name: product.name,
     quantity: product.quantity.toString(),
     annualReturnRate: (product.custom.annualReturnRate * 100).toString(),
-    currency: product.custom.currency,
   });
+  const currency = product.custom.currency;
+  const symbol = currencySymbol(currency);
 
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
@@ -58,7 +60,6 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
         formData.name,
         parseFloat(formData.quantity),
         parseFloat(formData.annualReturnRate) / 100,
-        formData.currency,
       );
       if (!result.success) {
         throw new Error(result.error || 'Failed to update product');
@@ -116,19 +117,17 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
 
           <Field>
             <FieldLabel htmlFor="edit-custom-currency">Currency</FieldLabel>
-            <select
+            <Input
               id="edit-custom-currency"
-              value={formData.currency}
-              onChange={(e) => update('currency', e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              required
-            >
-              {CURRENCY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label} ({opt.symbol})
-                </option>
-              ))}
-            </select>
+              value={`${currency} (${symbol})`}
+              readOnly
+              aria-readonly
+              className="cursor-not-allowed bg-muted/40"
+            />
+            <p className="text-[11px] text-muted-foreground">
+              Currency is fixed at creation so existing movements cannot be
+              silently reinterpreted.
+            </p>
           </Field>
 
           <FormError error={error} />
@@ -142,7 +141,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
       <div className="border-t border-border pt-4">
         <CustomContributions
           customProductDataId={product.custom.id}
-          currency={product.custom.currency}
+          currency={currency}
           contributions={product.custom.contributions}
           onChanged={() => router.refresh()}
         />

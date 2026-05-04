@@ -58,17 +58,20 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Add a custom fixed-rate asset',
       description:
-        'Create a custom asset with a fixed annual return rate (e.g. savings account, bond). investmentDate is YYYY-MM-DD; initialInvestment is stored as the first contribution in the product currency (no EUR conversion).',
+        'Create a custom asset with a fixed annual return rate (e.g. savings account, bond). firstMovementDate is YYYY-MM-DD; firstMovementAmount is stored as the first contribution in the product currency (never converted to EUR). Currency is locked at creation.',
       inputSchema: customCreateFields,
     },
     async (input) => {
       const created = await createCustomProduct({
         name: input.name,
         annualReturnRate: input.annualReturnRate,
-        initialInvestment: input.initialInvestment,
-        investmentDate: new Date(input.investmentDate),
         quantity: input.quantity,
         currency: input.currency ?? 'EUR',
+        firstMovement: {
+          amount: input.firstMovementAmount,
+          date: new Date(input.firstMovementDate),
+          note: input.firstMovementNote ?? null,
+        },
       });
       return ok(created);
     },
@@ -98,7 +101,7 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Update a custom fixed-rate asset',
       description:
-        'Replace metadata (name, quantity, rate, currency) of a custom asset. Contributions are managed via add_custom_contribution / update_custom_contribution / delete_custom_contribution.',
+        'Replace metadata (name, quantity, rate) of a custom asset. Currency is fixed at creation and cannot be updated. Contributions are managed via add_custom_contribution / update_custom_contribution / delete_custom_contribution.',
       inputSchema: { id: z.string().min(1), ...customUpdateFields },
     },
     async ({ id, ...rest }) => {
@@ -107,7 +110,6 @@ export function registerMutationTools(server: McpServer): void {
         name: rest.name,
         quantity: rest.quantity,
         annualReturnRate: rest.annualReturnRate,
-        currency: rest.currency ?? 'EUR',
       });
       return ok(updated);
     },
