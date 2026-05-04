@@ -1,9 +1,7 @@
 /**
- * Product card. Yahoo cards display in the user-selected display currency
- * (since Yahoo prices are stored in EUR). Custom cards display in the
- * product's own currency so the numbers shown match what the user typed
- * for each contribution — the EUR-converted totals exist only for the
- * portfolio-level aggregations on the dashboard.
+ * Product card. All amounts render in the user-selected display currency
+ * (the dashboard global selector); per-product currency only matters when
+ * adding or removing movements inside the edit dialog.
  *
  * @module components/products/product-card
  */
@@ -16,10 +14,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DetailItem } from '@/components/products/detail-item';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
-import {
-  formatInCurrency,
-  type DisplayCurrency,
-} from '@/lib/utils/format-currency';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
 interface ProductCardProps {
@@ -29,36 +23,13 @@ interface ProductCardProps {
   currentValueEur?: number;
   /** Total net invested in EUR (signed, already includes quantity). */
   investedEur?: number;
-  /** Total current value in product currency (already includes quantity). */
-  currentValueProductCcy?: number;
-  /** Total net invested in product currency (already includes quantity). */
-  investedProductCcy?: number;
   onEdit?: (product: FinancialProduct) => void;
   onDelete?: (product: FinancialProduct) => void;
 }
 
-const PRODUCT_CURRENCIES: DisplayCurrency[] = [
-  'EUR',
-  'USD',
-  'BTC',
-  'ETH',
-  'XAUT',
-];
-
 /** Formats percentage value with sign */
 function formatPercentage(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-}
-
-/**
- * Formatter for amounts already denominated in the product's own currency.
- * Bypasses the display-currency conversion entirely (rate = 1).
- */
-function makeProductFormatter(currency: string) {
-  const code = (
-    PRODUCT_CURRENCIES.includes(currency as DisplayCurrency) ? currency : 'EUR'
-  ) as DisplayCurrency;
-  return (amount: number) => formatInCurrency(amount, code, 1);
 }
 
 /**
@@ -72,29 +43,18 @@ export function ProductCard({
   currentValue = 0,
   currentValueEur,
   investedEur,
-  currentValueProductCcy,
-  investedProductCcy,
   onEdit,
   onDelete,
 }: ProductCardProps) {
-  const { format: formatDisplay } = useDisplayCurrency();
+  const { format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
+  const totalValue = currentValueEur ?? currentValue * product.quantity;
   const [dateString, setDateString] = useState('');
-
-  const formatCurrency = isYahoo
-    ? formatDisplay
-    : makeProductFormatter(product.custom.currency);
-
-  const totalValue = isYahoo
-    ? (currentValueEur ?? currentValue * product.quantity)
-    : (currentValueProductCcy ?? 0);
 
   const fallbackInvested = isYahoo
     ? product.yahoo.purchasePrice * product.quantity
     : 0;
-  const invested = isYahoo
-    ? (investedEur ?? fallbackInvested)
-    : (investedProductCcy ?? 0);
+  const invested = investedEur ?? fallbackInvested;
   const returnValue = totalValue - invested;
   const returnPct = invested > 0 ? (returnValue / invested) * 100 : 0;
   const isPositive = returnValue >= 0;

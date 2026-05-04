@@ -72,30 +72,23 @@ export interface CustomProduct extends BaseProduct {
 export type FinancialProduct = YahooFinanceProduct | CustomProduct;
 
 /**
- * Product enriched with per-product totals. The dashboard, cron snapshot,
- * and aggregations all consume this enriched shape so they do not need to
- * perform per-currency conversion themselves.
+ * Product enriched with per-product totals in EUR. The dashboard, cron
+ * snapshot, and aggregations all consume this enriched shape so they do
+ * not need to perform per-currency conversion themselves. Per-product
+ * native currency is preserved on the underlying CustomProduct and only
+ * matters when adding or removing contributions inside the edit dialog.
  *
  * - `currentValue`: per-unit value (Yahoo: live price in EUR; Custom: total
- *   EUR value of all contributions divided by `quantity`).
+ *   EUR value of all contributions).
  * - `currentValueEur`: total current value in EUR (Yahoo: price·quantity;
  *   Custom: full compounded portfolio of contributions).
  * - `investedEur`: total net invested in EUR (Yahoo: purchasePrice·quantity;
  *   Custom: signed sum of contributions converted to EUR).
- * - `currentValueProductCcy` / `investedProductCcy`: same totals but in the
- *   product's own currency. For Yahoo products this is the same as the EUR
- *   value (purchasePrice / live price are stored in EUR). For Custom
- *   products this is the sum of contributions and their compounded value
- *   in the chosen currency — never converted to EUR. UI surfaces such as
- *   the per-product card use these so the displayed numbers match what the
- *   user typed when adding the contribution.
  */
 export type ProductWithValue = FinancialProduct & {
   currentValue: number;
   currentValueEur: number;
   investedEur: number;
-  currentValueProductCcy: number;
-  investedProductCcy: number;
 };
 
 /**
