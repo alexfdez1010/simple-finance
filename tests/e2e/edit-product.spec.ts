@@ -27,7 +27,6 @@ async function createCustomProduct(
   await page.getByRole('tab', { name: 'Custom Product' }).click();
   await page.getByLabel('Product Name').fill(name);
   await page.getByLabel('Annual Rate (%)').fill(rate);
-  await page.getByLabel('Quantity').fill('1');
   await page.locator('#custom-investment').fill(investment);
   await page.locator('#custom-date').fill(date);
   await page.getByRole('button', { name: 'Add Product' }).click();
@@ -183,16 +182,15 @@ test.describe('Edit Product', () => {
     ).toBeVisible();
 
     // Verify form is pre-populated. Initial deposit + date are managed in
-    // the Movements list, not the metadata form.
+    // the Movements list, not the metadata form. Quantity does not apply
+    // to custom products and is not shown.
     await expect(page.getByLabel('Product Name')).toHaveValue(originalName);
-    await expect(page.getByLabel('Quantity')).toHaveValue('1');
     await expect(page.getByLabel('Annual Rate (%)')).toHaveValue('5.5');
     await expect(page.getByText(/Movements \(1\)/)).toBeVisible();
 
-    // Edit all fields
+    // Edit fields available on custom products
     const updatedName = `Custom Investment Updated ${Date.now()}`;
     await page.getByLabel('Product Name').fill(updatedName);
-    await page.getByLabel('Quantity').fill('2');
     await page.getByLabel('Annual Rate (%)').fill('7.25');
 
     // Submit
@@ -211,8 +209,7 @@ test.describe('Edit Product', () => {
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });
     await expect(updatedCard).toContainText(updatedName);
-    await expect(updatedCard).toContainText('Custom');
-    await expect(updatedCard).toContainText('2');
+    await expect(updatedCard).toContainText('7.25');
   });
 
   /**

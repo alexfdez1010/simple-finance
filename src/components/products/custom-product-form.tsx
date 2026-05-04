@@ -38,7 +38,6 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
     name: '',
     currency: 'EUR',
     annualReturnRate: '',
-    quantity: '1',
     firstMovementAmount: '',
     firstMovementDate: todayIso(),
     firstMovementNote: '',
@@ -72,7 +71,6 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
         parseFloat(formData.annualReturnRate) / 100,
         parseFloat(formData.firstMovementAmount),
         new Date(formData.firstMovementDate),
-        parseFloat(formData.quantity),
         formData.currency,
         formData.firstMovementNote.trim() || null,
       );
@@ -130,20 +128,6 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
             />
           </Field>
         </div>
-
-        <Field>
-          <FieldLabel htmlFor="custom-qty">Quantity</FieldLabel>
-          <Input
-            id="custom-qty"
-            type="number"
-            value={formData.quantity}
-            onChange={(e) => update('quantity', e.target.value)}
-            placeholder="1"
-            step="0.00001"
-            min="0"
-            required
-          />
-        </Field>
 
         <FirstMovementFields
           currency={formData.currency}

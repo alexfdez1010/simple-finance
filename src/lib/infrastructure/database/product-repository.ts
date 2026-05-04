@@ -65,7 +65,7 @@ export async function createCustomProduct(
     data: {
       type: 'CUSTOM',
       name: input.name,
-      quantity: input.quantity,
+      quantity: 1,
       custom: {
         create: {
           annualReturnRate: input.annualReturnRate,
@@ -214,7 +214,7 @@ export async function updateCustomProduct(
     where: { id: input.productId },
     data: {
       name: input.name,
-      quantity: input.quantity,
+      quantity: 1,
       custom: {
         update: {
           annualReturnRate: input.annualReturnRate,

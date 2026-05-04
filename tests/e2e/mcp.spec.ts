@@ -111,7 +111,6 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
         name: 'add_custom_asset',
         arguments: {
           name: `MCP E2E Custom ${stamp}`,
-          quantity: 1,
           annualReturnRate: 0.05,
           firstMovementAmount: 1000,
           firstMovementDate: today,
@@ -144,7 +143,6 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
         arguments: {
           id: custom.id,
           name: `MCP E2E Custom ${stamp} (renamed)`,
-          quantity: 2,
           annualReturnRate: 0.07,
         },
       }),

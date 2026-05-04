@@ -141,7 +141,6 @@ export interface CreateYahooFinanceProductInput {
 export interface CreateCustomProductInput {
   name: string;
   annualReturnRate: number;
-  quantity: number;
   currency: string;
   firstMovement: {
     amount: number;
@@ -179,7 +178,6 @@ export interface UpdateYahooFinanceProductInput {
 export interface UpdateCustomProductInput {
   productId: string;
   name: string;
-  quantity: number;
   annualReturnRate: number;
 }
 

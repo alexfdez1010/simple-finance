@@ -28,7 +28,6 @@ export const yahooFields = {
  */
 export const customCreateFields = {
   name: z.string().min(1).max(200),
-  quantity: z.number().positive(),
   annualReturnRate: z
     .number()
     .min(-1)
@@ -46,12 +45,12 @@ export const customCreateFields = {
 
 /**
  * Fields used when updating a custom asset's metadata. Currency is fixed at
- * creation and not updatable here. Contributions are managed via the
- * dedicated contribution tools.
+ * creation and not updatable here; quantity does not apply to custom
+ * assets — the contributions list is the only source of size.
+ * Contributions are managed via the dedicated contribution tools.
  */
 export const customUpdateFields = {
   name: z.string().min(1).max(200),
-  quantity: z.number().positive(),
   annualReturnRate: z
     .number()
     .min(-1)

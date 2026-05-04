@@ -50,6 +50,8 @@ export async function enrichProductsWithEurValues(
         };
       }
 
+      // Custom products no longer use `quantity`; the contributions list is
+      // the only source of size, so totals are read directly from it.
       const totalProductCcy = calculateCustomProductValueFromContributions(
         p.custom.contributions,
         p.custom.annualReturnRate,
@@ -62,16 +64,15 @@ export async function enrichProductsWithEurValues(
         totalProductCcy,
         p.custom.currency,
       );
-      const investedUnitEur = await convertProductAmountToEur(
+      const investedEur = await convertProductAmountToEur(
         netInvestedProductCcy,
         p.custom.currency,
       );
 
-      const currentValueEur = totalEur * p.quantity;
-      const investedEur = investedUnitEur * p.quantity;
-      const currentValue = p.quantity > 0 ? totalEur : 0;
-      const currentValueProductCcy = totalProductCcy * p.quantity;
-      const investedProductCcy = netInvestedProductCcy * p.quantity;
+      const currentValueEur = totalEur;
+      const currentValue = totalEur;
+      const currentValueProductCcy = totalProductCcy;
+      const investedProductCcy = netInvestedProductCcy;
 
       return {
         ...p,

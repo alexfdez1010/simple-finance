@@ -25,7 +25,6 @@ export const createCustomProductSchema = z.object({
   annualReturnRate: z.number().min(-1, 'Return rate cannot be less than -100%'),
   firstMovementAmount: z.number().min(0, 'First movement cannot be negative'),
   firstMovementDate: z.coerce.date(),
-  quantity: z.number().positive('Quantity must be positive'),
 });
 
 /**

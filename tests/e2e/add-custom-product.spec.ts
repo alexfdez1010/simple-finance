@@ -52,9 +52,6 @@ test.describe('Add Custom Product', () => {
     const dateString = investmentDate.toISOString().split('T')[0];
     await page.locator('#custom-date').fill(dateString);
 
-    // Fill in the quantity
-    await page.getByLabel('Quantity').fill('1');
-
     // Submit the form
     await page.getByRole('button', { name: 'Add Product' }).click();
 
@@ -79,7 +76,7 @@ test.describe('Add Custom Product', () => {
       .first();
     await expect(productCard).toContainText('Annual Rate');
     await expect(productCard).toContainText('Investment');
-    await expect(productCard).toContainText('Quantity');
+    await expect(productCard).toContainText('Movements');
   });
 
   /**
@@ -102,8 +99,6 @@ test.describe('Add Custom Product', () => {
     const dateString = investmentDate.toISOString().split('T')[0];
     await page.locator('#custom-date').fill(dateString);
 
-    await page.getByLabel('Quantity').fill('2');
-
     await page.getByRole('button', { name: 'Add Product' }).click();
 
     await expect(
@@ -124,9 +119,9 @@ test.describe('Add Custom Product', () => {
   });
 
   /**
-   * Test: Create custom product with fractional quantity
+   * Test: Create custom product with a fractional first movement amount
    */
-  test('should create a custom product with fractional quantity', async ({
+  test('should create a custom product with a fractional first movement', async ({
     page,
   }) => {
     await page.goto('http://localhost:3000/dashboard');
@@ -136,12 +131,10 @@ test.describe('Add Custom Product', () => {
     const productName = `Fractional Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('3.5');
-    await page.locator('#custom-investment').fill('1000');
+    await page.locator('#custom-investment').fill('1000.5');
 
     const today = new Date().toISOString().split('T')[0];
     await page.locator('#custom-date').fill(today);
-
-    await page.getByLabel('Quantity').fill('2.5');
 
     await page.getByRole('button', { name: 'Add Product' }).click();
 
@@ -224,8 +217,6 @@ test.describe('Add Custom Product', () => {
 
     const today = new Date().toISOString().split('T')[0];
     await page.locator('#custom-date').fill(today);
-
-    await page.getByLabel('Quantity').fill('1');
 
     await page.getByRole('button', { name: 'Add Product' }).click();
 

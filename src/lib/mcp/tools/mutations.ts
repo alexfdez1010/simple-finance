@@ -65,7 +65,6 @@ export function registerMutationTools(server: McpServer): void {
       const created = await createCustomProduct({
         name: input.name,
         annualReturnRate: input.annualReturnRate,
-        quantity: input.quantity,
         currency: input.currency ?? 'EUR',
         firstMovement: {
           amount: input.firstMovementAmount,
@@ -108,7 +107,6 @@ export function registerMutationTools(server: McpServer): void {
       const updated = await updateCustomProduct({
         productId: id,
         name: rest.name,
-        quantity: rest.quantity,
         annualReturnRate: rest.annualReturnRate,
       });
       return ok(updated);

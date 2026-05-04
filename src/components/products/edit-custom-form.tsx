@@ -39,7 +39,6 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: product.name,
-    quantity: product.quantity.toString(),
     annualReturnRate: (product.custom.annualReturnRate * 100).toString(),
   });
   const currency = product.custom.currency;
@@ -58,7 +57,6 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
       const result = await updateCustomProductAction(
         product.id,
         formData.name,
-        parseFloat(formData.quantity),
         parseFloat(formData.annualReturnRate) / 100,
       );
       if (!result.success) {
@@ -85,35 +83,19 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
             />
           </Field>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Field>
-              <FieldLabel htmlFor="edit-custom-qty">Quantity</FieldLabel>
-              <Input
-                id="edit-custom-qty"
-                type="number"
-                value={formData.quantity}
-                onChange={(e) => update('quantity', e.target.value)}
-                step="0.00001"
-                min="0"
-                required
-              />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="edit-custom-rate">
-                Annual Rate (%)
-              </FieldLabel>
-              <Input
-                id="edit-custom-rate"
-                type="number"
-                value={formData.annualReturnRate}
-                onChange={(e) => update('annualReturnRate', e.target.value)}
-                step="0.00001"
-                min="0"
-                max="100"
-                required
-              />
-            </Field>
-          </div>
+          <Field>
+            <FieldLabel htmlFor="edit-custom-rate">Annual Rate (%)</FieldLabel>
+            <Input
+              id="edit-custom-rate"
+              type="number"
+              value={formData.annualReturnRate}
+              onChange={(e) => update('annualReturnRate', e.target.value)}
+              step="0.00001"
+              min="0"
+              max="100"
+              required
+            />
+          </Field>
 
           <Field>
             <FieldLabel htmlFor="edit-custom-currency">Currency</FieldLabel>

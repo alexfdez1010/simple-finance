@@ -80,7 +80,6 @@ export async function createYahooProduct(
  * @param annualReturnRate - Annual return rate as decimal (0.05 = 5%)
  * @param firstMovementAmount - First deposit in `currency`
  * @param firstMovementDate - Date of first contribution
- * @param quantity - Quantity (usually 1 for custom products)
  * @param currency - Product currency (default EUR)
  * @param firstMovementNote - Optional note attached to the first movement
  * @returns Created product id or error
@@ -90,7 +89,6 @@ export async function createCustomProductAction(
   annualReturnRate: number,
   firstMovementAmount: number,
   firstMovementDate: Date,
-  quantity: number,
   currency: string = DEFAULT_CURRENCY,
   firstMovementNote?: string | null,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
@@ -98,7 +96,6 @@ export async function createCustomProductAction(
     const input: CreateCustomProductInput = {
       name,
       annualReturnRate,
-      quantity,
       currency: currency || DEFAULT_CURRENCY,
       firstMovement: {
         amount: firstMovementAmount,
@@ -230,14 +227,12 @@ export async function updateYahooProductAction(
 export async function updateCustomProductAction(
   productId: string,
   name: string,
-  quantity: number,
   annualReturnRate: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const input: UpdateCustomProductInput = {
       productId,
       name,
-      quantity,
       annualReturnRate,
     };
 

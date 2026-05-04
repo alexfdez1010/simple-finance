@@ -169,9 +169,9 @@ export function ProductCard({
       </div>
 
       <div className="grid grid-cols-2 gap-y-2.5 gap-x-3 mt-auto text-center">
-        <DetailItem label="Quantity" value={String(product.quantity)} />
         {isYahoo ? (
           <>
+            <DetailItem label="Quantity" value={String(product.quantity)} />
             <DetailItem
               label="Current Price"
               value={formatCurrency(currentValue)}
