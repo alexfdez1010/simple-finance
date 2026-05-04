@@ -7,6 +7,10 @@
  * Conversion to a portfolio currency such as EUR is performed by callers
  * via the currency-conversion services.
  *
+ * Values are returned at full double precision; rounding belongs to the
+ * formatter at display time, since a 2-decimal round here corrupts crypto
+ * or commodity amounts (e.g. 0.0066 BTC → 0.01).
+ *
  * The calculator uses daily compound interest:
  *   value(t) = Σ amount_i · (1 + r/365)^days(t − date_i)
  * where `amount_i` is signed (positive = deposit, negative = withdrawal)
@@ -53,7 +57,7 @@ function compoundContribution(
  * @param contributions - All deposits/withdrawals on the product
  * @param annualReturnRate - Annual return rate (decimal; 0.05 = 5%)
  * @param currentDate - Date to compute the value at (defaults to now)
- * @returns Current value in the product's currency, rounded to 2 decimals
+ * @returns Current value in the product's currency, full double precision
  */
 export function calculateCustomProductValueFromContributions(
   contributions: CustomContribution[],
@@ -62,19 +66,17 @@ export function calculateCustomProductValueFromContributions(
 ): number {
   assertRate(annualReturnRate);
 
-  const total = contributions.reduce(
+  return contributions.reduce(
     (acc, c) =>
       acc +
       compoundContribution(c.amount, annualReturnRate, c.date, currentDate),
     0,
   );
-
-  return Math.round(total * 100) / 100;
 }
 
 /**
  * Net amount invested: sum of every contribution (deposits add, withdrawals
- * subtract). Returned in the product currency.
+ * subtract). Returned in the product currency at full double precision.
  *
  * Future-dated contributions are included so the displayed total matches
  * the user's intent — useful when modelling a planned deposit. The
@@ -84,8 +86,7 @@ export function calculateCustomProductValueFromContributions(
 export function calculateNetInvestedFromContributions(
   contributions: CustomContribution[],
 ): number {
-  const net = contributions.reduce((acc, c) => acc + c.amount, 0);
-  return Math.round(net * 100) / 100;
+  return contributions.reduce((acc, c) => acc + c.amount, 0);
 }
 
 /**
@@ -95,7 +96,7 @@ export function calculateReturn(
   currentValue: number,
   netInvested: number,
 ): number {
-  return Math.round((currentValue - netInvested) * 100) / 100;
+  return currentValue - netInvested;
 }
 
 /**
@@ -106,8 +107,7 @@ export function calculateReturnPercentage(
   netInvested: number,
 ): number {
   if (netInvested === 0) return 0;
-  const pct = ((currentValue - netInvested) / netInvested) * 100;
-  return Math.round(pct * 100) / 100;
+  return ((currentValue - netInvested) / netInvested) * 100;
 }
 
 /**
@@ -117,7 +117,7 @@ export function calculateDailyChange(
   currentValue: number,
   previousValue: number,
 ): number {
-  return Math.round((currentValue - previousValue) * 100) / 100;
+  return currentValue - previousValue;
 }
 
 /**
@@ -128,6 +128,5 @@ export function calculateDailyChangePercentage(
   previousValue: number,
 ): number {
   if (previousValue === 0) return 0;
-  const pct = ((currentValue - previousValue) / previousValue) * 100;
-  return Math.round(pct * 100) / 100;
+  return ((currentValue - previousValue) / previousValue) * 100;
 }

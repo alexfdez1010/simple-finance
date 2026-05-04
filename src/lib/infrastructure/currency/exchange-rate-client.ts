@@ -112,14 +112,15 @@ export async function fetchHistoricalUsdToEurRate(
 }
 
 /**
- * Converts USD amount to EUR
+ * Converts USD amount to EUR. Returned at full double precision; rounding
+ * belongs to the display formatter.
  *
  * @param usdAmount - Amount in USD
  * @param rate - Exchange rate (USD to EUR)
- * @returns Amount in EUR, rounded to 2 decimal places
+ * @returns Amount in EUR
  */
 export function convertUsdToEur(usdAmount: number, rate: number): number {
-  return Math.round(usdAmount * rate * 100) / 100;
+  return usdAmount * rate;
 }
 
 /**
@@ -148,11 +149,13 @@ export function getCryptoYahooTicker(symbol: CryptoCurrency): string {
 
 /**
  * Converts an amount denominated in a crypto/commodity asset to EUR.
+ * Returned at full double precision; rounding belongs to the display
+ * formatter.
  *
  * @param amount - Amount in source asset
  * @param rateEur - Rate (1 unit of asset in EUR)
- * @returns Amount in EUR, rounded to 2 decimal places
+ * @returns Amount in EUR
  */
 export function convertCryptoToEur(amount: number, rateEur: number): number {
-  return Math.round(amount * rateEur * 100) / 100;
+  return amount * rateEur;
 }
