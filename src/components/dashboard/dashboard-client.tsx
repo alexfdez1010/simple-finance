@@ -183,6 +183,8 @@ export function DashboardClient({
                     currentValue={product.currentValue}
                     currentValueEur={product.currentValueEur}
                     investedEur={product.investedEur}
+                    currentValueProductCcy={product.currentValueProductCcy}
+                    investedProductCcy={product.investedProductCcy}
                     onEdit={setEditProduct}
                     onDelete={setDeleteTarget}
                   />
