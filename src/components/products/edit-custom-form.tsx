@@ -142,7 +142,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
       <div className="border-t border-border pt-4">
         <CustomContributions
           customProductDataId={product.custom.id}
-          currency={formData.currency}
+          currency={product.custom.currency}
           contributions={product.custom.contributions}
           onChanged={() => router.refresh()}
         />

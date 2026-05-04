@@ -1,5 +1,9 @@
 /**
- * Custom product form for use in dialogs
+ * Custom product creation form. Captures product metadata plus the first
+ * movement (deposit). The first movement is stored as a contribution in the
+ * product's currency — additional movements can be added later from the
+ * edit dialog.
+ *
  * @module components/products/custom-product-form
  */
 
@@ -15,13 +19,16 @@ import {
   CURRENCY_OPTIONS,
   currencySymbol,
 } from '@/components/products/currency-options';
+import { FirstMovementFields } from '@/components/products/first-movement-fields';
 
 interface CustomProductFormProps {
   onSuccess: () => void;
 }
 
+const todayIso = () => new Date().toISOString().split('T')[0];
+
 /**
- * Custom product creation form with compound interest
+ * Custom product creation form with compound interest.
  *
  * @param props - Form props with success callback
  * @returns Form element
@@ -29,17 +36,28 @@ interface CustomProductFormProps {
 export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
   const [formData, setFormData] = useState({
     name: '',
-    annualReturnRate: '',
-    initialInvestment: '',
-    investmentDate: '',
-    quantity: '1',
     currency: 'EUR',
+    annualReturnRate: '',
+    quantity: '1',
+    initialInvestment: '',
+    investmentDate: todayIso(),
+    initialNote: '',
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
+
+  const onMovementChange = (field: 'amount' | 'date' | 'note', value: string) =>
+    update(
+      field === 'amount'
+        ? 'initialInvestment'
+        : field === 'date'
+          ? 'investmentDate'
+          : 'initialNote',
+      value,
+    );
 
   const symbol = currencySymbol(formData.currency);
 
@@ -56,6 +74,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
         new Date(formData.investmentDate),
         parseFloat(formData.quantity),
         formData.currency,
+        formData.initialNote.trim() || null,
       );
       if (!result.success)
         throw new Error(result.error || 'Failed to create product');
@@ -83,18 +102,6 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <Field>
-            <FieldLabel htmlFor="custom-rate">Annual Rate (%)</FieldLabel>
-            <Input
-              id="custom-rate"
-              type="number"
-              value={formData.annualReturnRate}
-              onChange={(e) => update('annualReturnRate', e.target.value)}
-              placeholder="5.0"
-              step="0.00001"
-              required
-            />
-          </Field>
-          <Field>
             <FieldLabel htmlFor="custom-currency">Currency</FieldLabel>
             <select
               id="custom-currency"
@@ -110,59 +117,50 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
               ))}
             </select>
           </Field>
+          <Field>
+            <FieldLabel htmlFor="custom-rate">Annual Rate (%)</FieldLabel>
+            <Input
+              id="custom-rate"
+              type="number"
+              value={formData.annualReturnRate}
+              onChange={(e) => update('annualReturnRate', e.target.value)}
+              placeholder="5.0"
+              step="0.00001"
+              required
+            />
+          </Field>
         </div>
 
         <Field>
-          <FieldLabel htmlFor="custom-investment">
-            Initial Deposit ({symbol})
-          </FieldLabel>
+          <FieldLabel htmlFor="custom-qty">Quantity</FieldLabel>
           <Input
-            id="custom-investment"
+            id="custom-qty"
             type="number"
-            value={formData.initialInvestment}
-            onChange={(e) => update('initialInvestment', e.target.value)}
-            placeholder="10000"
+            value={formData.quantity}
+            onChange={(e) => update('quantity', e.target.value)}
+            placeholder="1"
             step="0.00001"
             min="0"
             required
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel htmlFor="custom-date">Investment Date</FieldLabel>
-            <Input
-              id="custom-date"
-              type="date"
-              value={formData.investmentDate}
-              onChange={(e) => update('investmentDate', e.target.value)}
-              max={new Date().toISOString().split('T')[0]}
-              required
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="custom-qty">Quantity</FieldLabel>
-            <Input
-              id="custom-qty"
-              type="number"
-              value={formData.quantity}
-              onChange={(e) => update('quantity', e.target.value)}
-              placeholder="1"
-              step="0.00001"
-              min="0"
-              required
-            />
-          </Field>
-        </div>
+        <FirstMovementFields
+          currency={formData.currency}
+          symbol={symbol}
+          amount={formData.initialInvestment}
+          date={formData.investmentDate}
+          note={formData.initialNote}
+          maxDate={todayIso()}
+          onChange={onMovementChange}
+        />
 
-        {/* Info Box */}
         <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
-          <p className="text-xs font-semibold text-foreground mb-1">
-            How it works
-          </p>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Compound interest A = P(1 + r/365)^days. Add deposits or withdrawals
-            afterwards from the product&apos;s edit dialog.
+            Compound interest A = P(1 + r/365)^days. The first movement above is
+            saved as a contribution; add more deposits or withdrawals from the
+            product&apos;s edit dialog. Amounts are stored in the chosen
+            currency, never converted to EUR.
           </p>
         </div>
 

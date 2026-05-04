@@ -73,14 +73,16 @@ export async function createYahooProduct(
 /**
  * Creates a custom product. The initial investment is stored as-is in the
  * product's currency — no EUR conversion is performed; the dashboard
- * converts at display time.
+ * converts at display time. The amount is persisted as the first
+ * contribution so the create flow and the contributions list stay in sync.
  *
  * @param name - Product name
  * @param annualReturnRate - Annual return rate as decimal (0.05 = 5%)
- * @param initialInvestment - Initial investment in `currency`
+ * @param initialInvestment - Initial deposit in `currency`
  * @param investmentDate - Date of initial contribution
  * @param quantity - Quantity (usually 1 for custom products)
  * @param currency - Product currency (default EUR)
+ * @param initialNote - Optional note attached to the first movement
  * @returns Created product id or error
  */
 export async function createCustomProductAction(
@@ -90,6 +92,7 @@ export async function createCustomProductAction(
   investmentDate: Date,
   quantity: number,
   currency: string = DEFAULT_CURRENCY,
+  initialNote?: string | null,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
     const input: CreateCustomProductInput = {
@@ -99,6 +102,7 @@ export async function createCustomProductAction(
       investmentDate,
       quantity,
       currency: currency || DEFAULT_CURRENCY,
+      initialNote,
     };
 
     const product = await createCustomProduct(input);

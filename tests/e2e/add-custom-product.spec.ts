@@ -44,13 +44,13 @@ test.describe('Add Custom Product', () => {
     await page.getByLabel('Currency', { exact: true }).selectOption('EUR');
 
     // Fill in the initial investment
-    await page.getByLabel(/Initial Deposit/).fill('10000');
+    await page.locator('#custom-investment').fill('10000');
 
     // Fill in the investment date (30 days ago)
     const investmentDate = new Date();
     investmentDate.setDate(investmentDate.getDate() - 30);
     const dateString = investmentDate.toISOString().split('T')[0];
-    await page.getByLabel('Investment Date').fill(dateString);
+    await page.locator('#custom-date').fill(dateString);
 
     // Fill in the quantity
     await page.getByLabel('Quantity').fill('1');
@@ -95,12 +95,12 @@ test.describe('Add Custom Product', () => {
     const productName = `High Yield Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('15.75');
-    await page.getByLabel(/Initial Deposit/).fill('5000');
+    await page.locator('#custom-investment').fill('5000');
 
     const investmentDate = new Date();
     investmentDate.setDate(investmentDate.getDate() - 90);
     const dateString = investmentDate.toISOString().split('T')[0];
-    await page.getByLabel('Investment Date').fill(dateString);
+    await page.locator('#custom-date').fill(dateString);
 
     await page.getByLabel('Quantity').fill('2');
 
@@ -136,10 +136,10 @@ test.describe('Add Custom Product', () => {
     const productName = `Fractional Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('3.5');
-    await page.getByLabel(/Initial Deposit/).fill('1000');
+    await page.locator('#custom-investment').fill('1000');
 
     const today = new Date().toISOString().split('T')[0];
-    await page.getByLabel('Investment Date').fill(today);
+    await page.locator('#custom-date').fill(today);
 
     await page.getByLabel('Quantity').fill('2.5');
 
@@ -202,7 +202,6 @@ test.describe('Add Custom Product', () => {
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
 
-    await expect(page.getByText('How it works')).toBeVisible();
     await expect(
       page.getByText(/compound interest.*A = P\(1 \+ r\/365\)/i),
     ).toBeVisible();
@@ -221,10 +220,10 @@ test.describe('Add Custom Product', () => {
     const productName = `Today Investment ${Date.now()}`;
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('4.0');
-    await page.getByLabel(/Initial Deposit/).fill('2000');
+    await page.locator('#custom-investment').fill('2000');
 
     const today = new Date().toISOString().split('T')[0];
-    await page.getByLabel('Investment Date').fill(today);
+    await page.locator('#custom-date').fill(today);
 
     await page.getByLabel('Quantity').fill('1');
 

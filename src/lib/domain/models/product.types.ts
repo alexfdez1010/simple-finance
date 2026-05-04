@@ -123,7 +123,9 @@ export interface CreateYahooFinanceProductInput {
 }
 
 /**
- * Input for creating a custom product
+ * Input for creating a custom product. The initial investment is persisted
+ * as the first contribution (in the product's currency) so the create flow
+ * and the contributions list stay consistent.
  */
 export interface CreateCustomProductInput {
   name: string;
@@ -131,7 +133,8 @@ export interface CreateCustomProductInput {
   initialInvestment: number;
   investmentDate: Date;
   quantity: number;
-  currency: string; // 'EUR' or 'USD'
+  currency: string;
+  initialNote?: string | null;
 }
 
 /**

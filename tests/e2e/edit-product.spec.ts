@@ -27,9 +27,9 @@ async function createCustomProduct(
   await page.getByRole('tab', { name: 'Custom Product' }).click();
   await page.getByLabel('Product Name').fill(name);
   await page.getByLabel('Annual Rate (%)').fill(rate);
-  await page.getByLabel(/Initial Deposit/).fill(investment);
   await page.getByLabel('Quantity').fill('1');
-  await page.getByLabel('Investment Date').fill(date);
+  await page.locator('#custom-investment').fill(investment);
+  await page.locator('#custom-date').fill(date);
   await page.getByRole('button', { name: 'Add Product' }).click();
   await expect(
     page.getByRole('heading', { name: 'Add Product' }),

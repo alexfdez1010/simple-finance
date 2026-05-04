@@ -49,16 +49,18 @@ export async function createYahooFinanceProduct(
 }
 
 /**
- * Creates a custom product with an initial contribution.
- * Legacy `initialInvestment`/`investmentDate` mirror the first contribution
- * for backwards compatibility with old snapshots and reports.
+ * Creates a custom product whose initial deposit is persisted as the first
+ * contribution in the product's currency (no EUR conversion). Legacy
+ * `initialInvestment`/`investmentDate` mirror that first contribution for
+ * backwards compatibility with old snapshots and reports.
  *
- * @param input - Product creation data (initialInvestment is in EUR)
+ * @param input - Product creation data; `initialInvestment` is in `currency`
  * @returns Created product
  */
 export async function createCustomProduct(
   input: CreateCustomProductInput,
 ): Promise<CustomProduct> {
+  const note = input.initialNote?.trim() || 'First movement';
   const product = await prisma.financialProduct.create({
     data: {
       type: 'CUSTOM',
@@ -74,7 +76,7 @@ export async function createCustomProduct(
             create: {
               amount: input.initialInvestment,
               date: input.investmentDate,
-              note: 'Initial investment',
+              note,
             },
           },
         },
