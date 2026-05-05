@@ -13,15 +13,7 @@ import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calc
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
-import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
-import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
-import { PortfolioAllocationChart } from '@/components/dashboard/portfolio-allocation-chart';
-import { TopPerformers } from '@/components/dashboard/top-performers';
-import { ContributionChart } from '@/components/dashboard/contribution-chart';
-import { DrawdownChart } from '@/components/dashboard/drawdown-chart';
-import { ReturnsDistributionChart } from '@/components/dashboard/returns-distribution-chart';
-import { DailyHeatmapChart } from '@/components/dashboard/daily-heatmap-chart';
+import { DashboardChartsGrid } from '@/components/dashboard/dashboard-charts-grid';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DisplayCurrencyProvider } from '@/components/dashboard/display-currency-context';
 import { SkillTab } from '@/components/dashboard/skill-tab';
@@ -36,6 +28,13 @@ interface DashboardClientProps {
   evolutionData: Array<{ date: string; value: number }>;
   monthlyWealthData: Array<{ month: string; value: number }>;
   dailyChanges: Array<{ date: string; change: number }>;
+  monthlyContributions: Array<{
+    month: string;
+    deposits: number;
+    withdrawals: number;
+    net: number;
+  }>;
+  investedSeries: Array<{ date: string; invested: number }>;
   displayRates: Record<DisplayCurrency, number>;
   skill: {
     serverUrl: string;
@@ -56,6 +55,8 @@ export function DashboardClient({
   evolutionData,
   monthlyWealthData,
   dailyChanges,
+  monthlyContributions,
+  investedSeries,
   displayRates,
   skill,
 }: DashboardClientProps) {
@@ -78,8 +79,13 @@ export function DashboardClient({
     setAddDialogOpen(true);
   };
 
-  const { stats, allocationData, performersData, dailyChange } =
-    computeDashboardData(productsWithValues, dailyChanges);
+  const {
+    stats,
+    allocationData,
+    performersData,
+    currencyAllocation,
+    dailyChange,
+  } = computeDashboardData(productsWithValues, dailyChanges);
   const totalReturn = stats.totalValue - stats.totalInvestment;
   const totalReturnPct =
     stats.totalInvestment > 0 ? (totalReturn / stats.totalInvestment) * 100 : 0;
@@ -127,28 +133,17 @@ export function DashboardClient({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="charts" className="flex flex-col gap-6 sm:gap-8">
-            <MonthlyWealthChart data={monthlyWealthData} />
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <PortfolioEvolutionChart data={evolutionData} />
-              <DailyChangesChart data={dailyChanges} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <PortfolioAllocationChart data={allocationData} />
-              <TopPerformers performers={performersData} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <ContributionChart data={performersData} />
-              <DrawdownChart data={evolutionData} />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-              <ReturnsDistributionChart data={evolutionData} />
-              <DailyHeatmapChart data={evolutionData} />
-            </div>
+          <TabsContent value="charts">
+            <DashboardChartsGrid
+              evolutionData={evolutionData}
+              monthlyWealthData={monthlyWealthData}
+              dailyChanges={dailyChanges}
+              monthlyContributions={monthlyContributions}
+              investedSeries={investedSeries}
+              allocationData={allocationData}
+              currencyAllocation={currencyAllocation}
+              performersData={performersData}
+            />
           </TabsContent>
 
           <TabsContent value="skill">

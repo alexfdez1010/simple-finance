@@ -19,10 +19,16 @@ interface PerformerItem {
   type: 'YAHOO_FINANCE' | 'CUSTOM';
 }
 
+interface CurrencyAllocationItem {
+  currency: string;
+  value: number;
+}
+
 interface DashboardData {
   stats: { totalValue: number; totalInvestment: number; productCount: number };
   allocationData: AllocationItem[];
   performersData: PerformerItem[];
+  currencyAllocation: CurrencyAllocationItem[];
   dailyChange: number;
 }
 
@@ -69,5 +75,21 @@ export function computeDashboardData(
   const dailyChange =
     dailyChanges.length > 0 ? dailyChanges[dailyChanges.length - 1].change : 0;
 
-  return { stats, allocationData, performersData, dailyChange };
+  const currencyMap = new Map<string, number>();
+  for (const p of products) {
+    const ccy =
+      p.type === 'CUSTOM' ? (p.custom.currency || 'EUR').toUpperCase() : 'EUR';
+    currencyMap.set(ccy, (currencyMap.get(ccy) ?? 0) + p.currentValueEur);
+  }
+  const currencyAllocation = Array.from(currencyMap.entries())
+    .map(([currency, value]) => ({ currency, value }))
+    .sort((a, b) => b.value - a.value);
+
+  return {
+    stats,
+    allocationData,
+    performersData,
+    currencyAllocation,
+    dailyChange,
+  };
 }

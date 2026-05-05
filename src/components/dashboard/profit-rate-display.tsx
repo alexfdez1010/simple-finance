@@ -15,12 +15,37 @@ type ProfitPeriod = 'daily' | 'weekly' | 'monthly' | 'annual';
 
 const PERIOD_CONFIG: Record<
   ProfitPeriod,
-  { label: string; key: keyof ProfitRates; next: string }
+  {
+    label: string;
+    valueKey: keyof ProfitRates;
+    pctKey: keyof ProfitRates;
+    next: string;
+  }
 > = {
-  daily: { label: 'Daily', key: 'daily', next: 'Weekly' },
-  weekly: { label: 'Weekly', key: 'weekly', next: 'Monthly' },
-  monthly: { label: 'Monthly', key: 'monthly', next: 'Annual' },
-  annual: { label: 'Annual', key: 'annual', next: 'Daily' },
+  daily: {
+    label: 'Daily',
+    valueKey: 'daily',
+    pctKey: 'dailyPct',
+    next: 'Weekly',
+  },
+  weekly: {
+    label: 'Weekly',
+    valueKey: 'weekly',
+    pctKey: 'weeklyPct',
+    next: 'Monthly',
+  },
+  monthly: {
+    label: 'Monthly',
+    valueKey: 'monthly',
+    pctKey: 'monthlyPct',
+    next: 'Annual',
+  },
+  annual: {
+    label: 'Annual',
+    valueKey: 'annual',
+    pctKey: 'annualPct',
+    next: 'Daily',
+  },
 };
 
 const PERIOD_ORDER: ProfitPeriod[] = ['daily', 'weekly', 'monthly', 'annual'];
@@ -52,7 +77,9 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   };
 
   const config = PERIOD_CONFIG[currentPeriod];
-  const value = profitRates[config.key];
+  const value = profitRates[config.valueKey];
+  const pct = profitRates[config.pctKey];
+  const sign = value >= 0 ? '+' : '';
 
   return (
     <div className="p-4 sm:p-5 h-full flex flex-col justify-between">
@@ -69,13 +96,23 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
           <ArrowRight className="w-3 h-3" />
         </button>
       </div>
-      <p
-        className={`text-lg sm:text-2xl font-bold tabular-nums ${
-          value >= 0 ? 'text-gain' : 'text-loss'
-        }`}
-      >
-        {formatSigned(value)}
-      </p>
+      <div className="flex items-baseline gap-2 flex-wrap">
+        <p
+          className={`text-lg sm:text-2xl font-bold tabular-nums ${
+            value >= 0 ? 'text-gain' : 'text-loss'
+          }`}
+        >
+          {formatSigned(value)}
+        </p>
+        <span
+          className={`text-xs sm:text-sm font-semibold tabular-nums ${
+            value >= 0 ? 'text-gain' : 'text-loss'
+          }`}
+        >
+          {sign}
+          {pct.toFixed(2)}%
+        </span>
+      </div>
       <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
         Based on custom products
       </p>

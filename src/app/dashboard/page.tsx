@@ -12,6 +12,10 @@ import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enric
 import { getDisplayRates } from '@/lib/domain/services/display-rates';
 import { getPortfolioSnapshotsLastNDays } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import {
+  getMonthlyContributions,
+  getInvestedSeries,
+} from '@/lib/domain/services/contributions-data';
+import {
   StatsLoadingSkeleton,
   ChartLoadingSkeleton,
   ProductsLoadingSkeleton,
@@ -99,12 +103,22 @@ async function DashboardContent() {
       getSkillProps(),
     ]);
 
+  const [monthlyContributions, investedSeries] = await Promise.all([
+    getMonthlyContributions(productsWithValues),
+    getInvestedSeries(
+      productsWithValues,
+      snapshotData.evolutionData.map((p) => p.date),
+    ),
+  ]);
+
   return (
     <DashboardClient
       productsWithValues={productsWithValues}
       evolutionData={snapshotData.evolutionData}
       monthlyWealthData={snapshotData.monthlyWealthData}
       dailyChanges={snapshotData.dailyChanges}
+      monthlyContributions={monthlyContributions}
+      investedSeries={investedSeries}
       displayRates={displayRates}
       skill={skill}
     />
