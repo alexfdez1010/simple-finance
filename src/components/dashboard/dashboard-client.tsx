@@ -8,6 +8,7 @@ import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { AddProductDialog } from '@/components/products/add-product-dialog';
 import { EditProductDialog } from '@/components/products/edit-product-dialog';
 import { DeleteProductDialog } from '@/components/products/delete-product-dialog';
+import { ProductHistoryDialog } from '@/components/products/product-history-dialog';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
@@ -64,6 +65,9 @@ export function DashboardClient({
   const [addDialogTab, setAddDialogTab] = useState<'yahoo' | 'custom'>('yahoo');
   const [editProduct, setEditProduct] = useState<FinancialProduct | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<FinancialProduct | null>(
+    null,
+  );
+  const [historyTarget, setHistoryTarget] = useState<FinancialProduct | null>(
     null,
   );
 
@@ -180,6 +184,7 @@ export function DashboardClient({
                     investedEur={product.investedEur}
                     onEdit={setEditProduct}
                     onDelete={setDeleteTarget}
+                    onView={setHistoryTarget}
                   />
                 ))}
               </div>
@@ -203,6 +208,11 @@ export function DashboardClient({
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         productName={deleteTarget?.name ?? ''}
         onConfirm={handleDeleteConfirm}
+      />
+      <ProductHistoryDialog
+        open={!!historyTarget}
+        onOpenChange={(open) => !open && setHistoryTarget(null)}
+        product={historyTarget}
       />
     </DisplayCurrencyProvider>
   );

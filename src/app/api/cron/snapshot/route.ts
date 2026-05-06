@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { findAllProducts } from '@/lib/infrastructure/database/product-repository';
 import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enrichment';
 import { upsertPortfolioSnapshot } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
+import { upsertProductSnapshot } from '@/lib/infrastructure/database/product-snapshot-repository';
 import { generateAuthToken } from '@/lib/auth/auth-utils';
 
 /**
@@ -59,6 +60,17 @@ export async function GET(request: NextRequest) {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+
+    await Promise.all(
+      enriched.map((p) =>
+        upsertProductSnapshot(
+          p.id,
+          today,
+          Math.round(p.currentValueEur * 100) / 100,
+          p.quantity,
+        ),
+      ),
+    );
 
     const snapshot = await upsertPortfolioSnapshot(
       today,

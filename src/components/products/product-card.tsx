@@ -9,7 +9,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DetailItem } from '@/components/products/detail-item';
@@ -30,6 +30,7 @@ interface ProductCardProps {
   investedEur?: number;
   onEdit?: (product: FinancialProduct) => void;
   onDelete?: (product: FinancialProduct) => void;
+  onView?: (product: FinancialProduct) => void;
 }
 
 /** Formats percentage value with sign */
@@ -50,6 +51,7 @@ export function ProductCard({
   investedEur,
   onEdit,
   onDelete,
+  onView,
 }: ProductCardProps) {
   const { format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
@@ -98,6 +100,16 @@ export function ProductCard({
           </div>
         </div>
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          {onView && (
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              onClick={() => onView(product)}
+              aria-label="View product history"
+            >
+              <Eye />
+            </Button>
+          )}
           {onEdit && (
             <Button
               variant="ghost"

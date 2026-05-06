@@ -23,6 +23,9 @@ export async function openProductsTab(page: Page): Promise<void> {
  * Use this in beforeEach hooks to ensure test isolation
  */
 export async function cleanDatabase(): Promise<void> {
+  // Per-product snapshots cascade-delete with `financialProduct`, but
+  // remove them explicitly so failed runs cannot leave orphans behind.
+  await prisma.productSnapshot.deleteMany({});
   await prisma.financialProduct.deleteMany({});
   await prisma.portfolioSnapshot.deleteMany({});
 }
