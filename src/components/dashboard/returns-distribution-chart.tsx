@@ -37,7 +37,7 @@ const BIN_COUNT = 51;
 
 interface Bin {
   label: string;
-  count: number;
+  count: number | null;
   mid: number;
 }
 
@@ -56,18 +56,22 @@ function toBins(pcts: number[]): Bin[] {
   if (pcts.length === 0) return [];
   const maxAbs = Math.max(...pcts.map((p) => Math.abs(p)), 0.01);
   const width = (maxAbs * 2) / BIN_COUNT;
-  const bins: Bin[] = Array.from({ length: BIN_COUNT }, (_, i) => {
-    const lo = -maxAbs + i * width;
-    const mid = lo + width / 2;
-    return { label: `${mid >= 0 ? '+' : ''}${mid.toFixed(1)}%`, count: 0, mid };
-  });
+  const counts = new Array<number>(BIN_COUNT).fill(0);
   for (const p of pcts) {
     let idx = Math.floor((p + maxAbs) / width);
     if (idx < 0) idx = 0;
     if (idx >= BIN_COUNT) idx = BIN_COUNT - 1;
-    bins[idx].count += 1;
+    counts[idx] += 1;
   }
-  return bins;
+  return Array.from({ length: BIN_COUNT }, (_, i) => {
+    const lo = -maxAbs + i * width;
+    const mid = lo + width / 2;
+    return {
+      label: `${mid >= 0 ? '+' : ''}${mid.toFixed(1)}%`,
+      count: counts[i] > 0 ? counts[i] : null,
+      mid,
+    };
+  });
 }
 
 /** Percentile (linear, 0..1) from an unsorted sample. */
@@ -127,7 +131,7 @@ export function ReturnsDistributionChart({
         <CardTitle className="font-serif text-lg">
           Returns Distribution
         </CardTitle>
-        <CardDescription>Shape of daily % returns</CardDescription>
+        <CardDescription>Shape of daily % returns · log scale</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
@@ -153,6 +157,9 @@ export function ReturnsDistributionChart({
               interval={2}
             />
             <YAxis
+              scale="log"
+              domain={[1, 'auto']}
+              allowDataOverflow
               tickLine={false}
               axisLine={false}
               width={30}
@@ -162,7 +169,7 @@ export function ReturnsDistributionChart({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(v) => [`${v} days`, 'Count']}
+                  formatter={(v) => [`${v ?? 0} days`, 'Count']}
                 />
               }
             />

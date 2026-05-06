@@ -1,6 +1,6 @@
 /**
  * Daily heatmap: GitHub-contribution-style grid of daily % returns across the
- * last 26 weeks × 7 weekdays. Cell hue encodes sign, opacity encodes
+ * last 52 weeks × 7 weekdays. Cell hue encodes sign, opacity encodes
  * magnitude. Reveals clusters, streaks, and weekday patterns at a glance —
  * a visual shape no time-series bar chart surfaces.
  * @module components/dashboard/daily-heatmap-chart
@@ -37,7 +37,7 @@ interface DailyHeatmapChartProps {
   data: Array<{ date: string; value: number }>;
 }
 
-const WEEKS = 26;
+const WEEKS = 52;
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 interface Cell {
@@ -103,7 +103,7 @@ function cellColor(pct: number | null, maxAbs: number): string {
 }
 
 /**
- * Heatmap grid of daily returns over the last 26 weeks.
+ * Heatmap grid of daily returns over the last 52 weeks.
  *
  * @param props - Component props with daily portfolio evolution data
  * @returns Chart element
