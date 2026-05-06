@@ -1,7 +1,7 @@
 /**
- * Returns distribution histogram: bins daily % returns and highlights
- * mean + 5th-percentile (VaR₅). Surfaces skew, typical day, and tail risk —
- * a statistical lens none of the other charts expose.
+ * Returns distribution histogram: bins daily log-returns (ln(p_t/p_{t-1}))
+ * and highlights mean + 5th-percentile (VaR₅). Log-returns are additive and
+ * compress fat tails — gain/loss outliers no longer dominate the binning.
  * @module components/dashboard/returns-distribution-chart
  */
 
@@ -37,16 +37,19 @@ const BIN_COUNT = 51;
 
 interface Bin {
   label: string;
-  count: number | null;
+  count: number;
   mid: number;
 }
 
-/** Day-over-day percent returns from a value series. */
-function dailyPcts(series: Array<{ date: string; value: number }>): number[] {
+/** Day-over-day log-returns (ln(curr/prev) * 100) from a value series. */
+function dailyLogReturns(
+  series: Array<{ date: string; value: number }>,
+): number[] {
   const out: number[] = [];
   for (let i = 1; i < series.length; i++) {
     const prev = series[i - 1].value;
-    if (prev > 0) out.push(((series[i].value - prev) / prev) * 100);
+    const curr = series[i].value;
+    if (prev > 0 && curr > 0) out.push(Math.log(curr / prev) * 100);
   }
   return out;
 }
@@ -68,7 +71,7 @@ function toBins(pcts: number[]): Bin[] {
     const mid = lo + width / 2;
     return {
       label: `${mid >= 0 ? '+' : ''}${mid.toFixed(1)}%`,
-      count: counts[i] > 0 ? counts[i] : null,
+      count: counts[i],
       mid,
     };
   });
@@ -94,7 +97,7 @@ export function ReturnsDistributionChart({
   data,
 }: ReturnsDistributionChartProps) {
   const { bins, mean, var5, hitRate, sample } = useMemo(() => {
-    const pcts = dailyPcts(data);
+    const pcts = dailyLogReturns(data);
     if (pcts.length === 0) {
       return { bins: [], mean: 0, var5: 0, hitRate: 0, sample: 0 };
     }
@@ -131,7 +134,9 @@ export function ReturnsDistributionChart({
         <CardTitle className="font-serif text-lg">
           Returns Distribution
         </CardTitle>
-        <CardDescription>Shape of daily % returns · log scale</CardDescription>
+        <CardDescription>
+          Shape of daily log-returns · ln(p/p₋₁)
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
@@ -157,9 +162,6 @@ export function ReturnsDistributionChart({
               interval={2}
             />
             <YAxis
-              scale="log"
-              domain={[1, 'auto']}
-              allowDataOverflow
               tickLine={false}
               axisLine={false}
               width={30}
@@ -169,7 +171,7 @@ export function ReturnsDistributionChart({
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  formatter={(v) => [`${v ?? 0} days`, 'Count']}
+                  formatter={(v) => [`${v} days`, 'Count']}
                 />
               }
             />
