@@ -1,7 +1,7 @@
 /**
- * Returns distribution histogram: bins daily log-returns (ln(p_t/p_{t-1}))
- * and highlights mean + 5th-percentile (VaR₅). Log-returns are additive and
- * compress fat tails — gain/loss outliers no longer dominate the binning.
+ * Returns distribution histogram: bins arithmetic daily % returns on a
+ * symmetric-log (asinh) axis so tail outliers don't stretch the central
+ * bins. Highlights mean + 5th-percentile (VaR₅).
  * @module components/dashboard/returns-distribution-chart
  */
 
@@ -41,39 +41,43 @@ interface Bin {
   mid: number;
 }
 
-/** Day-over-day log-returns (ln(curr/prev) * 100) from a value series. */
-function dailyLogReturns(
-  series: Array<{ date: string; value: number }>,
-): number[] {
+/** Day-over-day arithmetic % returns from a value series. */
+function dailyPcts(series: Array<{ date: string; value: number }>): number[] {
   const out: number[] = [];
   for (let i = 1; i < series.length; i++) {
     const prev = series[i - 1].value;
-    const curr = series[i].value;
-    if (prev > 0 && curr > 0) out.push(Math.log(curr / prev) * 100);
+    if (prev > 0) out.push(((series[i].value - prev) / prev) * 100);
   }
   return out;
 }
 
-/** Symmetric binning around zero so gain/loss symmetry is visible. */
+/** Below this |%| the symlog scale is ~linear; beyond it grows logarithmic. */
+const LINTHRESH = 0.5;
+const fwd = (r: number): number => Math.asinh(r / LINTHRESH);
+const inv = (t: number): number => LINTHRESH * Math.sinh(t);
+
+/** Format a return midpoint compactly: 1 dp under 10%, 0 dp above. */
+function fmtPct(v: number): string {
+  const sign = v >= 0 ? '+' : '';
+  return `${sign}${Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(1)}%`;
+}
+
+/** Symmetric symlog binning: edges uniform in asinh-space, labels in real %. */
 function toBins(pcts: number[]): Bin[] {
   if (pcts.length === 0) return [];
-  const maxAbs = Math.max(...pcts.map((p) => Math.abs(p)), 0.01);
-  const width = (maxAbs * 2) / BIN_COUNT;
+  const tMax = Math.max(...pcts.map((p) => Math.abs(fwd(p))), fwd(0.01));
+  const width = (tMax * 2) / BIN_COUNT;
   const counts = new Array<number>(BIN_COUNT).fill(0);
   for (const p of pcts) {
-    let idx = Math.floor((p + maxAbs) / width);
+    let idx = Math.floor((fwd(p) + tMax) / width);
     if (idx < 0) idx = 0;
     if (idx >= BIN_COUNT) idx = BIN_COUNT - 1;
     counts[idx] += 1;
   }
   return Array.from({ length: BIN_COUNT }, (_, i) => {
-    const lo = -maxAbs + i * width;
-    const mid = lo + width / 2;
-    return {
-      label: `${mid >= 0 ? '+' : ''}${mid.toFixed(1)}%`,
-      count: counts[i],
-      mid,
-    };
+    const tMid = -tMax + (i + 0.5) * width;
+    const mid = inv(tMid);
+    return { label: fmtPct(mid), count: counts[i], mid };
   });
 }
 
@@ -97,7 +101,7 @@ export function ReturnsDistributionChart({
   data,
 }: ReturnsDistributionChartProps) {
   const { bins, mean, var5, hitRate, sample } = useMemo(() => {
-    const pcts = dailyLogReturns(data);
+    const pcts = dailyPcts(data);
     if (pcts.length === 0) {
       return { bins: [], mean: 0, var5: 0, hitRate: 0, sample: 0 };
     }
@@ -135,7 +139,7 @@ export function ReturnsDistributionChart({
           Returns Distribution
         </CardTitle>
         <CardDescription>
-          Shape of daily log-returns · ln(p/p₋₁)
+          Shape of daily % returns · symlog scale
         </CardDescription>
       </CardHeader>
       <CardContent>
