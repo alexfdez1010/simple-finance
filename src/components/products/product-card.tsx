@@ -20,6 +20,7 @@ import {
   type DisplayCurrency,
 } from '@/lib/utils/format-currency';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
+import { assetCategoryLabel } from '@/lib/domain/models/asset-category';
 
 interface ProductCardProps {
   product: FinancialProduct;
@@ -90,9 +91,12 @@ export function ProductCard({
           <h3 className="text-base font-semibold text-foreground truncate">
             {product.name}
           </h3>
-          <div className="flex items-center gap-2 mt-1">
+          <div className="flex flex-wrap items-center gap-1.5 mt-1">
             <Badge variant="secondary" className="text-[10px]">
               {isYahoo ? product.yahoo.symbol : product.custom.currency}
+            </Badge>
+            <Badge variant="outline" className="text-[10px]">
+              {assetCategoryLabel(product.assetCategory)}
             </Badge>
             <span className="text-[10px] text-muted-foreground">
               {dateString}

@@ -27,6 +27,10 @@ import type {
   UpdateCustomProductInput,
   FinancialProduct,
 } from '@/lib/domain/models/product.types';
+import {
+  DEFAULT_ASSET_CATEGORY,
+  type AssetCategory,
+} from '@/lib/domain/models/asset-category';
 
 const DEFAULT_CURRENCY = 'EUR';
 
@@ -46,6 +50,7 @@ export async function createYahooProduct(
   quantity: number,
   purchasePrice: number,
   purchaseDate: Date,
+  assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
     const input: CreateYahooFinanceProductInput = {
@@ -54,6 +59,7 @@ export async function createYahooProduct(
       quantity,
       purchasePrice,
       purchaseDate,
+      assetCategory,
     };
 
     const product = await createYahooFinanceProduct(input);
@@ -91,12 +97,14 @@ export async function createCustomProductAction(
   firstMovementDate: Date,
   currency: string = DEFAULT_CURRENCY,
   firstMovementNote?: string | null,
+  assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
     const input: CreateCustomProductInput = {
       name,
       annualReturnRate,
       currency: currency || DEFAULT_CURRENCY,
+      assetCategory,
       firstMovement: {
         amount: firstMovementAmount,
         date: firstMovementDate,
@@ -194,6 +202,7 @@ export async function updateYahooProductAction(
   quantity: number,
   purchasePrice: number,
   purchaseDate: Date,
+  assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const input: UpdateYahooFinanceProductInput = {
@@ -202,6 +211,7 @@ export async function updateYahooProductAction(
       quantity,
       purchasePrice,
       purchaseDate,
+      assetCategory,
     };
 
     await updateYahooFinanceProduct(input);
@@ -228,12 +238,14 @@ export async function updateCustomProductAction(
   productId: string,
   name: string,
   annualReturnRate: number,
+  assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const input: UpdateCustomProductInput = {
       productId,
       name,
       annualReturnRate,
+      assetCategory,
     };
 
     await updateCustomProduct(input);

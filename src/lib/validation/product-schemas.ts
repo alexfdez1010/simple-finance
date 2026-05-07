@@ -4,6 +4,11 @@
  */
 
 import { z } from 'zod';
+import { ASSET_CATEGORIES } from '@/lib/domain/models/asset-category';
+
+const assetCategorySchema = z.enum(
+  ASSET_CATEGORIES as unknown as [string, ...string[]],
+);
 
 /**
  * Schema for creating a Yahoo Finance product
@@ -13,6 +18,7 @@ export const createYahooFinanceProductSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200, 'Name too long'),
   symbol: z.string().min(1, 'Symbol is required').max(10, 'Symbol too long'),
   quantity: z.number().positive('Quantity must be positive'),
+  assetCategory: assetCategorySchema,
 });
 
 /**
@@ -25,6 +31,7 @@ export const createCustomProductSchema = z.object({
   annualReturnRate: z.number().min(-1, 'Return rate cannot be less than -100%'),
   firstMovementAmount: z.number().min(0, 'First movement cannot be negative'),
   firstMovementDate: z.coerce.date(),
+  assetCategory: assetCategorySchema,
 });
 
 /**

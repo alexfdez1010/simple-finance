@@ -6,6 +6,7 @@
 import 'server-only';
 import { z } from 'zod';
 import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import type { AssetCategory } from '@/lib/domain/models/asset-category';
 import {
   createYahooFinanceProduct,
   createCustomProduct,
@@ -48,6 +49,7 @@ export function registerMutationTools(server: McpServer): void {
         quantity: input.quantity,
         purchasePrice: input.purchasePrice,
         purchaseDate: new Date(input.purchaseDate),
+        assetCategory: input.assetCategory as AssetCategory,
       });
       return ok(created);
     },
@@ -66,6 +68,7 @@ export function registerMutationTools(server: McpServer): void {
         name: input.name,
         annualReturnRate: input.annualReturnRate,
         currency: input.currency ?? 'EUR',
+        assetCategory: input.assetCategory as AssetCategory,
         firstMovement: {
           amount: input.firstMovementAmount,
           date: new Date(input.firstMovementDate),
@@ -90,6 +93,7 @@ export function registerMutationTools(server: McpServer): void {
         quantity: rest.quantity,
         purchasePrice: rest.purchasePrice,
         purchaseDate: new Date(rest.purchaseDate),
+        assetCategory: rest.assetCategory as AssetCategory,
       });
       return ok(updated);
     },
@@ -108,6 +112,7 @@ export function registerMutationTools(server: McpServer): void {
         productId: id,
         name: rest.name,
         annualReturnRate: rest.annualReturnRate,
+        assetCategory: rest.assetCategory as AssetCategory,
       });
       return ok(updated);
     },

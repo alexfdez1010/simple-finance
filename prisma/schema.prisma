@@ -19,20 +19,35 @@ enum ProductType {
   @@map("product_type")
 }
 
+/// High-level asset class. Used purely for grouping and reporting (e.g.
+/// the dashboard "Allocation by Category" chart). Defaults to STOCKS so
+/// existing rows backfill cleanly; new products must pick one in the UI.
+enum AssetCategory {
+  STOCKS
+  BONDS_LOANS
+  COMMODITIES
+  REAL_ESTATE
+  CASH
+
+  @@map("asset_category")
+}
+
 /// Base model for all financial products
 model FinancialProduct {
-  id        String      @id @default(cuid())
-  type      ProductType
-  name      String
-  quantity  Float
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  id            String        @id @default(cuid())
+  type          ProductType
+  assetCategory AssetCategory @default(STOCKS)
+  name          String
+  quantity      Float
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   snapshots ProductSnapshot[]
   yahoo     YahooFinanceData?
   custom    CustomProductData?
 
   @@index([type])
+  @@index([assetCategory])
   @@map("financial_products")
 }
 

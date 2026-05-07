@@ -28,6 +28,7 @@ export async function createYahooFinanceProduct(
   const product = await prisma.financialProduct.create({
     data: {
       type: 'YAHOO_FINANCE',
+      assetCategory: input.assetCategory,
       name: input.name,
       quantity: input.quantity,
       yahoo: {
@@ -64,6 +65,7 @@ export async function createCustomProduct(
   const product = await prisma.financialProduct.create({
     data: {
       type: 'CUSTOM',
+      assetCategory: input.assetCategory,
       name: input.name,
       quantity: 1,
       custom: {
@@ -184,6 +186,7 @@ export async function updateYahooFinanceProduct(
     data: {
       name: input.name,
       quantity: input.quantity,
+      assetCategory: input.assetCategory,
       yahoo: {
         update: {
           purchasePrice: input.purchasePrice,
@@ -215,6 +218,7 @@ export async function updateCustomProduct(
     data: {
       name: input.name,
       quantity: 1,
+      assetCategory: input.assetCategory,
       custom: {
         update: {
           annualReturnRate: input.annualReturnRate,

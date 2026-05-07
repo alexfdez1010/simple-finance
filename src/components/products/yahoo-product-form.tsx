@@ -16,6 +16,11 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { SymbolValidator } from '@/components/products/symbol-validator';
 import { FormError } from '@/components/products/form-actions';
+import { AssetCategorySelect } from '@/components/products/asset-category-select';
+import {
+  DEFAULT_ASSET_CATEGORY,
+  type AssetCategory,
+} from '@/lib/domain/models/asset-category';
 
 interface YahooProductFormProps {
   onSuccess: () => void;
@@ -35,6 +40,9 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
     purchasePrice: '',
     purchaseDate: new Date().toISOString().split('T')[0],
   });
+  const [assetCategory, setAssetCategory] = useState<AssetCategory>(
+    DEFAULT_ASSET_CATEGORY,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [symbolValidated, setSymbolValidated] = useState(false);
@@ -98,6 +106,7 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
         parseFloat(formData.quantity),
         parseFloat(formData.purchasePrice),
         new Date(formData.purchaseDate),
+        assetCategory,
       );
       if (!result.success) throw new Error(result.error || 'Failed');
       onSuccess();
@@ -187,6 +196,12 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
             required
           />
         </Field>
+
+        <AssetCategorySelect
+          id="yahoo-category"
+          value={assetCategory}
+          onChange={setAssetCategory}
+        />
 
         <FormError error={error} />
 

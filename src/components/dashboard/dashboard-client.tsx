@@ -88,6 +88,7 @@ export function DashboardClient({
     allocationData,
     performersData,
     currencyAllocation,
+    categoryAllocation,
     dailyChange,
   } = computeDashboardData(productsWithValues, dailyChanges);
   const totalReturn = stats.totalValue - stats.totalInvestment;
@@ -146,6 +147,7 @@ export function DashboardClient({
               investedSeries={investedSeries}
               allocationData={allocationData}
               currencyAllocation={currencyAllocation}
+              categoryAllocation={categoryAllocation}
               performersData={performersData}
             />
           </TabsContent>

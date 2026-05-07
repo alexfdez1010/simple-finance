@@ -4,8 +4,15 @@
  */
 
 import { z } from 'zod';
+import { ASSET_CATEGORIES } from '@/lib/domain/models/asset-category';
 
 export const ASSET_CURRENCIES = ['EUR', 'USD', 'BTC', 'ETH', 'XAUT'] as const;
+
+const assetCategoryField = z
+  .enum(ASSET_CATEGORIES as unknown as [string, ...string[]])
+  .describe(
+    'High-level asset class: STOCKS, BONDS_LOANS, COMMODITIES, REAL_ESTATE, CASH.',
+  );
 
 /**
  * Common Zod fields for a Yahoo Finance asset.
@@ -19,6 +26,7 @@ export const yahooFields = {
     .positive()
     .describe('Purchase price per share in EUR'),
   purchaseDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
+  assetCategory: assetCategoryField,
 };
 
 /**
@@ -41,6 +49,7 @@ export const customCreateFields = {
   firstMovementDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
   firstMovementNote: z.string().max(500).optional(),
   currency: z.enum(ASSET_CURRENCIES).optional(),
+  assetCategory: assetCategoryField,
 };
 
 /**
@@ -55,6 +64,7 @@ export const customUpdateFields = {
     .number()
     .min(-1)
     .describe('Annual return rate as a decimal'),
+  assetCategory: assetCategoryField,
 };
 
 /**

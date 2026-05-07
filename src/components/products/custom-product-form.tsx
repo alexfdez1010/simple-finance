@@ -20,6 +20,11 @@ import {
   currencySymbol,
 } from '@/components/products/currency-options';
 import { FirstMovementFields } from '@/components/products/first-movement-fields';
+import { AssetCategorySelect } from '@/components/products/asset-category-select';
+import {
+  DEFAULT_ASSET_CATEGORY,
+  type AssetCategory,
+} from '@/lib/domain/models/asset-category';
 
 interface CustomProductFormProps {
   onSuccess: () => void;
@@ -42,6 +47,9 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
     firstMovementDate: todayIso(),
     firstMovementNote: '',
   });
+  const [assetCategory, setAssetCategory] = useState<AssetCategory>(
+    DEFAULT_ASSET_CATEGORY,
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -73,6 +81,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
         new Date(formData.firstMovementDate),
         formData.currency,
         formData.firstMovementNote.trim() || null,
+        assetCategory,
       );
       if (!result.success)
         throw new Error(result.error || 'Failed to create product');
@@ -128,6 +137,12 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
             />
           </Field>
         </div>
+
+        <AssetCategorySelect
+          id="custom-category"
+          value={assetCategory}
+          onChange={setAssetCategory}
+        />
 
         <FirstMovementFields
           currency={formData.currency}

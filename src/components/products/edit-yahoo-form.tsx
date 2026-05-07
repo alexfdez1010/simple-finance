@@ -11,7 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError } from '@/components/products/form-actions';
+import { AssetCategorySelect } from '@/components/products/asset-category-select';
 import type { YahooFinanceProduct } from '@/lib/domain/models/product.types';
+import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
 interface EditYahooFormProps {
   product: YahooFinanceProduct;
@@ -35,6 +37,9 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
       .toISOString()
       .split('T')[0],
   });
+  const [assetCategory, setAssetCategory] = useState<AssetCategory>(
+    product.assetCategory,
+  );
 
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
@@ -52,6 +57,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
         parseFloat(formData.quantity),
         parseFloat(formData.purchasePrice),
         new Date(formData.purchaseDate),
+        assetCategory,
       );
       if (!result.success) {
         throw new Error(result.error || 'Failed to update product');
@@ -126,6 +132,12 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
             required
           />
         </Field>
+
+        <AssetCategorySelect
+          id="edit-yahoo-category"
+          value={assetCategory}
+          onChange={setAssetCategory}
+        />
 
         <FormError error={error} />
 

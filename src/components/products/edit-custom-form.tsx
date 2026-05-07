@@ -18,7 +18,9 @@ import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError } from '@/components/products/form-actions';
 import { currencySymbol } from '@/components/products/currency-options';
 import { CustomContributions } from '@/components/products/custom-contributions';
+import { AssetCategorySelect } from '@/components/products/asset-category-select';
 import type { CustomProduct } from '@/lib/domain/models/product.types';
+import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
 interface EditCustomFormProps {
   product: CustomProduct;
@@ -41,6 +43,9 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
     name: product.name,
     annualReturnRate: (product.custom.annualReturnRate * 100).toString(),
   });
+  const [assetCategory, setAssetCategory] = useState<AssetCategory>(
+    product.assetCategory,
+  );
   const currency = product.custom.currency;
   const symbol = currencySymbol(currency);
 
@@ -58,6 +63,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
         product.id,
         formData.name,
         parseFloat(formData.annualReturnRate) / 100,
+        assetCategory,
       );
       if (!result.success) {
         throw new Error(result.error || 'Failed to update product');
@@ -96,6 +102,12 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               required
             />
           </Field>
+
+          <AssetCategorySelect
+            id="edit-custom-category"
+            value={assetCategory}
+            onChange={setAssetCategory}
+          />
 
           <Field>
             <FieldLabel htmlFor="edit-custom-currency">Currency</FieldLabel>

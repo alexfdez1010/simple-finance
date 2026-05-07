@@ -3,6 +3,8 @@
  * @module domain/models/product.types
  */
 
+import type { AssetCategory } from './asset-category';
+
 /**
  * Product type enumeration
  */
@@ -14,6 +16,7 @@ export type ProductType = 'YAHOO_FINANCE' | 'CUSTOM';
 export interface BaseProduct {
   id: string;
   type: ProductType;
+  assetCategory: AssetCategory;
   name: string;
   quantity: number;
   createdAt: Date;
@@ -123,6 +126,7 @@ export interface CreateYahooFinanceProductInput {
   quantity: number;
   purchasePrice: number; // Purchase price per share in EUR
   purchaseDate: Date; // Date of purchase
+  assetCategory: AssetCategory;
 }
 
 /**
@@ -135,6 +139,7 @@ export interface CreateCustomProductInput {
   name: string;
   annualReturnRate: number;
   currency: string;
+  assetCategory: AssetCategory;
   firstMovement: {
     amount: number;
     date: Date;
@@ -159,6 +164,7 @@ export interface UpdateYahooFinanceProductInput {
   quantity: number;
   purchasePrice: number; // Purchase price per share in EUR
   purchaseDate: Date; // Date of purchase
+  assetCategory: AssetCategory;
 }
 
 /**
@@ -172,6 +178,7 @@ export interface UpdateCustomProductInput {
   productId: string;
   name: string;
   annualReturnRate: number;
+  assetCategory: AssetCategory;
 }
 
 /**

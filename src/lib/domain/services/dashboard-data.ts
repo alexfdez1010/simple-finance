@@ -4,11 +4,17 @@
  */
 
 import type { ProductWithValue } from '@/lib/domain/models/product.types';
+import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
 interface AllocationItem {
   name: string;
   value: number;
   type: 'YAHOO_FINANCE' | 'CUSTOM';
+}
+
+interface CategoryAllocationItem {
+  category: AssetCategory;
+  value: number;
 }
 
 interface PerformerItem {
@@ -29,6 +35,7 @@ interface DashboardData {
   allocationData: AllocationItem[];
   performersData: PerformerItem[];
   currencyAllocation: CurrencyAllocationItem[];
+  categoryAllocation: CategoryAllocationItem[];
   dailyChange: number;
 }
 
@@ -85,11 +92,23 @@ export function computeDashboardData(
     .map(([currency, value]) => ({ currency, value }))
     .sort((a, b) => b.value - a.value);
 
+  const categoryMap = new Map<AssetCategory, number>();
+  for (const p of products) {
+    categoryMap.set(
+      p.assetCategory,
+      (categoryMap.get(p.assetCategory) ?? 0) + p.currentValueEur,
+    );
+  }
+  const categoryAllocation = Array.from(categoryMap.entries())
+    .map(([category, value]) => ({ category, value }))
+    .sort((a, b) => b.value - a.value);
+
   return {
     stats,
     allocationData,
     performersData,
     currencyAllocation,
+    categoryAllocation,
     dailyChange,
   };
 }

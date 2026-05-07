@@ -18,7 +18,9 @@ import { DailyHeatmapChart } from '@/components/dashboard/daily-heatmap-chart';
 import { MonthlyContributionsChart } from '@/components/dashboard/monthly-contributions-chart';
 import { InvestedVsValueChart } from '@/components/dashboard/invested-vs-value-chart';
 import { AllocationByCurrencyChart } from '@/components/dashboard/allocation-by-currency-chart';
+import { AllocationByCategoryChart } from '@/components/dashboard/allocation-by-category-chart';
 import { RollingReturnChart } from '@/components/dashboard/rolling-return-chart';
+import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
 interface AllocationItem {
   name: string;
@@ -47,6 +49,7 @@ interface DashboardChartsGridProps {
   investedSeries: Array<{ date: string; invested: number }>;
   allocationData: AllocationItem[];
   currencyAllocation: Array<{ currency: string; value: number }>;
+  categoryAllocation: Array<{ category: AssetCategory; value: number }>;
   performersData: PerformerItem[];
 }
 
@@ -64,6 +67,7 @@ export function DashboardChartsGrid({
   investedSeries,
   allocationData,
   currencyAllocation,
+  categoryAllocation,
   performersData,
 }: DashboardChartsGridProps) {
   return (
@@ -87,8 +91,10 @@ export function DashboardChartsGrid({
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <PortfolioAllocationChart data={allocationData} />
-        <AllocationByCurrencyChart data={currencyAllocation} />
+        <AllocationByCategoryChart data={categoryAllocation} />
       </div>
+
+      <AllocationByCurrencyChart data={currencyAllocation} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <TopPerformers performers={performersData} />
