@@ -85,7 +85,7 @@ export function ProductCard({
   }, [product, isYahoo]);
 
   return (
-    <div className="group bg-card rounded-xl glass-card p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full flex flex-col">
+    <div className="bg-card rounded-xl glass-card p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full flex flex-col">
       <div className="flex justify-between items-start mb-4">
         <div className="min-w-0 flex-1 mr-2">
           <h3 className="text-base font-semibold text-foreground truncate">
@@ -103,7 +103,7 @@ export function ProductCard({
             </span>
           </div>
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+        <div className="flex gap-1">
           {onView && (
             <Button
               variant="ghost"

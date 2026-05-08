@@ -50,6 +50,11 @@ interface Props {
  */
 export function ProductHistoryChart({ data, splitDate }: Props) {
   const { format } = useDisplayCurrency();
+  const actualCount = data.reduce((n, p) => n + (p.actual !== null ? 1 : 0), 0);
+  const projectedCount = data.reduce(
+    (n, p) => n + (p.projected !== null ? 1 : 0),
+    0,
+  );
   return (
     <ChartContainer config={config} className="h-[260px] w-full">
       <LineChart data={data} margin={{ left: 4, right: 4 }}>
@@ -101,7 +106,7 @@ export function ProductHistoryChart({ data, splitDate }: Props) {
           type="monotone"
           stroke="var(--color-actual)"
           strokeWidth={2}
-          dot={false}
+          dot={actualCount <= 1 ? { r: 4 } : false}
           connectNulls
         />
         <Line
@@ -110,7 +115,7 @@ export function ProductHistoryChart({ data, splitDate }: Props) {
           stroke="var(--color-projected)"
           strokeWidth={2}
           strokeDasharray="6 4"
-          dot={false}
+          dot={projectedCount <= 1 ? { r: 4 } : false}
           connectNulls
         />
       </LineChart>

@@ -30,6 +30,7 @@ import {
   type ProductHistoryResult,
 } from '@/lib/actions/history-actions';
 import { simulateCustomFuture } from '@/lib/domain/services/simulate-custom-future';
+import { simulateYahooFuture } from '@/lib/domain/services/simulate-yahoo-future';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
@@ -46,6 +47,9 @@ type HorizonYears = (typeof HORIZON_OPTIONS)[number];
  * Builds the merged actual + projected series for the chart. The last
  * actual point is duplicated into `projected` so the dashed line picks up
  * exactly where the solid line ends, with no visual gap.
+ *
+ * Yahoo products project forward with the daily geometric-mean return implied
+ * by the snapshot history; custom products use the contractual fixed rate.
  */
 function buildChartData(
   data: ProductHistoryResult,
@@ -56,23 +60,30 @@ function buildChartData(
     actual: p.value,
     projected: null,
   }));
-  if (!data.custom || horizon === 0) return actual;
+  if (horizon === 0) return actual;
   const lastActual = actual[actual.length - 1];
   if (!lastActual) return actual;
-  const sim = simulateCustomFuture(
-    data.custom.contributions.map((c) => ({
-      id: '',
-      amount: c.amount,
-      date: new Date(c.date),
-      note: null,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    })),
-    data.custom.annualReturnRate,
-    data.custom.anchorEurPerProductCcy,
-    horizon,
-    new Date(lastActual.date),
-  );
+  const startDate = new Date(lastActual.date);
+
+  const sim =
+    data.type === 'CUSTOM' && data.custom
+      ? simulateCustomFuture(
+          data.custom.contributions.map((c) => ({
+            id: '',
+            amount: c.amount,
+            date: new Date(c.date),
+            note: null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })),
+          data.custom.annualReturnRate,
+          data.custom.anchorEurPerProductCcy,
+          horizon,
+          startDate,
+        )
+      : simulateYahooFuture(data.history, horizon, startDate);
+
+  if (sim.length === 0) return actual;
   lastActual.projected = lastActual.actual;
   const tail = sim.slice(1).map((s) => ({
     date: s.date,
@@ -119,6 +130,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
   const isCustom = product.type === 'CUSTOM';
   const lastActual = data?.history[data.history.length - 1]?.value ?? 0;
   const splitDate = data?.history[data.history.length - 1]?.date;
+  const canProject = isCustom || (data?.history.length ?? 0) >= 2;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -151,7 +163,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
               <p className="text-2xl font-bold tabular-nums">
                 {format(lastActual)}
               </p>
-              {isCustom && (
+              {canProject && (
                 <div className="flex gap-1">
                   {HORIZON_OPTIONS.map((h) => (
                     <Button
