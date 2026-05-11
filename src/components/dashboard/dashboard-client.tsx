@@ -11,7 +11,6 @@ import { DeleteProductDialog } from '@/components/products/delete-product-dialog
 import { ProductHistoryDialog } from '@/components/products/product-history-dialog';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
-import type { ProductSnapshotPoint } from '@/lib/infrastructure/database/product-snapshot-repository';
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
@@ -37,7 +36,6 @@ interface DashboardClientProps {
     net: number;
   }>;
   investedSeries: Array<{ date: string; invested: number }>;
-  productSnapshots: Record<string, ProductSnapshotPoint[]>;
   displayRates: Record<DisplayCurrency, number>;
   skill: {
     serverUrl: string;
@@ -60,7 +58,6 @@ export function DashboardClient({
   dailyChanges,
   monthlyContributions,
   investedSeries,
-  productSnapshots,
   displayRates,
   skill,
 }: DashboardClientProps) {
@@ -97,10 +94,7 @@ export function DashboardClient({
   const totalReturn = stats.totalValue - stats.totalInvestment;
   const totalReturnPct =
     stats.totalInvestment > 0 ? (totalReturn / stats.totalInvestment) * 100 : 0;
-  const profitRates = calculateProfitRatesSync(
-    productsWithValues,
-    productSnapshots,
-  );
+  const profitRates = calculateProfitRatesSync(productsWithValues);
 
   return (
     <DisplayCurrencyProvider rates={displayRates}>
@@ -190,7 +184,6 @@ export function DashboardClient({
                     currentValue={product.currentValue}
                     currentValueEur={product.currentValueEur}
                     investedEur={product.investedEur}
-                    snapshots={productSnapshots[product.id] ?? []}
                     onEdit={setEditProduct}
                     onDelete={setDeleteTarget}
                     onView={setHistoryTarget}
