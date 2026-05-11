@@ -12,6 +12,10 @@ import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enric
 import { getDisplayRates } from '@/lib/domain/services/display-rates';
 import { getPortfolioSnapshotsLastNDays } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import {
+  findProductSnapshots,
+  type ProductSnapshotPoint,
+} from '@/lib/infrastructure/database/product-snapshot-repository';
+import {
   getMonthlyContributions,
   getInvestedSeries,
 } from '@/lib/domain/services/contributions-data';
@@ -94,6 +98,21 @@ async function getSkillProps() {
   };
 }
 
+/**
+ * Loads ascending EUR snapshot series for every product in parallel.
+ *
+ * @param productIds - Product ids to fetch
+ * @returns Map keyed by product id
+ */
+async function getProductSnapshotsMap(
+  productIds: string[],
+): Promise<Record<string, ProductSnapshotPoint[]>> {
+  const entries = await Promise.all(
+    productIds.map(async (id) => [id, await findProductSnapshots(id)] as const),
+  );
+  return Object.fromEntries(entries);
+}
+
 async function DashboardContent() {
   const [productsWithValues, snapshotData, displayRates, skill] =
     await Promise.all([
@@ -103,13 +122,15 @@ async function DashboardContent() {
       getSkillProps(),
     ]);
 
-  const [monthlyContributions, investedSeries] = await Promise.all([
-    getMonthlyContributions(productsWithValues),
-    getInvestedSeries(
-      productsWithValues,
-      snapshotData.evolutionData.map((p) => p.date),
-    ),
-  ]);
+  const [monthlyContributions, investedSeries, productSnapshots] =
+    await Promise.all([
+      getMonthlyContributions(productsWithValues),
+      getInvestedSeries(
+        productsWithValues,
+        snapshotData.evolutionData.map((p) => p.date),
+      ),
+      getProductSnapshotsMap(productsWithValues.map((p) => p.id)),
+    ]);
 
   return (
     <DashboardClient
@@ -119,6 +140,7 @@ async function DashboardContent() {
       dailyChanges={snapshotData.dailyChanges}
       monthlyContributions={monthlyContributions}
       investedSeries={investedSeries}
+      productSnapshots={productSnapshots}
       displayRates={displayRates}
       skill={skill}
     />

@@ -16,6 +16,11 @@ import { DetailItem } from '@/components/products/detail-item';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import { calculateNetInvestedFromContributions } from '@/lib/domain/services/custom-product-calculator';
 import {
+  dailyGeometricReturn,
+  annualizeDailyRate,
+} from '@/lib/domain/services/geometric-mean-return';
+import type { ProductSnapshotPoint } from '@/lib/infrastructure/database/product-snapshot-repository';
+import {
   formatInCurrency,
   type DisplayCurrency,
 } from '@/lib/utils/format-currency';
@@ -29,6 +34,8 @@ interface ProductCardProps {
   currentValueEur?: number;
   /** Total net invested in EUR (signed, already includes quantity). */
   investedEur?: number;
+  /** Ascending EUR snapshot history for this product. */
+  snapshots?: ProductSnapshotPoint[];
   onEdit?: (product: FinancialProduct) => void;
   onDelete?: (product: FinancialProduct) => void;
   onView?: (product: FinancialProduct) => void;
@@ -50,6 +57,7 @@ export function ProductCard({
   currentValue = 0,
   currentValueEur,
   investedEur,
+  snapshots,
   onEdit,
   onDelete,
   onView,
@@ -66,6 +74,9 @@ export function ProductCard({
   const returnValue = totalValue - invested;
   const returnPct = invested > 0 ? (returnValue / invested) * 100 : 0;
   const isPositive = returnValue >= 0;
+
+  const dr = dailyGeometricReturn(snapshots ?? []);
+  const cagr = dr !== null ? annualizeDailyRate(dr) : null;
 
   useEffect(() => {
     const date = isYahoo
@@ -162,12 +173,14 @@ export function ProductCard({
               value={formatCurrency(product.yahoo.purchasePrice)}
             />
             <DetailItem
-              label="Price Change"
-              value={formatCurrency(currentValue - product.yahoo.purchasePrice)}
+              label="CAGR"
+              value={cagr !== null ? formatPercentage(cagr * 100) : '—'}
               className={
-                currentValue >= product.yahoo.purchasePrice
-                  ? 'text-gain'
-                  : 'text-loss'
+                cagr === null
+                  ? undefined
+                  : cagr >= 0
+                    ? 'text-gain'
+                    : 'text-loss'
               }
             />
           </>
