@@ -1,15 +1,14 @@
 /**
  * Service for projecting portfolio profit over short horizons.
  *
- * Each product contributes a daily profit:
- *  - Custom products: `investedEur · annualReturnRate / 365` — the rate is
- *    fixed and applied against the principal invested.
- *  - Yahoo products: `currentValueEur · expectedAnnualReturn / 365` where
- *    `expectedAnnualReturn` is the geometric mean of the last five years of
- *    monthly closes. The rate compounds the asset's market value, so the
- *    appropriate base is the current value, not the original cost basis.
+ * Each product contributes `currentValueEur · expectedAnnualReturn / 365`:
+ *  - Yahoo products: `expectedAnnualReturn` is the geometric mean of the last
+ *    five years of monthly closes.
+ *  - Custom products: `expectedAnnualReturn` compounds the contractual yield
+ *    with the 5-year geometric-mean appreciation of the product's currency
+ *    against EUR (see `custom-expected-return`).
  *
- * A Yahoo product with no usable expected return (e.g. delisted, sparse
+ * A product with no usable expected return (e.g. Yahoo lookup failed, sparse
  * history) is skipped — we do not invent a fallback rate.
  *
  * Daily / weekly / monthly / annual EUR projections sum every product's
@@ -37,14 +36,6 @@ function dailyProfitFor(product: ProductWithValue): {
   profit: number;
   base: number;
 } {
-  if (product.type === 'CUSTOM') {
-    if (product.investedEur <= 0) return { profit: 0, base: 0 };
-    return {
-      profit: (product.investedEur * product.custom.annualReturnRate) / 365,
-      base: product.investedEur,
-    };
-  }
-  // YAHOO_FINANCE
   const rate = product.expectedAnnualReturn;
   if (rate == null || product.currentValueEur <= 0) {
     return { profit: 0, base: 0 };
@@ -58,8 +49,8 @@ function dailyProfitFor(product: ProductWithValue): {
 /**
  * Aggregates projected profit rates across the portfolio.
  *
- * Yahoo products feed in the geometric-mean annual return derived from their
- * 5-year price series; custom products feed in their configured fixed rate.
+ * Every product feeds in via its `expectedAnnualReturn`: Yahoo's 5y geomean
+ * for stocks, the yield+FX-geomean compound for custom products.
  *
  * @param products - Products already enriched with `expectedAnnualReturn`
  * @returns Daily / weekly / monthly / annual EUR projections plus matching %

@@ -1,16 +1,18 @@
 /**
- * Projects a Yahoo product forward in time at a given annual rate.
- *
- * The rate is supplied by the caller — in practice it is the geometric mean
- * of the last 5 years of monthly closes (see `yahoo-expected-return`) — so
- * the projection curve mirrors the same "Expected Return" figure shown on
- * the product card rather than re-deriving a separate rate from snapshot
- * history.
+ * Projects a product forward in time at a given annual rate by compounding
+ * its latest EUR value. Used for both Yahoo (5y geomean) and custom
+ * (yield+FX-geomean compound) products — the projection mechanics are the
+ * same once both rates are expressed in EUR.
  *
  * @module domain/services/simulate-yahoo-future
  */
 
-import type { SimulationPoint } from './simulate-custom-future';
+export interface SimulationPoint {
+  /** ISO yyyy-mm-dd */
+  date: string;
+  /** EUR-anchored projection */
+  value: number;
+}
 
 export interface HistorySample {
   /** ISO yyyy-mm-dd */

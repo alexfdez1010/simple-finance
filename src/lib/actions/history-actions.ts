@@ -5,14 +5,9 @@
  * series with a live "today" point computed from the current price /
  * contributions so the chart is always up-to-date.
  *
- * For custom products we additionally return:
- *  - `annualReturnRate` and `contributions` (date+amount only) so the client
- *    can simulate forward in the product's own currency, and
- *  - `anchorEurPerProductCcy`, the conversion ratio between the product's
- *    currency and EUR at the latest known point. Future-projection values
- *    are converted with this single anchor — good enough for an indicative
- *    "what could happen" line and avoids quoting future FX rates we do not
- *    have.
+ * Forward projections are driven by a single `expectedAnnualReturn` (EUR
+ * decimal): Yahoo's 5y geomean for stocks, the yield+FX-geomean compound
+ * for custom products (see `custom-expected-return`).
  *
  * @module lib/actions/history-actions
  */
@@ -23,7 +18,9 @@ import { findProductById } from '@/lib/infrastructure/database/product-repositor
 import { findProductSnapshots } from '@/lib/infrastructure/database/product-snapshot-repository';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { getYahooExpectedReturn } from '@/lib/infrastructure/yahoo-finance/expected-return-client';
+import { getCurrencyExpectedReturnVsEur } from '@/lib/infrastructure/currency/currency-history-client';
 import { calculateCustomProductValueFromContributions } from '@/lib/domain/services/custom-product-calculator';
+import { combineExpectedReturn } from '@/lib/domain/services/custom-expected-return';
 import { convertProductAmountToEur } from '@/lib/domain/services/product-currency-converter';
 
 export interface HistoryPoint {
@@ -36,23 +33,12 @@ export interface HistoryPoint {
 export interface ProductHistoryResult {
   history: HistoryPoint[];
   type: 'YAHOO_FINANCE' | 'CUSTOM';
-  /** Custom-only: needed to project future performance from contributions. */
-  custom?: {
-    annualReturnRate: number;
-    currency: string;
-    contributions: Array<{ date: string; amount: number }>;
-    /** Multiply product-currency value by this to get an EUR estimate. */
-    anchorEurPerProductCcy: number;
-  };
   /**
-   * Yahoo-only: annual expected return derived from the last 5 years of
-   * monthly closes (cached one day per symbol). Drives the future-projection
-   * curve on the chart. `null` when Yahoo refuses the symbol or the series
-   * is too thin.
+   * Annual expected return as decimal (0.07 = 7%). Yahoo: 5y geomean of
+   * monthly closes. Custom: contractual yield compounded with the 5y FX
+   * geomean vs EUR. `null` when the source data is too thin.
    */
-  yahoo?: {
-    expectedAnnualReturn: number | null;
-  };
+  expectedAnnualReturn: number | null;
 }
 
 function todayKey(): string {
@@ -94,7 +80,7 @@ export async function getProductHistoryAction(
       return {
         history: series,
         type: 'YAHOO_FINANCE',
-        yahoo: { expectedAnnualReturn },
+        expectedAnnualReturn,
       };
     }
 
@@ -102,26 +88,19 @@ export async function getProductHistoryAction(
       product.custom.contributions,
       product.custom.annualReturnRate,
     );
-    const liveEur = await convertProductAmountToEur(
-      valueProductCcy,
-      product.custom.currency,
-    );
+    const [liveEur, fxGeomean] = await Promise.all([
+      convertProductAmountToEur(valueProductCcy, product.custom.currency),
+      getCurrencyExpectedReturnVsEur(product.custom.currency),
+    ]);
     upsertTodayPoint(series, today, liveEur);
-
-    const anchor = valueProductCcy > 0 ? liveEur / valueProductCcy : 1;
 
     return {
       history: series,
       type: 'CUSTOM',
-      custom: {
-        annualReturnRate: product.custom.annualReturnRate,
-        currency: product.custom.currency,
-        contributions: product.custom.contributions.map((c) => ({
-          date: c.date.toISOString(),
-          amount: c.amount,
-        })),
-        anchorEurPerProductCcy: anchor,
-      },
+      expectedAnnualReturn: combineExpectedReturn(
+        product.custom.annualReturnRate,
+        fxGeomean,
+      ),
     };
   } catch (error) {
     console.error('Failed to load product history:', error);

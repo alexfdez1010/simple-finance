@@ -29,7 +29,6 @@ import {
   getProductHistoryAction,
   type ProductHistoryResult,
 } from '@/lib/actions/history-actions';
-import { simulateCustomFuture } from '@/lib/domain/services/simulate-custom-future';
 import { simulateYahooFuture } from '@/lib/domain/services/simulate-yahoo-future';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
@@ -48,9 +47,9 @@ type HorizonYears = (typeof HORIZON_OPTIONS)[number];
  * actual point is duplicated into `projected` so the dashed line picks up
  * exactly where the solid line ends, with no visual gap.
  *
- * Yahoo products project forward with the cached 5-year geometric-mean
- * annual return (same figure as the card's "Expected Return"); custom
- * products use the contractual fixed rate.
+ * Both Yahoo and custom products project forward by compounding the latest
+ * EUR value at `expectedAnnualReturn` (the 5y geomean for Yahoo, the
+ * yield+FX-geomean compound for custom).
  */
 function buildChartData(
   data: ProductHistoryResult,
@@ -66,28 +65,12 @@ function buildChartData(
   if (!lastActual) return actual;
   const startDate = new Date(lastActual.date);
 
-  const sim =
-    data.type === 'CUSTOM' && data.custom
-      ? simulateCustomFuture(
-          data.custom.contributions.map((c) => ({
-            id: '',
-            amount: c.amount,
-            date: new Date(c.date),
-            note: null,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          })),
-          data.custom.annualReturnRate,
-          data.custom.anchorEurPerProductCcy,
-          horizon,
-          startDate,
-        )
-      : simulateYahooFuture(
-          lastActual.actual ?? 0,
-          data.yahoo?.expectedAnnualReturn ?? null,
-          horizon,
-          startDate,
-        );
+  const sim = simulateYahooFuture(
+    lastActual.actual ?? 0,
+    data.expectedAnnualReturn,
+    horizon,
+    startDate,
+  );
 
   if (sim.length === 0) return actual;
   lastActual.projected = lastActual.actual;
@@ -137,9 +120,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
   const lastActual = data?.history[data.history.length - 1]?.value ?? 0;
   const splitDate = data?.history[data.history.length - 1]?.date;
   const canProject =
-    isCustom ||
-    ((data?.history.length ?? 0) >= 1 &&
-      data?.yahoo?.expectedAnnualReturn != null);
+    (data?.history.length ?? 0) >= 1 && data?.expectedAnnualReturn != null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

@@ -15,10 +15,12 @@ import type {
 } from '@/lib/domain/models/product.types';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { getYahooExpectedReturn } from '@/lib/infrastructure/yahoo-finance/expected-return-client';
+import { getCurrencyExpectedReturnVsEur } from '@/lib/infrastructure/currency/currency-history-client';
 import {
   calculateCustomProductValueFromContributions,
   calculateNetInvestedFromContributions,
 } from './custom-product-calculator';
+import { combineExpectedReturn } from './custom-expected-return';
 import { convertProductAmountToEur } from './product-currency-converter';
 
 /**
@@ -63,21 +65,21 @@ export async function enrichProductsWithEurValues(
         p.custom.contributions,
       );
 
-      const currentValueEur = await convertProductAmountToEur(
-        totalProductCcy,
-        p.custom.currency,
-      );
-      const investedEur = await convertProductAmountToEur(
-        netInvestedProductCcy,
-        p.custom.currency,
-      );
+      const [currentValueEur, investedEur, fxGeomean] = await Promise.all([
+        convertProductAmountToEur(totalProductCcy, p.custom.currency),
+        convertProductAmountToEur(netInvestedProductCcy, p.custom.currency),
+        getCurrencyExpectedReturnVsEur(p.custom.currency),
+      ]);
 
       return {
         ...p,
         currentValue: currentValueEur,
         currentValueEur,
         investedEur,
-        expectedAnnualReturn: p.custom.annualReturnRate,
+        expectedAnnualReturn: combineExpectedReturn(
+          p.custom.annualReturnRate,
+          fxGeomean,
+        ),
       };
     }),
   );

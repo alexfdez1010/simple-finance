@@ -187,6 +187,21 @@ export function ProductCard({
               value={formatPercentage(product.custom.annualReturnRate * 100)}
             />
             <DetailItem
+              label="Expected Return"
+              value={
+                expectedAnnualReturn == null
+                  ? '—'
+                  : formatPercentage(expectedAnnualReturn * 100)
+              }
+              className={
+                expectedAnnualReturn == null
+                  ? undefined
+                  : expectedAnnualReturn >= 0
+                    ? 'text-gain'
+                    : 'text-loss'
+              }
+            />
+            <DetailItem
               label="Net Investment"
               value={formatInCurrency(
                 calculateNetInvestedFromContributions(
@@ -197,10 +212,6 @@ export function ProductCard({
               )}
             />
             <DetailItem label="Currency" value={product.custom.currency} />
-            <DetailItem
-              label="Movements"
-              value={String(product.custom.contributions.length)}
-            />
           </>
         )}
       </div>

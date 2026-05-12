@@ -75,8 +75,9 @@ test.describe('Add Custom Product', () => {
       .filter({ hasText: productName })
       .first();
     await expect(productCard).toContainText('Annual Rate');
+    await expect(productCard).toContainText('Expected Return');
     await expect(productCard).toContainText('Investment');
-    await expect(productCard).toContainText('Movements');
+    await expect(productCard).toContainText('Currency');
   });
 
   /**
@@ -115,7 +116,7 @@ test.describe('Add Custom Product', () => {
       .locator('.glass-card.rounded-xl')
       .filter({ hasText: productName })
       .first();
-    await expect(highYieldCard.getByText(/15\.75%/)).toBeVisible();
+    await expect(highYieldCard.getByText(/15\.75%/).first()).toBeVisible();
   });
 
   /**
