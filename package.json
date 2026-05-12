@@ -47,6 +47,12 @@
     "yahoo-finance2": "^3.14.0",
     "zod": "^4.4.3"
   },
+  "overrides": {
+    "zod": "4.4.3"
+  },
+  "resolutions": {
+    "zod": "4.4.3"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.5",
     "@playwright/test": "^1.59.1",

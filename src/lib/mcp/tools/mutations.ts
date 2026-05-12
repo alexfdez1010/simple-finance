@@ -28,6 +28,8 @@ import {
   yahooFields,
 } from './shared';
 
+const idField = { id: z.string().min(1) };
+
 /**
  * Registers add/update/delete tools on the MCP server.
  *
@@ -84,7 +86,7 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Update a Yahoo Finance asset',
       description: 'Replace metadata of an existing Yahoo Finance asset by id.',
-      inputSchema: { id: z.string().min(1), ...yahooFields },
+      inputSchema: { ...idField, ...yahooFields },
     },
     async ({ id, ...rest }) => {
       const updated = await updateYahooFinanceProduct({
@@ -105,7 +107,7 @@ export function registerMutationTools(server: McpServer): void {
       title: 'Update a custom fixed-rate asset',
       description:
         'Replace metadata (name, quantity, rate) of a custom asset. Currency is fixed at creation and cannot be updated. Contributions are managed via add_custom_contribution / update_custom_contribution / delete_custom_contribution.',
-      inputSchema: { id: z.string().min(1), ...customUpdateFields },
+      inputSchema: { ...idField, ...customUpdateFields },
     },
     async ({ id, ...rest }) => {
       const updated = await updateCustomProduct({
@@ -123,7 +125,7 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Delete an asset',
       description: 'Permanently delete a financial asset by id.',
-      inputSchema: { id: z.string().min(1) },
+      inputSchema: idField,
     },
     async ({ id }) => {
       await deleteProduct(id);
@@ -164,7 +166,7 @@ export function registerMutationTools(server: McpServer): void {
       description:
         'Update an existing contribution by its id. Amount is signed and in the product currency.',
       inputSchema: {
-        id: z.string().min(1),
+        ...idField,
         ...contributionFields,
       },
     },
@@ -185,7 +187,7 @@ export function registerMutationTools(server: McpServer): void {
       title: 'Delete a contribution',
       description:
         'Permanently delete a contribution (deposit or withdrawal) by id.',
-      inputSchema: { id: z.string().min(1) },
+      inputSchema: idField,
     },
     async ({ id }) => {
       await deleteContribution(id);

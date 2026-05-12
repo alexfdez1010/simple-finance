@@ -22,6 +22,7 @@
 import { findProductById } from '@/lib/infrastructure/database/product-repository';
 import { findProductSnapshots } from '@/lib/infrastructure/database/product-snapshot-repository';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
+import { getYahooExpectedReturn } from '@/lib/infrastructure/yahoo-finance/expected-return-client';
 import { calculateCustomProductValueFromContributions } from '@/lib/domain/services/custom-product-calculator';
 import { convertProductAmountToEur } from '@/lib/domain/services/product-currency-converter';
 
@@ -42,6 +43,15 @@ export interface ProductHistoryResult {
     contributions: Array<{ date: string; amount: number }>;
     /** Multiply product-currency value by this to get an EUR estimate. */
     anchorEurPerProductCcy: number;
+  };
+  /**
+   * Yahoo-only: annual expected return derived from the last 5 years of
+   * monthly closes (cached one day per symbol). Drives the future-projection
+   * curve on the chart. `null` when Yahoo refuses the symbol or the series
+   * is too thin.
+   */
+  yahoo?: {
+    expectedAnnualReturn: number | null;
   };
 }
 
@@ -75,10 +85,17 @@ export async function getProductHistoryAction(
     const today = todayKey();
 
     if (product.type === 'YAHOO_FINANCE') {
-      const quote = await fetchYahooQuoteServer(product.yahoo.symbol);
+      const [quote, expectedAnnualReturn] = await Promise.all([
+        fetchYahooQuoteServer(product.yahoo.symbol),
+        getYahooExpectedReturn(product.yahoo.symbol),
+      ]);
       const liveEur = (quote?.regularMarketPrice ?? 0) * product.quantity;
       upsertTodayPoint(series, today, liveEur);
-      return { history: series, type: 'YAHOO_FINANCE' };
+      return {
+        history: series,
+        type: 'YAHOO_FINANCE',
+        yahoo: { expectedAnnualReturn },
+      };
     }
 
     const valueProductCcy = calculateCustomProductValueFromContributions(
