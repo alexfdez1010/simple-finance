@@ -92,6 +92,7 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
           quantity: 3,
           purchasePrice: 150,
           purchaseDate: today,
+          assetCategory: 'STOCKS',
         },
       }),
     );
@@ -115,6 +116,7 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
           firstMovementAmount: 1000,
           firstMovementDate: today,
           currency: 'EUR',
+          assetCategory: 'CASH',
         },
       }),
     );
@@ -144,6 +146,7 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
           id: custom.id,
           name: `MCP E2E Custom ${stamp} (renamed)`,
           annualReturnRate: 0.07,
+          assetCategory: 'CASH',
         },
       }),
     );
