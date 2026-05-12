@@ -29,6 +29,8 @@ interface ProductCardProps {
   currentValueEur?: number;
   /** Total net invested in EUR (signed, already includes quantity). */
   investedEur?: number;
+  /** Forward-looking annual return as a decimal (Yahoo: 5y geometric mean). */
+  expectedAnnualReturn?: number | null;
   onEdit?: (product: FinancialProduct) => void;
   onDelete?: (product: FinancialProduct) => void;
   onView?: (product: FinancialProduct) => void;
@@ -50,6 +52,7 @@ export function ProductCard({
   currentValue = 0,
   currentValueEur,
   investedEur,
+  expectedAnnualReturn,
   onEdit,
   onDelete,
   onView,
@@ -162,12 +165,18 @@ export function ProductCard({
               value={formatCurrency(product.yahoo.purchasePrice)}
             />
             <DetailItem
-              label="Price Change"
-              value={formatCurrency(currentValue - product.yahoo.purchasePrice)}
+              label="Expected Return"
+              value={
+                expectedAnnualReturn == null
+                  ? '—'
+                  : formatPercentage(expectedAnnualReturn * 100)
+              }
               className={
-                currentValue >= product.yahoo.purchasePrice
-                  ? 'text-gain'
-                  : 'text-loss'
+                expectedAnnualReturn == null
+                  ? undefined
+                  : expectedAnnualReturn >= 0
+                    ? 'text-gain'
+                    : 'text-loss'
               }
             />
           </>

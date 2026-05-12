@@ -1,6 +1,7 @@
 /**
  * Profit rate display component with cycling periods
- * Shows daily/weekly/monthly profit from custom products only
+ * Shows daily/weekly/monthly profit from custom + Yahoo products. Yahoo
+ * products feed in the geometric-mean annual return of their last 5 years.
  * @module components/dashboard/profit-rate-display
  */
 
@@ -114,7 +115,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
         </span>
       </div>
       <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-        Based on custom products
+        Custom rates + Yahoo 5y geometric mean
       </p>
     </div>
   );

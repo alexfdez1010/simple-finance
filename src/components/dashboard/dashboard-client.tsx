@@ -184,6 +184,7 @@ export function DashboardClient({
                     currentValue={product.currentValue}
                     currentValueEur={product.currentValueEur}
                     investedEur={product.investedEur}
+                    expectedAnnualReturn={product.expectedAnnualReturn}
                     onEdit={setEditProduct}
                     onDelete={setDeleteTarget}
                     onView={setHistoryTarget}

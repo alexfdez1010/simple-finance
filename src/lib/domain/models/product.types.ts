@@ -87,11 +87,17 @@ export type FinancialProduct = YahooFinanceProduct | CustomProduct;
  *   Custom: full compounded portfolio of contributions).
  * - `investedEur`: total net invested in EUR (Yahoo: purchasePrice·quantity;
  *   Custom: signed sum of contributions converted to EUR).
+ * - `expectedAnnualReturn`: forward-looking annualised return as a decimal
+ *   (0.07 = 7%). For Yahoo products this is the geometric mean of the last
+ *   five years of monthly closes; for custom products it is the configured
+ *   fixed `annualReturnRate`. `null` when unknown (e.g. Yahoo lookup failed
+ *   or the series is too thin).
  */
 export type ProductWithValue = FinancialProduct & {
   currentValue: number;
   currentValueEur: number;
   investedEur: number;
+  expectedAnnualReturn: number | null;
 };
 
 /**

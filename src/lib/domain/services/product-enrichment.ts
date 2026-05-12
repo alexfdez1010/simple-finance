@@ -14,6 +14,7 @@ import type {
   ProductWithValue,
 } from '@/lib/domain/models/product.types';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
+import { getYahooExpectedReturn } from '@/lib/infrastructure/yahoo-finance/expected-return-client';
 import {
   calculateCustomProductValueFromContributions,
   calculateNetInvestedFromContributions,
@@ -36,12 +37,20 @@ export async function enrichProductsWithEurValues(
   return Promise.all(
     products.map(async (p): Promise<ProductWithValue> => {
       if (p.type === 'YAHOO_FINANCE') {
-        const currentValue =
-          (await fetchYahooQuoteServer(p.yahoo.symbol))?.regularMarketPrice ??
-          0;
+        const [quote, expectedAnnualReturn] = await Promise.all([
+          fetchYahooQuoteServer(p.yahoo.symbol),
+          getYahooExpectedReturn(p.yahoo.symbol),
+        ]);
+        const currentValue = quote?.regularMarketPrice ?? 0;
         const currentValueEur = currentValue * p.quantity;
         const investedEur = p.yahoo.purchasePrice * p.quantity;
-        return { ...p, currentValue, currentValueEur, investedEur };
+        return {
+          ...p,
+          currentValue,
+          currentValueEur,
+          investedEur,
+          expectedAnnualReturn,
+        };
       }
 
       // Custom products are sized by their contributions list — quantity
@@ -68,6 +77,7 @@ export async function enrichProductsWithEurValues(
         currentValue: currentValueEur,
         currentValueEur,
         investedEur,
+        expectedAnnualReturn: p.custom.annualReturnRate,
       };
     }),
   );
