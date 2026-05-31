@@ -30,13 +30,49 @@ interface CurrencyAllocationItem {
   value: number;
 }
 
+interface LiquidityCurvePoint {
+  /** Days waited from today. */
+  days: number;
+  /** Cumulative EUR cash obtainable by liquidating every asset whose
+   *  `daysToLiquidity` is at most `days`. */
+  cash: number;
+}
+
 interface DashboardData {
   stats: { totalValue: number; totalInvestment: number; productCount: number };
   allocationData: AllocationItem[];
   performersData: PerformerItem[];
   currencyAllocation: CurrencyAllocationItem[];
   categoryAllocation: CategoryAllocationItem[];
+  liquidityCurve: LiquidityCurvePoint[];
   dailyChange: number;
+}
+
+/**
+ * Builds the cumulative cash-availability curve: for every distinct
+ * liquidity horizon, how much EUR cash could be raised by selling all
+ * assets that liquidate within that many days. Always starts at day 0 so
+ * the chart shows immediately-available cash even when no asset is instant.
+ *
+ * @param products - Products with current EUR values and liquidity horizons
+ * @returns Ascending points keyed by day threshold with cumulative cash
+ */
+function computeLiquidityCurve(
+  products: ProductWithValue[],
+): LiquidityCurvePoint[] {
+  const byDay = new Map<number, number>();
+  for (const p of products) {
+    const days = Math.max(0, Math.round(p.daysToLiquidity));
+    byDay.set(days, (byDay.get(days) ?? 0) + p.currentValueEur);
+  }
+  if (!byDay.has(0)) byDay.set(0, 0);
+
+  const thresholds = Array.from(byDay.keys()).sort((a, b) => a - b);
+  let cumulative = 0;
+  return thresholds.map((days) => {
+    cumulative += byDay.get(days) ?? 0;
+    return { days, cash: cumulative };
+  });
 }
 
 /**
@@ -103,12 +139,15 @@ export function computeDashboardData(
     .map(([category, value]) => ({ category, value }))
     .sort((a, b) => b.value - a.value);
 
+  const liquidityCurve = computeLiquidityCurve(products);
+
   return {
     stats,
     allocationData,
     performersData,
     currencyAllocation,
     categoryAllocation,
+    liquidityCurve,
     dailyChange,
   };
 }

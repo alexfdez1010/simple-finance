@@ -33,6 +33,7 @@ import {
 } from '@/lib/domain/models/asset-category';
 
 const DEFAULT_CURRENCY = 'EUR';
+const DEFAULT_DAYS_TO_LIQUIDITY = 0;
 
 /**
  * Creates a Yahoo Finance product.
@@ -51,6 +52,7 @@ export async function createYahooProduct(
   purchasePrice: number,
   purchaseDate: Date,
   assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
+  daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
     const input: CreateYahooFinanceProductInput = {
@@ -60,6 +62,7 @@ export async function createYahooProduct(
       purchasePrice,
       purchaseDate,
       assetCategory,
+      daysToLiquidity,
     };
 
     const product = await createYahooFinanceProduct(input);
@@ -98,6 +101,7 @@ export async function createCustomProductAction(
   currency: string = DEFAULT_CURRENCY,
   firstMovementNote?: string | null,
   assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
+  daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
     const input: CreateCustomProductInput = {
@@ -105,6 +109,7 @@ export async function createCustomProductAction(
       annualReturnRate,
       currency: currency || DEFAULT_CURRENCY,
       assetCategory,
+      daysToLiquidity,
       firstMovement: {
         amount: firstMovementAmount,
         date: firstMovementDate,
@@ -203,6 +208,7 @@ export async function updateYahooProductAction(
   purchasePrice: number,
   purchaseDate: Date,
   assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
+  daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const input: UpdateYahooFinanceProductInput = {
@@ -212,6 +218,7 @@ export async function updateYahooProductAction(
       purchasePrice,
       purchaseDate,
       assetCategory,
+      daysToLiquidity,
     };
 
     await updateYahooFinanceProduct(input);
@@ -239,6 +246,7 @@ export async function updateCustomProductAction(
   name: string,
   annualReturnRate: number,
   assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
+  daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const input: UpdateCustomProductInput = {
@@ -246,6 +254,7 @@ export async function updateCustomProductAction(
       name,
       annualReturnRate,
       assetCategory,
+      daysToLiquidity,
     };
 
     await updateCustomProduct(input);

@@ -17,6 +17,7 @@ import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { SymbolValidator } from '@/components/products/symbol-validator';
 import { FormError } from '@/components/products/form-actions';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
+import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
 import {
   DEFAULT_ASSET_CATEGORY,
   type AssetCategory,
@@ -43,6 +44,7 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
   const [assetCategory, setAssetCategory] = useState<AssetCategory>(
     DEFAULT_ASSET_CATEGORY,
   );
+  const [daysToLiquidity, setDaysToLiquidity] = useState('0');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [symbolValidated, setSymbolValidated] = useState(false);
@@ -107,6 +109,7 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
         parseFloat(formData.purchasePrice),
         new Date(formData.purchaseDate),
         assetCategory,
+        parseInt(daysToLiquidity, 10) || 0,
       );
       if (!result.success) throw new Error(result.error || 'Failed');
       onSuccess();
@@ -201,6 +204,12 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
           id="yahoo-category"
           value={assetCategory}
           onChange={setAssetCategory}
+        />
+
+        <DaysToLiquidityField
+          id="yahoo-liquidity"
+          value={daysToLiquidity}
+          onChange={setDaysToLiquidity}
         />
 
         <FormError error={error} />

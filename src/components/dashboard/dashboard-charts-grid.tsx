@@ -20,6 +20,7 @@ import { InvestedVsValueChart } from '@/components/dashboard/invested-vs-value-c
 import { AllocationByCurrencyChart } from '@/components/dashboard/allocation-by-currency-chart';
 import { AllocationByCategoryChart } from '@/components/dashboard/allocation-by-category-chart';
 import { RollingReturnChart } from '@/components/dashboard/rolling-return-chart';
+import { LiquidityCurveChart } from '@/components/dashboard/liquidity-curve-chart';
 import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
 interface AllocationItem {
@@ -50,6 +51,7 @@ interface DashboardChartsGridProps {
   allocationData: AllocationItem[];
   currencyAllocation: Array<{ currency: string; value: number }>;
   categoryAllocation: Array<{ category: AssetCategory; value: number }>;
+  liquidityCurve: Array<{ days: number; cash: number }>;
   performersData: PerformerItem[];
 }
 
@@ -68,6 +70,7 @@ export function DashboardChartsGrid({
   allocationData,
   currencyAllocation,
   categoryAllocation,
+  liquidityCurve,
   performersData,
 }: DashboardChartsGridProps) {
   return (
@@ -95,6 +98,8 @@ export function DashboardChartsGrid({
       </div>
 
       <AllocationByCurrencyChart data={currencyAllocation} />
+
+      <LiquidityCurveChart data={liquidityCurve} />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         <TopPerformers performers={performersData} />

@@ -29,6 +29,7 @@ export async function createYahooFinanceProduct(
     data: {
       type: 'YAHOO_FINANCE',
       assetCategory: input.assetCategory,
+      daysToLiquidity: input.daysToLiquidity,
       name: input.name,
       quantity: input.quantity,
       yahoo: {
@@ -66,6 +67,7 @@ export async function createCustomProduct(
     data: {
       type: 'CUSTOM',
       assetCategory: input.assetCategory,
+      daysToLiquidity: input.daysToLiquidity,
       name: input.name,
       quantity: 1,
       custom: {
@@ -187,6 +189,7 @@ export async function updateYahooFinanceProduct(
       name: input.name,
       quantity: input.quantity,
       assetCategory: input.assetCategory,
+      daysToLiquidity: input.daysToLiquidity,
       yahoo: {
         update: {
           purchasePrice: input.purchasePrice,
@@ -219,6 +222,7 @@ export async function updateCustomProduct(
       name: input.name,
       quantity: 1,
       assetCategory: input.assetCategory,
+      daysToLiquidity: input.daysToLiquidity,
       custom: {
         update: {
           annualReturnRate: input.annualReturnRate,

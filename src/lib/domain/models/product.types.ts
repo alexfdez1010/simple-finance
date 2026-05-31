@@ -17,6 +17,8 @@ export interface BaseProduct {
   id: string;
   type: ProductType;
   assetCategory: AssetCategory;
+  /** Days needed to convert this asset to cash (liquidity horizon). */
+  daysToLiquidity: number;
   name: string;
   quantity: number;
   createdAt: Date;
@@ -134,6 +136,7 @@ export interface CreateYahooFinanceProductInput {
   purchasePrice: number; // Purchase price per share in EUR
   purchaseDate: Date; // Date of purchase
   assetCategory: AssetCategory;
+  daysToLiquidity: number;
 }
 
 /**
@@ -147,6 +150,7 @@ export interface CreateCustomProductInput {
   annualReturnRate: number;
   currency: string;
   assetCategory: AssetCategory;
+  daysToLiquidity: number;
   firstMovement: {
     amount: number;
     date: Date;
@@ -172,6 +176,7 @@ export interface UpdateYahooFinanceProductInput {
   purchasePrice: number; // Purchase price per share in EUR
   purchaseDate: Date; // Date of purchase
   assetCategory: AssetCategory;
+  daysToLiquidity: number;
 }
 
 /**
@@ -186,6 +191,7 @@ export interface UpdateCustomProductInput {
   name: string;
   annualReturnRate: number;
   assetCategory: AssetCategory;
+  daysToLiquidity: number;
 }
 
 /**

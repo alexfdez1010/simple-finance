@@ -19,6 +19,10 @@ export const createYahooFinanceProductSchema = z.object({
   symbol: z.string().min(1, 'Symbol is required').max(10, 'Symbol too long'),
   quantity: z.number().positive('Quantity must be positive'),
   assetCategory: assetCategorySchema,
+  daysToLiquidity: z
+    .number()
+    .int('Days must be a whole number')
+    .min(0, 'Days cannot be negative'),
 });
 
 /**
@@ -32,6 +36,10 @@ export const createCustomProductSchema = z.object({
   firstMovementAmount: z.number().min(0, 'First movement cannot be negative'),
   firstMovementDate: z.coerce.date(),
   assetCategory: assetCategorySchema,
+  daysToLiquidity: z
+    .number()
+    .int('Days must be a whole number')
+    .min(0, 'Days cannot be negative'),
 });
 
 /**

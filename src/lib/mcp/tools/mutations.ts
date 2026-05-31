@@ -52,6 +52,7 @@ export function registerMutationTools(server: McpServer): void {
         purchasePrice: input.purchasePrice,
         purchaseDate: new Date(input.purchaseDate),
         assetCategory: input.assetCategory as AssetCategory,
+        daysToLiquidity: input.daysToLiquidity,
       });
       return ok(created);
     },
@@ -71,6 +72,7 @@ export function registerMutationTools(server: McpServer): void {
         annualReturnRate: input.annualReturnRate,
         currency: input.currency ?? 'EUR',
         assetCategory: input.assetCategory as AssetCategory,
+        daysToLiquidity: input.daysToLiquidity,
         firstMovement: {
           amount: input.firstMovementAmount,
           date: new Date(input.firstMovementDate),
@@ -96,6 +98,7 @@ export function registerMutationTools(server: McpServer): void {
         purchasePrice: rest.purchasePrice,
         purchaseDate: new Date(rest.purchaseDate),
         assetCategory: rest.assetCategory as AssetCategory,
+        daysToLiquidity: rest.daysToLiquidity,
       });
       return ok(updated);
     },
@@ -115,6 +118,7 @@ export function registerMutationTools(server: McpServer): void {
         name: rest.name,
         annualReturnRate: rest.annualReturnRate,
         assetCategory: rest.assetCategory as AssetCategory,
+        daysToLiquidity: rest.daysToLiquidity,
       });
       return ok(updated);
     },

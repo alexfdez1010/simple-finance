@@ -14,6 +14,14 @@ const assetCategoryField = z
     'High-level asset class: STOCKS, BONDS_LOANS, COMMODITIES, REAL_ESTATE, CASH.',
   );
 
+const daysToLiquidityField = z
+  .number()
+  .int()
+  .min(0)
+  .describe(
+    'Days needed to convert this asset to cash (0 = instantly liquid).',
+  );
+
 /**
  * Common Zod fields for a Yahoo Finance asset.
  */
@@ -27,6 +35,7 @@ export const yahooFields = {
     .describe('Purchase price per share in EUR'),
   purchaseDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'),
   assetCategory: assetCategoryField,
+  daysToLiquidity: daysToLiquidityField,
 };
 
 /**
@@ -50,6 +59,7 @@ export const customCreateFields = {
   firstMovementNote: z.string().max(500).optional(),
   currency: z.enum(ASSET_CURRENCIES).optional(),
   assetCategory: assetCategoryField,
+  daysToLiquidity: daysToLiquidityField,
 };
 
 /**
@@ -65,6 +75,7 @@ export const customUpdateFields = {
     .min(-1)
     .describe('Annual return rate as a decimal'),
   assetCategory: assetCategoryField,
+  daysToLiquidity: daysToLiquidityField,
 };
 
 /**

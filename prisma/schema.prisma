@@ -34,13 +34,17 @@ enum AssetCategory {
 
 /// Base model for all financial products
 model FinancialProduct {
-  id            String        @id @default(cuid())
-  type          ProductType
-  assetCategory AssetCategory @default(STOCKS)
-  name          String
-  quantity      Float
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
+  id              String        @id @default(cuid())
+  type            ProductType
+  assetCategory   AssetCategory @default(STOCKS)
+  name            String
+  quantity        Float
+  /// Days needed to convert this asset to cash (liquidity horizon).
+  /// Drives the dashboard "Cash Availability" chart. Defaults to 0
+  /// (instantly liquid) so existing rows backfill cleanly.
+  daysToLiquidity Int           @default(0)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
 
   snapshots ProductSnapshot[]
   yahoo     YahooFinanceData?

@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError } from '@/components/products/form-actions';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
+import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
 import type { YahooFinanceProduct } from '@/lib/domain/models/product.types';
 import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
@@ -40,6 +41,9 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
   const [assetCategory, setAssetCategory] = useState<AssetCategory>(
     product.assetCategory,
   );
+  const [daysToLiquidity, setDaysToLiquidity] = useState(
+    product.daysToLiquidity.toString(),
+  );
 
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
@@ -58,6 +62,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
         parseFloat(formData.purchasePrice),
         new Date(formData.purchaseDate),
         assetCategory,
+        parseInt(daysToLiquidity, 10) || 0,
       );
       if (!result.success) {
         throw new Error(result.error || 'Failed to update product');
@@ -137,6 +142,12 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
           id="edit-yahoo-category"
           value={assetCategory}
           onChange={setAssetCategory}
+        />
+
+        <DaysToLiquidityField
+          id="edit-yahoo-liquidity"
+          value={daysToLiquidity}
+          onChange={setDaysToLiquidity}
         />
 
         <FormError error={error} />

@@ -19,6 +19,7 @@ import { FormError } from '@/components/products/form-actions';
 import { currencySymbol } from '@/components/products/currency-options';
 import { CustomContributions } from '@/components/products/custom-contributions';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
+import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
 import type { CustomProduct } from '@/lib/domain/models/product.types';
 import type { AssetCategory } from '@/lib/domain/models/asset-category';
 
@@ -46,6 +47,9 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
   const [assetCategory, setAssetCategory] = useState<AssetCategory>(
     product.assetCategory,
   );
+  const [daysToLiquidity, setDaysToLiquidity] = useState(
+    product.daysToLiquidity.toString(),
+  );
   const currency = product.custom.currency;
   const symbol = currencySymbol(currency);
 
@@ -64,6 +68,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
         formData.name,
         parseFloat(formData.annualReturnRate) / 100,
         assetCategory,
+        parseInt(daysToLiquidity, 10) || 0,
       );
       if (!result.success) {
         throw new Error(result.error || 'Failed to update product');
@@ -107,6 +112,12 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
             id="edit-custom-category"
             value={assetCategory}
             onChange={setAssetCategory}
+          />
+
+          <DaysToLiquidityField
+            id="edit-custom-liquidity"
+            value={daysToLiquidity}
+            onChange={setDaysToLiquidity}
           />
 
           <Field>

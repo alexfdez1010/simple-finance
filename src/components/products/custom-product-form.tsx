@@ -21,6 +21,7 @@ import {
 } from '@/components/products/currency-options';
 import { FirstMovementFields } from '@/components/products/first-movement-fields';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
+import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
 import {
   DEFAULT_ASSET_CATEGORY,
   type AssetCategory,
@@ -50,6 +51,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
   const [assetCategory, setAssetCategory] = useState<AssetCategory>(
     DEFAULT_ASSET_CATEGORY,
   );
+  const [daysToLiquidity, setDaysToLiquidity] = useState('0');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,6 +84,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
         formData.currency,
         formData.firstMovementNote.trim() || null,
         assetCategory,
+        parseInt(daysToLiquidity, 10) || 0,
       );
       if (!result.success)
         throw new Error(result.error || 'Failed to create product');
@@ -142,6 +145,12 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
           id="custom-category"
           value={assetCategory}
           onChange={setAssetCategory}
+        />
+
+        <DaysToLiquidityField
+          id="custom-liquidity"
+          value={daysToLiquidity}
+          onChange={setDaysToLiquidity}
         />
 
         <FirstMovementFields
