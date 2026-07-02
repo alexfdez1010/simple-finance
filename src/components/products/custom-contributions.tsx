@@ -15,6 +15,7 @@ import { FormError } from '@/components/products/form-actions';
 import { ContributionFormRow } from '@/components/products/contribution-form-row';
 import { ContributionRow } from '@/components/products/contribution-row';
 import { useContributionsEditor } from '@/components/products/use-contributions-editor';
+import { calculateNetInvestedFromContributions } from '@/lib/domain/services/custom-product-calculator';
 import type { CustomContribution } from '@/lib/domain/models/product.types';
 
 interface Props {
@@ -41,6 +42,11 @@ export function CustomContributions({
     onChanged,
   });
   const symbol = currencySymbol(currency);
+  // Net total of every movement (deposits minus withdrawals), rounded to
+  // avoid floating-point noise while keeping crypto's decimal precision.
+  const total = Number(
+    calculateNetInvestedFromContributions(editor.items).toFixed(8),
+  );
 
   return (
     <div className="flex flex-col gap-3">
@@ -102,6 +108,19 @@ export function CustomContributions({
               onSave={editor.submit}
               busy={editor.busy}
             />
+          </li>
+        )}
+        {editor.items.length > 0 && (
+          <li className="flex items-center justify-between bg-muted/40 px-3 py-2 text-sm">
+            <span className="font-semibold text-foreground">Total</span>
+            <span
+              className={`font-mono font-semibold ${
+                total >= 0 ? 'text-gain' : 'text-loss'
+              }`}
+            >
+              {total >= 0 ? '+' : ''}
+              {total} {symbol}
+            </span>
           </li>
         )}
       </ul>
