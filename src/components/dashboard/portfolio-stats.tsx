@@ -61,21 +61,21 @@ export function PortfolioStats({
   return (
     <section
       aria-label="Portfolio summary"
-      className="grid grid-cols-2 gap-3 md:grid-cols-6 lg:grid-cols-12"
+      className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-12"
     >
       <StatCard
-        className="col-span-2 md:col-span-3 lg:col-span-4"
+        className="col-span-2 md:col-span-4 lg:col-span-4 lg:row-span-2"
         icon={<Wallet aria-hidden size={16} weight="duotone" />}
         label="Total Value"
         featured
       >
-        <p className="display-number font-serif text-3xl font-semibold text-foreground sm:text-4xl">
+        <p className="display-number font-serif text-4xl font-semibold text-foreground sm:text-5xl">
           {formatCurrency(totalValue)}
         </p>
       </StatCard>
 
       <StatCard
-        className="md:col-span-3 lg:col-span-2"
+        className="md:col-span-2 lg:col-span-2"
         icon={<PiggyBank aria-hidden size={16} weight="duotone" />}
         label="Invested"
       >
@@ -126,7 +126,9 @@ export function PortfolioStats({
       </StatCard>
 
       <Card
-        className="col-span-2 min-h-32 border border-border py-0 shadow-none md:col-span-6 lg:col-span-4"
+        aria-label="Projected profit"
+        className="col-span-2 min-h-32 rounded-xl border border-border py-0 shadow-none md:col-span-4 lg:col-span-8"
+        role="group"
         variant="secondary"
       >
         <Card.Content className="h-full p-4 sm:p-5">
@@ -166,10 +168,14 @@ function StatCard({
         : 'text-muted-foreground';
   return (
     <Card
-      className={`min-h-32 border border-border py-0 shadow-none ${featured ? 'bg-surface-secondary' : ''} ${className ?? ''}`}
+      aria-label={label}
+      className={`min-h-32 border border-border py-0 shadow-none ${featured ? 'h-full rounded-xl bg-surface-secondary' : 'rounded-lg'} ${className ?? ''}`}
+      role="group"
       variant={featured ? 'secondary' : 'default'}
     >
-      <Card.Content className="flex h-full flex-col justify-between p-4 sm:p-5">
+      <Card.Content
+        className={`flex h-full flex-col justify-between ${featured ? 'p-5 sm:p-6 lg:p-7' : 'p-4 sm:p-5'}`}
+      >
         <div className="mb-4 flex items-center gap-2">
           <span className={`${iconColor}`}>{icon}</span>
           <p className="text-xs font-medium text-muted-foreground">{label}</p>

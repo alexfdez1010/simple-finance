@@ -145,4 +145,46 @@ test.describe('Portfolio Snapshots and Charts', () => {
     const statsSection = page.locator('text=Total Value').first();
     await expect(statsSection).toBeVisible({ timeout: 10000 });
   });
+
+  test('should keep the portfolio cards organized across breakpoints', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.goto('http://localhost:3000/dashboard');
+    await page.waitForLoadState('networkidle');
+
+    const summary = page.getByRole('region', { name: 'Portfolio summary' });
+    const total = summary.getByRole('group', { name: 'Total Value' });
+    const invested = summary.getByRole('group', { name: 'Invested' });
+    const projected = summary.getByRole('group', { name: 'Projected profit' });
+    const [totalBox, investedBox, projectedBox] = await Promise.all([
+      total.boundingBox(),
+      invested.boundingBox(),
+      projected.boundingBox(),
+    ]);
+
+    expect(totalBox).not.toBeNull();
+    expect(investedBox).not.toBeNull();
+    expect(projectedBox).not.toBeNull();
+    expect(totalBox!.height).toBeGreaterThan(investedBox!.height * 1.8);
+    expect(projectedBox!.x).toBeGreaterThan(totalBox!.x + totalBox!.width);
+    expect(projectedBox!.width).toBeGreaterThan(investedBox!.width * 3);
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    const [mobileTotal, mobileInvested, mobileProjected, hasOverflow] =
+      await Promise.all([
+        total.boundingBox(),
+        invested.boundingBox(),
+        projected.boundingBox(),
+        page.evaluate(
+          () =>
+            document.documentElement.scrollWidth >
+            document.documentElement.clientWidth,
+        ),
+      ]);
+
+    expect(mobileTotal!.width).toBeGreaterThan(mobileInvested!.width * 1.8);
+    expect(mobileProjected!.width).toBeCloseTo(mobileTotal!.width, 0);
+    expect(hasOverflow).toBe(false);
+  });
 });
