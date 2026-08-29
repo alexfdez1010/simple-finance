@@ -1,0 +1,49 @@
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    min-height: 100dvh;
+    background: var(--background);
+    color: var(--foreground);
+    font-feature-settings: 'ss01', 'cv11', 'cv02';
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--surface-tertiary);
+    color: var(--foreground);
+  }
+
+  button,
+  a,
+  input,
+  select {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline-color: var(--focus);
+  }
+
+  .tabular-nums,
+  [class*='font-mono'] {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

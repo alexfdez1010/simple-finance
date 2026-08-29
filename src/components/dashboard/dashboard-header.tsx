@@ -5,8 +5,8 @@
 
 'use client';
 
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@heroui/react';
+import { Plus } from '@phosphor-icons/react';
 import { CurrencySelector } from '@/components/dashboard/currency-selector';
 
 interface DashboardHeaderProps {
@@ -25,32 +25,20 @@ export function DashboardHeader({
   onAddCustom,
 }: DashboardHeaderProps) {
   return (
-    <header className="mb-8 sm:mb-12 animate-fade-up">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
-        <div>
-          <p className="eyebrow mb-3">Portfolio · Private Wealth</p>
-          <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl tracking-tight gradient-text leading-[0.95] gold-underline">
-            Simple Finance
-          </h1>
-          <p className="text-muted-foreground mt-4 text-sm sm:text-base italic font-serif">
-            A considered view of your capital, compounded.
-          </p>
-        </div>
+    <header className="animate-fade-up mb-10 border-b border-separator pb-5 sm:mb-12">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="font-serif text-3xl leading-none tracking-tight text-foreground sm:text-4xl">
+          Simple Finance
+        </h1>
 
-        {/* Quick Actions */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <CurrencySelector />
-          <Button onClick={onAddYahoo} size="sm" className="rounded-xl">
-            <Plus data-icon="inline-start" />
+          <Button onPress={onAddYahoo} size="sm" variant="primary">
+            <Plus aria-hidden size={16} weight="bold" />
             <span>Yahoo Product</span>
           </Button>
-          <Button
-            onClick={onAddCustom}
-            variant="outline"
-            size="sm"
-            className="rounded-xl"
-          >
-            <Plus data-icon="inline-start" />
+          <Button onPress={onAddCustom} variant="outline" size="sm">
+            <Plus aria-hidden size={16} weight="bold" />
             <span>Custom Product</span>
           </Button>
         </div>

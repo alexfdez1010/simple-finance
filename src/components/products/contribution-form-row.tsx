@@ -11,6 +11,7 @@
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
+import { LoadingButton } from '@/components/products/form-actions';
 
 export interface ContributionFormState {
   amount: string;
@@ -40,6 +41,7 @@ export function ContributionFormRow({
   onSave,
   busy,
 }: Props) {
+  /** Updates a single movement field immutably. */
   const update = (field: keyof ContributionFormState, value: string) =>
     setForm({ ...form, [field]: value });
 
@@ -80,14 +82,16 @@ export function ContributionFormRow({
         />
       </Field>
       <div className="flex gap-2">
-        <Button
+        <LoadingButton
           type="button"
           size="sm"
           onClick={onSave}
           disabled={busy || !form.amount || !form.date}
+          loading={busy}
+          loadingText="Saving..."
         >
-          {busy ? 'Saving...' : 'Save'}
-        </Button>
+          Save
+        </LoadingButton>
         <Button
           type="button"
           size="sm"

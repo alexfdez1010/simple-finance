@@ -1,10 +1,4 @@
-/**
- * Rolling return chart: trailing N-day percentage return, computed from the
- * portfolio evolution series. Smooths daily noise and reveals momentum
- * regime — different from DailyChanges (single-day delta), Drawdown
- * (peak-relative), and ReturnsDistribution (histogram, no time axis).
- * @module components/dashboard/rolling-return-chart
- */
+/** Shows trailing returns to reveal the portfolio's recent momentum. */
 
 'use client';
 
@@ -77,7 +71,7 @@ export function RollingReturnChart({ data }: RollingReturnChartProps) {
 
   if (series.length < 2) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">Rolling Return</CardTitle>
           <CardDescription>
@@ -100,7 +94,7 @@ export function RollingReturnChart({ data }: RollingReturnChartProps) {
   const positive = last >= 0;
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>
@@ -137,20 +131,6 @@ export function RollingReturnChart({ data }: RollingReturnChartProps) {
         </div>
         <ChartContainer config={chartConfig} className="h-[200px] w-full">
           <AreaChart data={series} margin={{ left: 4, right: 4 }}>
-            <defs>
-              <linearGradient id="rolling-gain" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="0%"
-                  stopColor="oklch(0.55 0.17 155)"
-                  stopOpacity={0.4}
-                />
-                <stop
-                  offset="100%"
-                  stopColor="oklch(0.55 0.17 155)"
-                  stopOpacity={0}
-                />
-              </linearGradient>
-            </defs>
             <CartesianGrid vertical={false} strokeOpacity={0.3} />
             <XAxis
               dataKey="date"
@@ -193,7 +173,8 @@ export function RollingReturnChart({ data }: RollingReturnChartProps) {
             <Area
               dataKey="rolling"
               type="monotone"
-              fill="url(#rolling-gain)"
+              fill="var(--color-rolling)"
+              fillOpacity={0.14}
               stroke="var(--color-rolling)"
               strokeWidth={2}
             />

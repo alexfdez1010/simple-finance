@@ -8,9 +8,8 @@
 import { useState } from 'react';
 import { updateYahooProductAction } from '@/lib/actions/product-actions';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
-import { FormError } from '@/components/products/form-actions';
+import { FormError, LoadingButton } from '@/components/products/form-actions';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
 import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
 import type { YahooFinanceProduct } from '@/lib/domain/models/product.types';
@@ -45,6 +44,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
     product.daysToLiquidity.toString(),
   );
 
+  /** Updates one editable Yahoo field without mutating prior state. */
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
 
@@ -97,7 +97,7 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field>
             <FieldLabel htmlFor="edit-qty">Quantity</FieldLabel>
             <Input
@@ -152,9 +152,14 @@ export function EditYahooForm({ product, onSuccess }: EditYahooFormProps) {
 
         <FormError error={error} />
 
-        <Button type="submit" disabled={submitting} className="w-full">
-          {submitting ? 'Updating...' : 'Update Product'}
-        </Button>
+        <LoadingButton
+          type="submit"
+          loading={submitting}
+          loadingText="Updating..."
+          className="w-full"
+        >
+          Update Product
+        </LoadingButton>
       </FieldGroup>
     </form>
   );

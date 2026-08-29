@@ -8,7 +8,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   addContributionAction,
   updateContributionAction,
@@ -59,10 +59,6 @@ export function useContributionsEditor({
   const [form, setForm] = useState<ContributionFormState>(emptyForm());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setItems(sortByDate(initial));
-  }, [initial]);
 
   const startNew = () => {
     setEditing('new');

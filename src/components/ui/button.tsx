@@ -1,64 +1,78 @@
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { Slot } from 'radix-ui';
+'use client';
 
+import {
+  Button as HeroButton,
+  type ButtonProps as HeroButtonProps,
+} from '@heroui/react';
 import { cn } from '@/lib/utils';
 
-const buttonVariants = cva(
-  "inline-flex shrink-0 items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:bg-primary/90',
-        destructive:
-          'bg-destructive text-white hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:bg-destructive/60 dark:focus-visible:ring-destructive/40',
-        outline:
-          'border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50',
-        secondary:
-          'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-        ghost:
-          'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
-        link: 'text-primary underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-9 px-4 py-2 has-[>svg]:px-3',
-        xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
-        sm: 'h-8 gap-1.5 rounded-md px-3 has-[>svg]:px-2.5',
-        lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
-        icon: 'size-9',
-        'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
-        'icon-sm': 'size-8',
-        'icon-lg': 'size-10',
-      },
-    },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-    },
-  },
-);
+type ButtonVariant =
+  'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+type ButtonSize =
+  'default' | 'xs' | 'sm' | 'lg' | 'icon' | 'icon-xs' | 'icon-sm' | 'icon-lg';
 
+interface ButtonProps extends Omit<
+  HeroButtonProps,
+  'children' | 'className' | 'isDisabled' | 'isIconOnly' | 'size' | 'variant'
+> {
+  children?: React.ReactNode;
+  className?: string;
+  disabled?: boolean;
+  size?: ButtonSize;
+  variant?: ButtonVariant;
+}
+
+const variantMap: Record<ButtonVariant, HeroButtonProps['variant']> = {
+  default: 'primary',
+  destructive: 'danger',
+  outline: 'outline',
+  secondary: 'secondary',
+  ghost: 'ghost',
+  link: 'tertiary',
+};
+
+const sizeMap: Record<ButtonSize, HeroButtonProps['size']> = {
+  default: 'md',
+  xs: 'sm',
+  sm: 'sm',
+  lg: 'lg',
+  icon: 'md',
+  'icon-xs': 'sm',
+  'icon-sm': 'sm',
+  'icon-lg': 'lg',
+};
+
+/**
+ * Renders the shared HeroUI button while preserving domain-facing variants.
+ *
+ * @param props - HeroUI button props plus semantic size and variant names.
+ * @returns An accessible HeroUI button using the finance design system.
+ */
 function Button({
   className,
-  variant = 'default',
+  disabled,
   size = 'default',
-  asChild = false,
+  variant = 'default',
   ...props
-}: React.ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
-  const Comp = asChild ? Slot.Root : 'button';
+}: ButtonProps) {
+  const isIconOnly = size.startsWith('icon');
 
   return (
-    <Comp
-      data-slot="button"
-      data-variant={variant}
-      data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+    <HeroButton
+      className={cn(
+        'rounded-md font-medium transition-transform active:scale-[0.98]',
+        isIconOnly && 'min-h-8 min-w-8',
+        size === 'xs' && 'min-h-7 px-2 text-xs',
+        className,
+      )}
+      isDisabled={disabled}
+      isIconOnly={isIconOnly}
+      size={sizeMap[size]}
+      variant={variantMap[variant]}
       {...props}
     />
   );
 }
 
-export { Button, buttonVariants };
+export { Button };
+export type { ButtonProps };

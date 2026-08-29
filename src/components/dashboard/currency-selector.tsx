@@ -7,6 +7,7 @@
 
 'use client';
 
+import { Label, ListBox, Select } from '@heroui/react';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
 
@@ -27,20 +28,34 @@ export function CurrencySelector() {
   const { currency, setCurrency, supported } = useDisplayCurrency();
 
   return (
-    <label className="flex items-center gap-2 text-xs text-muted-foreground">
-      <span className="hidden sm:inline">Display in</span>
-      <select
-        aria-label="Display currency"
-        value={currency}
-        onChange={(e) => setCurrency(e.target.value as DisplayCurrency)}
-        className="h-9 rounded-md border border-input bg-transparent px-2 py-1 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-      >
-        {supported.map((c) => (
-          <option key={c} value={c}>
-            {LABELS[c]}
-          </option>
-        ))}
-      </select>
-    </label>
+    <Select
+      className="w-28"
+      aria-label="Display currency"
+      variant="secondary"
+      value={currency}
+      onChange={(value) => {
+        if (typeof value === 'string') setCurrency(value as DisplayCurrency);
+      }}
+    >
+      <Label className="sr-only">Display currency</Label>
+      <Select.Trigger className="min-h-8 px-2.5">
+        <Select.Value />
+        <Select.Indicator />
+      </Select.Trigger>
+      <Select.Popover className="min-w-36">
+        <ListBox aria-label="Currencies" selectionMode="single">
+          {supported.map((currencyOption) => (
+            <ListBox.Item
+              id={currencyOption}
+              key={currencyOption}
+              textValue={LABELS[currencyOption]}
+            >
+              {LABELS[currencyOption]}
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+          ))}
+        </ListBox>
+      </Select.Popover>
+    </Select>
   );
 }

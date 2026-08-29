@@ -4,11 +4,7 @@
  */
 
 export type AssetCategory =
-  | 'STOCKS'
-  | 'BONDS_LOANS'
-  | 'COMMODITIES'
-  | 'REAL_ESTATE'
-  | 'CASH';
+  'STOCKS' | 'BONDS_LOANS' | 'COMMODITIES' | 'REAL_ESTATE' | 'CASH';
 
 export const ASSET_CATEGORIES: readonly AssetCategory[] = [
   'STOCKS',

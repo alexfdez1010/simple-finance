@@ -31,11 +31,11 @@ export function FirstMovementFields({
   onChange,
 }: Props) {
   return (
-    <div className="rounded-md border border-border p-3">
-      <p className="text-xs font-semibold text-foreground mb-2">
+    <fieldset className="rounded-md bg-muted/35 p-3">
+      <legend className="px-1 text-xs font-semibold text-foreground">
         First movement · {currency}
-      </p>
-      <div className="grid grid-cols-2 gap-3">
+      </legend>
+      <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field>
           <FieldLabel htmlFor="custom-investment" className="text-[11px]">
             Amount ({symbol})
@@ -76,6 +76,6 @@ export function FirstMovementFields({
           placeholder="First deposit"
         />
       </Field>
-    </div>
+    </fieldset>
   );
 }

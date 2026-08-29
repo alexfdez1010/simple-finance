@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Plus } from 'lucide-react';
+import { Plus } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { currencySymbol } from '@/components/products/currency-options';
 import { FormError } from '@/components/products/form-actions';
@@ -62,12 +62,12 @@ export function CustomContributions({
             onClick={editor.startNew}
             disabled={editor.busy}
           >
-            <Plus className="mr-1" /> Add movement
+            <Plus aria-hidden size={16} weight="bold" /> Add movement
           </Button>
         )}
       </div>
 
-      <ul className="flex flex-col divide-y divide-border rounded-md border border-border">
+      <ul className="flex flex-col divide-y divide-border rounded-md bg-muted/20">
         {editor.items.length === 0 && editor.editing !== 'new' && (
           <li className="px-3 py-3 text-xs text-muted-foreground">
             No movements yet. Add the first deposit.
@@ -111,7 +111,7 @@ export function CustomContributions({
           </li>
         )}
         {editor.items.length > 0 && (
-          <li className="flex items-center justify-between bg-muted/40 px-3 py-2 text-sm">
+          <li className="flex items-center justify-between bg-muted/60 px-3 py-2 text-sm">
             <span className="font-semibold text-foreground">Total</span>
             <span
               className={`font-mono font-semibold ${

@@ -119,7 +119,7 @@ export function ReturnsDistributionChart({
 
   if (sample < 5) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Returns Distribution
@@ -133,7 +133,7 @@ export function ReturnsDistributionChart({
   }
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="font-serif text-lg">
           Returns Distribution

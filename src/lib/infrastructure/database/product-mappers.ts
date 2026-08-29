@@ -32,16 +32,14 @@ export function mapCustomData(custom: CustomDataRow): CustomProduct['custom'] {
     annualReturnRate: custom.annualReturnRate,
     currency: custom.currency,
     contributions: custom.contributions
-      .map(
-        (c): CustomContribution => ({
-          id: c.id,
-          amount: c.amount,
-          date: c.date,
-          note: c.note,
-          createdAt: c.createdAt,
-          updatedAt: c.updatedAt,
-        }),
-      )
+      .map((c): CustomContribution => ({
+        id: c.id,
+        amount: c.amount,
+        date: c.date,
+        note: c.note,
+        createdAt: c.createdAt,
+        updatedAt: c.updatedAt,
+      }))
       .sort((a, b) => a.date.getTime() - b.date.getTime()),
   };
 }

@@ -1,15 +1,15 @@
-# 💰 Simple Finance
+# Simple Finance
 
-A **modern, production-ready portfolio tracking application** built with Next.js 15, React 19, TypeScript, and Prisma. Track your financial products with real-time Yahoo Finance data or custom fixed-return investments, all displayed in EUR.
+A production-ready portfolio tracker built with Next.js 16, React 19, TypeScript, HeroUI, and Prisma. It supports live Yahoo Finance positions and custom fixed-return investments in multiple display currencies.
 
 Built following **SOLID principles** and enterprise-level best practices with comprehensive test coverage.
 
-[![Next.js](https://img.shields.io/badge/Next.js-15.5.4-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.6-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38bdf8)](https://tailwindcss.com/)
 [![Prisma](https://img.shields.io/badge/Prisma-6.7.0-2D3748)](https://www.prisma.io/)
-[![Tests](https://img.shields.io/badge/Tests-33%20E2E%20%2B%2021%20Unit-success)](https://playwright.dev/)
+[![HeroUI](https://img.shields.io/badge/HeroUI-3.2.4-111111)](https://heroui.com/)
 
 ## 🎯 Features
 
@@ -36,7 +36,7 @@ Built following **SOLID principles** and enterprise-level best practices with co
 - **Portfolio Statistics** - Total value, total return, return percentage
 - **Sorted Display** - Products ordered by total current value
 - **Flexible Quantities** - Support for fractional shares (e.g., 2.5 shares)
-- **Responsive UI** - Beautiful dark mode support with TailwindCSS 4
+- **Responsive UI** - Accessible, minimalist interface built with HeroUI and TailwindCSS 4
 
 ### 📈 Portfolio Tracking Charts
 
@@ -61,8 +61,8 @@ Built following **SOLID principles** and enterprise-level best practices with co
 - **SOLID Principles** - Applied rigorously across all code (SRP, OCP, LSP, ISP, DIP)
 - **Type Safety** - Full TypeScript strict mode with Prisma-generated types
 - **Clean Architecture** - Domain, infrastructure, and presentation layers
-- **Server Actions** - Modern Next.js 15 data mutations with automatic revalidation
-- **Comprehensive Testing** - 37 E2E tests + 21 unit tests (100% passing)
+- **Server Actions** - Next.js 16 data mutations with automatic revalidation
+- **Comprehensive Testing** - Deterministic unit and end-to-end coverage
 - **TSDoc Documentation** - All functions documented with purpose, params, and returns
 - **Code Quality** - ESLint + Prettier with pre-commit hooks
 - **File Size Limit** - Max 200 lines per file (enforced)
@@ -71,13 +71,24 @@ Built following **SOLID principles** and enterprise-level best practices with co
 
 ### Frontend
 
-- **[Next.js 15.5.4](https://nextjs.org/docs)** - React framework with App Router and Server Components
+- **[Next.js 16.2.6](https://nextjs.org/docs)** - React framework with App Router and Server Components
 - **[React 19.1.0](https://react.dev/)** - Latest React with concurrent features
 - **[TypeScript 5.x](https://www.typescriptlang.org/)** - Strict type safety throughout
-- **[TailwindCSS 4.x](https://tailwindcss.com/)** - Utility-first CSS with dark mode
-- **[Lucide React](https://lucide.dev/)** - Beautiful icon library
-- **[shadcn/ui](https://ui.shadcn.com/)** - High-quality React components (ready to integrate)
+- **[TailwindCSS 4.x](https://tailwindcss.com/)** - Utility-first styling and design tokens
+- **[HeroUI 3](https://heroui.com/docs/guide/introduction)** - Accessible compound UI components
+- **[Phosphor Icons](https://phosphoricons.com/)** - Consistent interface iconography
 - **[Recharts](https://recharts.org/)** - Beautiful, customizable charts
+
+### Design system APIs
+
+The presentation layer depends on small, focused adapters instead of styling vendor internals throughout the product:
+
+- `@/components/ui/button` exposes the application button variants and sizes. Import `Button` and compose it with a label or icon; use `variant="destructive"` only for destructive actions.
+- `@/components/ui/card` exposes the compound `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, and `CardFooter` surface API. Compose only the regions a feature needs.
+- `@/components/ui/chart` exposes `ChartContainer`, tooltip, and legend primitives. Provide a `ChartConfig` and an accessible label for every visualization.
+- `@/components/products/product-select` owns the HeroUI selection contract used by product forms. Pass a focused label, current value, options, and change handler.
+
+Global color, spacing, typography, surface, and chart tokens live in `src/app/styles/theme.css`; shared structural behavior lives in `base.css` and `components.css`.
 
 ### Backend & Data
 

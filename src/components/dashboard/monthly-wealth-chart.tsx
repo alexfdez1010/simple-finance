@@ -16,6 +16,13 @@ import {
   Cell,
 } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface MonthlyWealthData {
@@ -45,11 +52,11 @@ function CustomTooltip({
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="glass-card bg-card p-3 rounded-xl shadow-lg">
+    <div className="rounded-md border border-border bg-overlay p-3 shadow-sm">
       <p className="text-xs font-semibold text-foreground mb-1">
         {payload[0].payload.month}
       </p>
-      <p className="text-sm text-primary font-bold tabular-nums">
+      <p className="text-sm font-semibold tabular-nums">
         {format(payload[0].value)}
       </p>
     </div>
@@ -66,68 +73,76 @@ export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
   const { format } = useDisplayCurrency();
   if (!data || data.length === 0) {
     return (
-      <div className="glass-card rounded-2xl bg-card p-5 shadow-sm">
-        <h3 className="font-serif text-lg text-foreground mb-4">
-          Monthly Wealth Evolution
-        </h3>
-        <div className="h-[250px] flex items-center justify-center rounded-xl">
-          <p className="text-muted-foreground text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif text-lg">
+            Monthly Wealth Evolution
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="flex h-[250px] items-center justify-center">
+          <p className="text-sm text-muted">
             No historical data available yet.
           </p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="glass-card rounded-2xl bg-card shadow-sm px-4 sm:px-6 pt-5 pb-2">
-      <h3 className="font-serif text-lg text-foreground mb-4 px-1">
-        Monthly Wealth Evolution
-      </h3>
-      <ChartContainer
-        className="h-[280px] w-full"
-        config={{
-          value: { label: 'Total Value', color: 'var(--chart-1)' },
-        }}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={data}
-            margin={{ top: 8, right: 8, left: 8, bottom: 16 }}
-          >
-            <CartesianGrid
-              strokeDasharray="3 3"
-              vertical={false}
-              strokeOpacity={0.15}
-            />
-            <XAxis
-              dataKey="month"
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 11 }}
-              dy={8}
-            />
-            <YAxis
-              axisLine={false}
-              tickLine={false}
-              tick={{ fontSize: 11 }}
-              width={65}
-              tickFormatter={(v) => format(v, { compact: true })}
-            />
-            <Tooltip content={<CustomTooltip format={format} />} />
-            <Bar dataKey="value" radius={[6, 6, 0, 0]}>
-              {data.map((_, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill="var(--chart-1)"
-                  fillOpacity={0.8}
-                  className="hover:opacity-100 transition-opacity"
-                />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartContainer>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-serif text-lg">
+          Monthly Wealth Evolution
+        </CardTitle>
+        <CardDescription>End-of-month portfolio value</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <ChartContainer
+          aria-label="Monthly wealth evolution"
+          className="h-[280px] w-full"
+          config={{
+            value: { label: 'Total Value', color: 'var(--chart-1)' },
+          }}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={data}
+              margin={{ top: 8, right: 8, left: 8, bottom: 16 }}
+            >
+              <CartesianGrid
+                strokeDasharray="3 3"
+                vertical={false}
+                strokeOpacity={0.15}
+              />
+              <XAxis
+                dataKey="month"
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 11 }}
+                dy={8}
+              />
+              <YAxis
+                axisLine={false}
+                tickLine={false}
+                tick={{ fontSize: 11 }}
+                width={65}
+                tickFormatter={(v) => format(v, { compact: true })}
+              />
+              <Tooltip content={<CustomTooltip format={format} />} />
+              <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                {data.map((_, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill="var(--chart-1)"
+                    fillOpacity={0.8}
+                    className="hover:opacity-100 transition-opacity"
+                  />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartContainer>
+      </CardContent>
+    </Card>
   );
 }

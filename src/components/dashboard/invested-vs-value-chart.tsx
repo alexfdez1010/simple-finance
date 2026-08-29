@@ -1,8 +1,4 @@
-/**
- * Cost basis vs portfolio value: cumulative invested line over time,
- * overlaid with the portfolio value series. Gap = unrealised P&L.
- * @module components/dashboard/invested-vs-value-chart
- */
+/** Compares cumulative cost basis with portfolio value over time. */
 
 'use client';
 
@@ -77,7 +73,7 @@ export function InvestedVsValueChart({
 
   if (evolution.length === 0) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Invested vs Value
@@ -96,7 +92,7 @@ export function InvestedVsValueChart({
   const positive = gap >= 0;
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>

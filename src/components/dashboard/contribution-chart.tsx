@@ -67,7 +67,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
 
   if (sorted.length === 0) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Contribution to Return
@@ -85,7 +85,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
   const losers = sorted.filter((d) => d.returnValue < 0).length;
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="font-serif text-lg">
           Contribution to Return

@@ -67,7 +67,7 @@ export function AllocationByCurrencyChart({
 
   if (enriched.length === 0) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Allocation by Currency
@@ -83,7 +83,7 @@ export function AllocationByCurrencyChart({
   const dominant = enriched[0];
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="font-serif text-lg">
           Allocation by Currency

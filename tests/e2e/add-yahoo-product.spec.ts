@@ -76,13 +76,13 @@ test.describe('Add Yahoo Finance Product', () => {
 
     // Verify product card displays key information
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await expect(productCard.getByText('AAPL').nth(0)).toBeVisible();
     await expect(productCard).toContainText('Quantity');
-    await expect(productCard).toContainText('Current Price');
-    await expect(productCard).toContainText('Avg. Purchase');
+    await expect(productCard).toContainText('Current price');
+    await expect(productCard).toContainText('Avg. purchase');
   });
 
   /**

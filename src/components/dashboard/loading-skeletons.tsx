@@ -4,7 +4,7 @@
  * @module components/dashboard/loading-skeletons
  */
 
-import { Skeleton } from '@/components/ui/skeleton';
+import { Card, Skeleton } from '@heroui/react';
 
 /**
  * Skeleton for the portfolio stats section
@@ -13,12 +13,20 @@ import { Skeleton } from '@/components/ui/skeleton';
  */
 export function StatsLoadingSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
+    <div
+      aria-hidden="true"
+      className="grid grid-cols-2 gap-3 md:grid-cols-6 lg:grid-cols-12"
+    >
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-2xl bg-card p-4 sm:p-5 shadow-sm">
-          <Skeleton className="h-3 w-20 mb-2" />
-          <Skeleton className="h-7 w-28" />
-        </div>
+        <Card
+          key={i}
+          className={`${i === 0 ? 'col-span-2 md:col-span-3 lg:col-span-4' : 'md:col-span-2'} min-h-32 border border-border py-0 shadow-none`}
+        >
+          <Card.Content className="flex h-full flex-col justify-between p-4 sm:p-5">
+            <Skeleton className="h-3 w-20 rounded-sm" />
+            <Skeleton className="h-8 w-28 rounded-sm" />
+          </Card.Content>
+        </Card>
       ))}
     </div>
   );
@@ -31,11 +39,13 @@ export function StatsLoadingSkeleton() {
  */
 export function ChartLoadingSkeleton() {
   return (
-    <div className="rounded-2xl bg-card p-4 sm:p-6 shadow-sm">
-      <Skeleton className="h-5 w-40 mb-2" />
-      <Skeleton className="h-3 w-60 mb-6" />
-      <Skeleton className="h-[250px] w-full rounded-lg" />
-    </div>
+    <Card aria-hidden="true" className="border border-border py-0 shadow-none">
+      <Card.Content className="p-5 sm:p-6">
+        <Skeleton className="mb-2 h-5 w-40 rounded-sm" />
+        <Skeleton className="mb-6 h-3 w-60 max-w-full rounded-sm" />
+        <Skeleton className="h-[250px] w-full rounded-md" />
+      </Card.Content>
+    </Card>
   );
 }
 
@@ -46,22 +56,27 @@ export function ChartLoadingSkeleton() {
  */
 export function ProductsLoadingSkeleton() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div
+      aria-hidden="true"
+      className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+    >
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="rounded-2xl bg-card p-5 shadow-sm">
-          <div className="flex justify-between mb-4">
-            <div>
-              <Skeleton className="h-5 w-32 mb-2" />
-              <Skeleton className="h-3 w-20" />
+        <Card key={i} className="border border-border py-0 shadow-none">
+          <Card.Content className="p-5">
+            <div className="mb-6 flex justify-between">
+              <div>
+                <Skeleton className="mb-2 h-5 w-32 rounded-sm" />
+                <Skeleton className="h-3 w-20 rounded-sm" />
+              </div>
+              <Skeleton className="h-8 w-16 rounded-md" />
             </div>
-            <Skeleton className="h-8 w-16 rounded-lg" />
-          </div>
-          <Skeleton className="h-8 w-36 mb-3" />
-          <div className="flex justify-between">
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-6 w-20" />
-          </div>
-        </div>
+            <Skeleton className="mb-5 h-8 w-36 rounded-sm" />
+            <div className="flex justify-between">
+              <Skeleton className="h-6 w-24 rounded-sm" />
+              <Skeleton className="h-6 w-20 rounded-sm" />
+            </div>
+          </Card.Content>
+        </Card>
       ))}
     </div>
   );

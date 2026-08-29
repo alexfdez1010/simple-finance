@@ -25,12 +25,26 @@ export function SymbolValidator({
   quoteData,
 }: SymbolValidatorProps) {
   if (loading) {
-    return <p className="mt-2 text-xs text-primary">Validating symbol...</p>;
+    return (
+      <p
+        id="symbol-validation-status"
+        className="mt-1 text-xs text-primary"
+        role="status"
+        aria-live="polite"
+      >
+        Validating symbol...
+      </p>
+    );
   }
 
   if (validated && quoteData) {
     return (
-      <div className="mt-2 p-3 bg-gain/10 border border-gain/20 rounded-xl">
+      <div
+        id="symbol-validation-status"
+        className="mt-1 rounded-md bg-gain/10 px-3 py-2"
+        role="status"
+        aria-live="polite"
+      >
         <p className="text-xs font-medium text-gain">
           Valid symbol: {quoteData.symbol}
         </p>

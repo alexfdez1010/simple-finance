@@ -5,8 +5,9 @@
 
 'use client';
 
-import { TrendingUp, TrendingDown } from 'lucide-react';
+import { TrendDown, TrendUp } from '@phosphor-icons/react';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface PerformerData {
@@ -36,39 +37,44 @@ export function TopPerformers({ performers }: TopPerformersProps) {
 
   if (performers.length === 0) {
     return (
-      <div className="glass-card rounded-2xl bg-card p-5 shadow-sm">
-        <h3 className="font-serif text-lg text-foreground mb-4">
-          Top Performers
-        </h3>
-        <div className="h-[200px] flex items-center justify-center">
-          <p className="text-muted-foreground text-sm">No products yet.</p>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif text-lg">Top Performers</CardTitle>
+        </CardHeader>
+        <CardContent className="flex h-[200px] items-center justify-center text-sm text-muted">
+          No products yet.
+        </CardContent>
+      </Card>
     );
   }
 
   const sorted = [...performers].sort((a, b) => b.returnPct - a.returnPct);
 
   return (
-    <div className="glass-card rounded-2xl bg-card shadow-sm px-4 sm:px-6 pt-5 pb-4">
-      <h3 className="font-serif text-lg text-foreground mb-3 px-1">
-        Performance Ranking
-      </h3>
-      <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-serif text-lg">
+          Performance Ranking
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex max-h-[300px] flex-col gap-1 overflow-y-auto">
         {sorted.map((item, i) => {
           const isPositive = item.returnPct >= 0;
           return (
             <div
               key={item.name}
-              className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-accent/50 transition-colors"
+              className="flex items-center gap-3 border-b border-border px-1 py-2.5 last:border-0"
             >
               <span className="text-xs font-bold text-muted-foreground w-5 tabular-nums">
                 #{i + 1}
               </span>
               {isPositive ? (
-                <TrendingUp className="w-3.5 h-3.5 text-gain shrink-0" />
+                <TrendUp className="size-4 shrink-0 text-gain" weight="bold" />
               ) : (
-                <TrendingDown className="w-3.5 h-3.5 text-loss shrink-0" />
+                <TrendDown
+                  className="size-4 shrink-0 text-loss"
+                  weight="bold"
+                />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">
@@ -94,7 +100,7 @@ export function TopPerformers({ performers }: TopPerformersProps) {
             </div>
           );
         })}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

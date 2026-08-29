@@ -8,7 +8,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { Button } from '@heroui/react';
+import { ArrowRight } from '@phosphor-icons/react';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 
@@ -66,11 +67,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   const { format } = useDisplayCurrency();
   const [currentPeriod, setCurrentPeriod] = useState<ProfitPeriod>('daily');
 
-  const formatSigned = (value: number): string => {
-    const formatted = format(value, { absolute: true });
-    return value >= 0 ? `+${formatted}` : `-${formatted}`;
-  };
-
+  /** Advances to the next supported profit period. */
   const handleCycle = () => {
     const currentIndex = PERIOD_ORDER.indexOf(currentPeriod);
     const nextIndex = (currentIndex + 1) % PERIOD_ORDER.length;
@@ -81,29 +78,32 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   const value = profitRates[config.valueKey];
   const pct = profitRates[config.pctKey];
   const sign = value >= 0 ? '+' : '';
+  const absoluteValue = format(value, { absolute: true });
+  const signedValue = value >= 0 ? `+${absoluteValue}` : `-${absoluteValue}`;
 
   return (
-    <div className="p-4 sm:p-5 h-full flex flex-col justify-between">
-      <div className="flex items-center justify-between mb-2">
-        <p className="text-[11px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wider">
-          {config.label} Profit
+    <div className="flex h-full flex-col justify-between gap-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-medium text-muted-foreground">
+          {config.label} profit
         </p>
-        <button
-          onClick={handleCycle}
-          className="inline-flex items-center gap-1 text-[10px] sm:text-xs px-2 py-1 rounded-lg bg-secondary text-secondary-foreground hover:bg-accent transition-colors"
-          aria-label="Cycle profit period"
+        <Button
+          onPress={handleCycle}
+          size="sm"
+          variant="ghost"
+          aria-label={`Show ${config.next.toLowerCase()} profit`}
         >
           {config.next}
-          <ArrowRight className="w-3 h-3" />
-        </button>
+          <ArrowRight aria-hidden size={14} />
+        </Button>
       </div>
-      <div className="flex items-baseline gap-2 flex-wrap">
+      <div className="flex flex-wrap items-baseline gap-2">
         <p
-          className={`text-lg sm:text-2xl font-bold tabular-nums ${
+          className={`font-serif text-2xl font-semibold tabular-nums ${
             value >= 0 ? 'text-gain' : 'text-loss'
           }`}
         >
-          {formatSigned(value)}
+          {signedValue}
         </p>
         <span
           className={`text-xs sm:text-sm font-semibold tabular-nums ${
@@ -114,9 +114,6 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
           {pct.toFixed(2)}%
         </span>
       </div>
-      <p className="text-[10px] sm:text-xs text-muted-foreground mt-1">
-        Custom rates + Yahoo 5y geometric mean
-      </p>
     </div>
   );
 }

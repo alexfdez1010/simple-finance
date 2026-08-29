@@ -8,17 +8,11 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { DetailItem } from '@/components/products/detail-item';
+import { Button, Card, Chip } from '@heroui/react';
+import { Eye, PencilSimple, TrashSimple } from '@phosphor-icons/react';
+import { ProductDetails } from '@/components/products/product-details';
+import { useProductDateLabel } from '@/components/products/use-product-date-label';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
-import { calculateNetInvestedFromContributions } from '@/lib/domain/services/custom-product-calculator';
-import {
-  formatInCurrency,
-  type DisplayCurrency,
-} from '@/lib/utils/format-currency';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 import { assetCategoryLabel } from '@/lib/domain/models/asset-category';
 
@@ -60,7 +54,7 @@ export function ProductCard({
   const { format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
   const totalValue = currentValueEur ?? currentValue * product.quantity;
-  const [dateString, setDateString] = useState('');
+  const dateString = useProductDateLabel(product);
 
   const fallbackInvested = isYahoo
     ? product.yahoo.purchasePrice * product.quantity
@@ -70,37 +64,27 @@ export function ProductCard({
   const returnPct = invested > 0 ? (returnValue / invested) * 100 : 0;
   const isPositive = returnValue >= 0;
 
-  useEffect(() => {
-    const date = isYahoo
-      ? product.yahoo.purchaseDate
-      : product.custom.contributions[0]?.date;
-    if (!date) {
-      setDateString('');
-      return;
-    }
-    setDateString(
-      new Date(date).toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-    );
-  }, [product, isYahoo]);
-
   return (
-    <div className="bg-card rounded-xl glass-card p-5 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 h-full flex flex-col">
-      <div className="flex justify-between items-start mb-4">
+    <Card
+      className="h-full border border-border py-0 shadow-none transition-transform duration-200 hover:-translate-y-0.5"
+      data-testid="product-card"
+    >
+      <Card.Header className="flex-row items-start justify-between p-5 pb-3">
         <div className="min-w-0 flex-1 mr-2">
           <h3 className="text-base font-semibold text-foreground truncate">
             {product.name}
           </h3>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            <Badge variant="secondary" className="text-[10px]">
+            <Chip
+              size="sm"
+              variant="secondary"
+              className="font-mono text-[10px]"
+            >
               {isYahoo ? product.yahoo.symbol : product.custom.currency}
-            </Badge>
-            <Badge variant="outline" className="text-[10px]">
+            </Chip>
+            <Chip size="sm" variant="tertiary" className="text-[10px]">
               {assetCategoryLabel(product.assetCategory)}
-            </Badge>
+            </Chip>
             <span className="text-[10px] text-muted-foreground">
               {dateString}
             </span>
@@ -110,111 +94,59 @@ export function ProductCard({
           {onView && (
             <Button
               variant="ghost"
-              size="icon-xs"
-              onClick={() => onView(product)}
+              size="sm"
+              isIconOnly
+              onPress={() => onView(product)}
               aria-label="View product history"
             >
-              <Eye />
+              <Eye aria-hidden size={16} />
             </Button>
           )}
           {onEdit && (
             <Button
               variant="ghost"
-              size="icon-xs"
-              onClick={() => onEdit(product)}
+              size="sm"
+              isIconOnly
+              onPress={() => onEdit(product)}
               aria-label="Edit product"
             >
-              <Pencil />
+              <PencilSimple aria-hidden size={16} />
             </Button>
           )}
           {onDelete && (
             <Button
               variant="ghost"
-              size="icon-xs"
-              onClick={() => onDelete(product)}
+              size="sm"
+              isIconOnly
+              onPress={() => onDelete(product)}
               aria-label="Delete product"
-              className="text-destructive hover:text-destructive"
+              className="text-loss"
             >
-              <Trash2 />
+              <TrashSimple aria-hidden size={16} />
             </Button>
           )}
         </div>
-      </div>
+      </Card.Header>
 
-      <div className="mb-4">
-        <p className="text-2xl font-bold text-foreground tabular-nums">
-          {formatCurrency(totalValue)}
-        </p>
-        <p
-          className={`text-sm font-semibold tabular-nums mt-0.5 ${isPositive ? 'text-gain' : 'text-loss'}`}
-        >
-          {formatCurrency(returnValue)} ({formatPercentage(returnPct)})
-        </p>
-      </div>
+      <Card.Content className="flex flex-1 flex-col px-5 pb-5">
+        <div className="mb-6">
+          <p className="font-serif text-3xl font-semibold text-foreground tabular-nums">
+            {formatCurrency(totalValue)}
+          </p>
+          <p
+            className={`text-sm font-semibold tabular-nums mt-0.5 ${isPositive ? 'text-gain' : 'text-loss'}`}
+          >
+            {formatCurrency(returnValue)} ({formatPercentage(returnPct)})
+          </p>
+        </div>
 
-      <div className="grid grid-cols-2 gap-y-2.5 gap-x-3 mt-auto text-center">
-        {isYahoo ? (
-          <>
-            <DetailItem label="Quantity" value={String(product.quantity)} />
-            <DetailItem
-              label="Current Price"
-              value={formatCurrency(currentValue)}
-            />
-            <DetailItem
-              label="Avg. Purchase"
-              value={formatCurrency(product.yahoo.purchasePrice)}
-            />
-            <DetailItem
-              label="Expected Return"
-              value={
-                expectedAnnualReturn == null
-                  ? '—'
-                  : formatPercentage(expectedAnnualReturn * 100)
-              }
-              className={
-                expectedAnnualReturn == null
-                  ? undefined
-                  : expectedAnnualReturn >= 0
-                    ? 'text-gain'
-                    : 'text-loss'
-              }
-            />
-          </>
-        ) : (
-          <>
-            <DetailItem
-              label="Annual Rate"
-              value={formatPercentage(product.custom.annualReturnRate * 100)}
-            />
-            <DetailItem
-              label="Expected Return"
-              value={
-                expectedAnnualReturn == null
-                  ? '—'
-                  : formatPercentage(expectedAnnualReturn * 100)
-              }
-              className={
-                expectedAnnualReturn == null
-                  ? undefined
-                  : expectedAnnualReturn >= 0
-                    ? 'text-gain'
-                    : 'text-loss'
-              }
-            />
-            <DetailItem
-              label="Net Investment"
-              value={formatInCurrency(
-                calculateNetInvestedFromContributions(
-                  product.custom.contributions,
-                ),
-                product.custom.currency as DisplayCurrency,
-                1,
-              )}
-            />
-            <DetailItem label="Currency" value={product.custom.currency} />
-          </>
-        )}
-      </div>
-    </div>
+        <ProductDetails
+          product={product}
+          currentValue={currentValue}
+          expectedAnnualReturn={expectedAnnualReturn}
+          formatCurrency={formatCurrency}
+        />
+      </Card.Content>
+    </Card>
   );
 }

@@ -37,7 +37,7 @@ interface PerformerItem {
   type: 'YAHOO_FINANCE' | 'CUSTOM';
 }
 
-interface DashboardChartsGridProps {
+export interface DashboardChartsGridProps {
   evolutionData: Array<{ date: string; value: number }>;
   monthlyWealthData: Array<{ month: string; value: number }>;
   dailyChanges: Array<{ date: string; change: number }>;
@@ -74,10 +74,10 @@ export function DashboardChartsGrid({
   performersData,
 }: DashboardChartsGridProps) {
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
+    <div className="flex flex-col gap-4 sm:gap-6">
       <MonthlyWealthChart data={monthlyWealthData} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <PortfolioEvolutionChart data={evolutionData} />
         <InvestedVsValueChart
           evolution={evolutionData}
@@ -87,12 +87,12 @@ export function DashboardChartsGrid({
 
       <MonthlyContributionsChart data={monthlyContributions} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DailyChangesChart data={dailyChanges} />
         <RollingReturnChart data={evolutionData} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <PortfolioAllocationChart data={allocationData} />
         <AllocationByCategoryChart data={categoryAllocation} />
       </div>
@@ -101,12 +101,12 @@ export function DashboardChartsGrid({
 
       <LiquidityCurveChart data={liquidityCurve} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <TopPerformers performers={performersData} />
         <ContributionChart data={performersData} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <DrawdownChart data={evolutionData} />
         <ReturnsDistributionChart data={evolutionData} />
       </div>

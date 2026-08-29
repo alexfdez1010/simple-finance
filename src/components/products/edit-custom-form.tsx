@@ -13,9 +13,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { updateCustomProductAction } from '@/lib/actions/product-actions';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
-import { FormError } from '@/components/products/form-actions';
+import { FormError, LoadingButton } from '@/components/products/form-actions';
 import { currencySymbol } from '@/components/products/currency-options';
 import { CustomContributions } from '@/components/products/custom-contributions';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
@@ -53,6 +52,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
   const currency = product.custom.currency;
   const symbol = currencySymbol(currency);
 
+  /** Updates one editable custom-product field immutably. */
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
 
@@ -137,20 +137,24 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
 
           <FormError error={error} />
 
-          <Button type="submit" disabled={submitting}>
-            {submitting ? 'Updating...' : 'Update Product'}
-          </Button>
+          <LoadingButton
+            type="submit"
+            loading={submitting}
+            loadingText="Updating..."
+          >
+            Update Product
+          </LoadingButton>
         </FieldGroup>
       </form>
 
-      <div className="border-t border-border pt-4">
+      <section className="border-t border-border pt-4">
         <CustomContributions
           customProductDataId={product.custom.id}
           currency={currency}
           contributions={product.custom.contributions}
           onChanged={() => router.refresh()}
         />
-      </div>
+      </section>
     </div>
   );
 }

@@ -19,6 +19,22 @@ export async function openProductsTab(page: Page): Promise<void> {
 }
 
 /**
+ * Chooses one option from a HeroUI select by its accessible label.
+ *
+ * @param page - Playwright page containing the select.
+ * @param label - Exact accessible label of the select trigger.
+ * @param option - Exact accessible name of the option to choose.
+ */
+export async function selectHeroOption(
+  page: Page,
+  label: string,
+  option: string,
+): Promise<void> {
+  await page.getByLabel(label, { exact: true }).click();
+  await page.getByRole('option', { name: option, exact: true }).click();
+}
+
+/**
  * Clean all products from the database
  * Use this in beforeEach hooks to ensure test isolation
  */

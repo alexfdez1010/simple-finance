@@ -1,23 +1,17 @@
-/**
- * Skeleton loading component for progressive UI loading
- * @module components/ui/skeleton
- */
-
+import { Skeleton as HeroSkeleton, type SkeletonProps } from '@heroui/react';
 import { cn } from '@/lib/utils';
 
 /**
- * Skeleton component for loading placeholders
+ * Renders a quiet HeroUI loading placeholder.
  *
- * @param props - Standard div props with optional className
- * @returns Animated skeleton placeholder element
+ * @param props - HeroUI skeleton properties.
+ * @returns An accessible loading placeholder with restrained motion.
  */
-function Skeleton({
-  className,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+function Skeleton({ className, ...props }: SkeletonProps) {
   return (
-    <div
-      className={cn('animate-pulse rounded-md bg-muted', className)}
+    <HeroSkeleton
+      animationType="pulse"
+      className={cn('rounded-md bg-surface-secondary', className)}
       {...props}
     />
   );

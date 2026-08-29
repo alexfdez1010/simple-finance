@@ -11,25 +11,20 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Modal } from '@heroui/react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  ProductHistoryChart,
-  type HistoryChartPoint,
-} from '@/components/products/product-history-chart';
+import { ProductHistoryChart } from '@/components/products/product-history-chart';
 import {
   getProductHistoryAction,
   type ProductHistoryResult,
 } from '@/lib/actions/history-actions';
-import { simulateYahooFuture } from '@/lib/domain/services/simulate-yahoo-future';
+import {
+  buildHistoryChartData,
+  HORIZON_OPTIONS,
+  type HorizonYears,
+} from '@/components/products/history-chart-data';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 
@@ -37,49 +32,6 @@ interface Props {
   product: FinancialProduct | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-const HORIZON_OPTIONS = [0, 1, 5, 10] as const;
-type HorizonYears = (typeof HORIZON_OPTIONS)[number];
-
-/**
- * Builds the merged actual + projected series for the chart. The last
- * actual point is duplicated into `projected` so the dashed line picks up
- * exactly where the solid line ends, with no visual gap.
- *
- * Both Yahoo and custom products project forward by compounding the latest
- * EUR value at `expectedAnnualReturn` (the 5y geomean for Yahoo, the
- * yield+FX-geomean compound for custom).
- */
-function buildChartData(
-  data: ProductHistoryResult,
-  horizon: HorizonYears,
-): HistoryChartPoint[] {
-  const actual: HistoryChartPoint[] = data.history.map((p) => ({
-    date: p.date,
-    actual: p.value,
-    projected: null,
-  }));
-  if (horizon === 0) return actual;
-  const lastActual = actual[actual.length - 1];
-  if (!lastActual) return actual;
-  const startDate = new Date(lastActual.date);
-
-  const sim = simulateYahooFuture(
-    lastActual.actual ?? 0,
-    data.expectedAnnualReturn,
-    horizon,
-    startDate,
-  );
-
-  if (sim.length === 0) return actual;
-  lastActual.projected = lastActual.actual;
-  const tail = sim.slice(1).map((s) => ({
-    date: s.date,
-    actual: null,
-    projected: s.value,
-  }));
-  return [...actual, ...tail];
 }
 
 /**
@@ -92,18 +44,30 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
   const { format } = useDisplayCurrency();
   const [data, setData] = useState<ProductHistoryResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [horizon, setHorizon] = useState<HorizonYears>(0);
 
   useEffect(() => {
     if (!open || !product) return;
     let cancelled = false;
-    setLoading(true);
-    setData(null);
-    setHorizon(0);
-    getProductHistoryAction(product.id).then((res) => {
+    queueMicrotask(() => {
       if (cancelled) return;
-      setData(res);
-      setLoading(false);
+      setLoading(true);
+      setData(null);
+      setLoadError(null);
+      setHorizon(0);
+      getProductHistoryAction(product.id)
+        .then((result) => {
+          if (cancelled) return;
+          if (!result) setLoadError('History could not be loaded.');
+          setData(result);
+        })
+        .catch(() => {
+          if (!cancelled) setLoadError('History could not be loaded.');
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
     });
     return () => {
       cancelled = true;
@@ -111,7 +75,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
   }, [open, product]);
 
   const merged = useMemo(
-    () => (data ? buildChartData(data, horizon) : []),
+    () => (data ? buildHistoryChartData(data, horizon) : []),
     [data, horizon],
   );
 
@@ -123,55 +87,76 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
     (data?.history.length ?? 0) >= 1 && data?.expectedAnnualReturn != null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[720px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <DialogTitle className="font-serif text-xl">
-              {product.name}
-            </DialogTitle>
-            <Badge variant="secondary">
-              {isCustom ? product.custom.currency : product.yahoo.symbol}
-            </Badge>
-          </div>
-          <DialogDescription>
-            Daily value stored in EUR; rendered in your selected display
-            currency.
-          </DialogDescription>
-        </DialogHeader>
-
-        {loading || !data ? (
-          <Skeleton className="h-[260px] w-full" />
-        ) : data.history.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-10 text-center">
-            No snapshots yet. The first one is written by tomorrow&apos;s daily
-            cron.
-          </p>
-        ) : (
-          <>
-            <div className="flex items-baseline justify-between flex-wrap gap-2">
-              <p className="text-2xl font-bold tabular-nums">
-                {format(lastActual)}
+    <Modal>
+      <Modal.Backdrop
+        isOpen={open}
+        onOpenChange={onOpenChange}
+        variant="opaque"
+      >
+        <Modal.Container placement="center" scroll="inside" size="lg">
+          <Modal.Dialog className="rounded-xl">
+            <Modal.CloseTrigger aria-label="Close" />
+            <Modal.Header className="pb-2">
+              <div className="flex items-center gap-2">
+                <Modal.Heading className="truncate font-serif text-xl tracking-tight">
+                  {product.name}
+                </Modal.Heading>
+                <Badge variant="secondary">
+                  {isCustom ? product.custom.currency : product.yahoo.symbol}
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Daily value in your display currency.
               </p>
-              {canProject && (
-                <div className="flex gap-1">
-                  {HORIZON_OPTIONS.map((h) => (
-                    <Button
-                      key={h}
-                      variant={horizon === h ? 'default' : 'ghost'}
-                      size="xs"
-                      onClick={() => setHorizon(h)}
-                    >
-                      {h === 0 ? 'Now' : `+${h}y`}
-                    </Button>
-                  ))}
+            </Modal.Header>
+            <Modal.Body className="pt-3">
+              {loading ? (
+                <div aria-label="Loading product history" role="status">
+                  <Skeleton className="h-[260px] w-full rounded-md" />
                 </div>
+              ) : loadError || !data ? (
+                <p
+                  className="py-12 text-center text-sm text-destructive"
+                  role="alert"
+                >
+                  {loadError ?? 'History could not be loaded.'}
+                </p>
+              ) : data.history.length === 0 ? (
+                <p className="py-12 text-center text-sm text-muted-foreground">
+                  No snapshots yet. The first appears after the next daily run.
+                </p>
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-baseline justify-between gap-3">
+                    <p className="text-2xl font-semibold tabular-nums">
+                      {format(lastActual)}
+                    </p>
+                    {canProject && (
+                      <div
+                        className="flex gap-1"
+                        aria-label="Projection horizon"
+                      >
+                        {HORIZON_OPTIONS.map((years) => (
+                          <Button
+                            key={years}
+                            variant={horizon === years ? 'default' : 'ghost'}
+                            size="xs"
+                            aria-pressed={horizon === years}
+                            onClick={() => setHorizon(years)}
+                          >
+                            {years === 0 ? 'Now' : `+${years}y`}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <ProductHistoryChart data={merged} splitDate={splitDate} />
+                </>
               )}
-            </div>
-            <ProductHistoryChart data={merged} splitDate={splitDate} />
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 }

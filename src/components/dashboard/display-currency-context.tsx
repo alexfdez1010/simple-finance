@@ -12,9 +12,8 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useMemo,
-  useState,
+  useSyncExternalStore,
   type ReactNode,
 } from 'react';
 import {
@@ -24,6 +23,7 @@ import {
 } from '@/lib/utils/format-currency';
 
 const STORAGE_KEY = 'display-currency';
+const CURRENCY_CHANGE_EVENT = 'simple-finance:currency-change';
 const SUPPORTED: DisplayCurrency[] = ['EUR', 'USD', 'BTC', 'ETH', 'XAUT'];
 
 interface DisplayCurrencyContextValue {
@@ -35,6 +35,31 @@ interface DisplayCurrencyContextValue {
 }
 
 const Ctx = createContext<DisplayCurrencyContextValue | null>(null);
+
+/** Reads a valid locally persisted currency, falling back to EUR. */
+function readStoredCurrency(): DisplayCurrency {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY) as DisplayCurrency | null;
+    return saved && SUPPORTED.includes(saved) ? saved : 'EUR';
+  } catch {
+    return 'EUR';
+  }
+}
+
+/** Returns the deterministic server snapshot used during hydration. */
+function readServerCurrency(): DisplayCurrency {
+  return 'EUR';
+}
+
+/** Subscribes to currency changes in this tab and in other browser tabs. */
+function subscribeToCurrency(callback: () => void): () => void {
+  window.addEventListener('storage', callback);
+  window.addEventListener(CURRENCY_CHANGE_EVENT, callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener(CURRENCY_CHANGE_EVENT, callback);
+  };
+}
 
 interface ProviderProps {
   rates: Record<DisplayCurrency, number>;
@@ -48,17 +73,16 @@ interface ProviderProps {
  * @returns Provider element
  */
 export function DisplayCurrencyProvider({ rates, children }: ProviderProps) {
-  const [currency, setCurrencyState] = useState<DisplayCurrency>('EUR');
-
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY) as DisplayCurrency | null;
-    if (saved && SUPPORTED.includes(saved)) setCurrencyState(saved);
-  }, []);
+  const currency = useSyncExternalStore(
+    subscribeToCurrency,
+    readStoredCurrency,
+    readServerCurrency,
+  );
 
   const setCurrency = useCallback((c: DisplayCurrency) => {
-    setCurrencyState(c);
     try {
       localStorage.setItem(STORAGE_KEY, c);
+      window.dispatchEvent(new Event(CURRENCY_CHANGE_EVENT));
     } catch {
       // Ignore storage failures (private mode, quota, etc.)
     }

@@ -2,9 +2,8 @@
 'use client';
 
 import { useState } from 'react';
-import { ProductCard } from '@/components/products/product-card';
-import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
+import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
 import { AddProductDialog } from '@/components/products/add-product-dialog';
 import { EditProductDialog } from '@/components/products/edit-product-dialog';
 import { DeleteProductDialog } from '@/components/products/delete-product-dialog';
@@ -12,12 +11,7 @@ import { ProductHistoryDialog } from '@/components/products/product-history-dial
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import { calculateProfitRatesSync } from '@/lib/domain/services/profit-rate-calculator';
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
-import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
-import { DashboardChartsGrid } from '@/components/dashboard/dashboard-charts-grid';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DisplayCurrencyProvider } from '@/components/dashboard/display-currency-context';
-import { SkillTab } from '@/components/dashboard/skill-tab';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
 import type {
   ProductWithValue,
@@ -71,13 +65,17 @@ export function DashboardClient({
     null,
   );
 
+  /** Deletes the selected product and closes the confirmation dialog. */
   const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     const result = await deleteProductAction(deleteTarget.id);
-    if (!result.success) console.error(result.error || 'Failed to delete');
+    if (!result.success) {
+      throw new Error(result.error || 'Failed to delete');
+    }
     setDeleteTarget(null);
   };
 
+  /** Opens the add dialog on the requested product source. */
   const openAddDialog = (tab: 'yahoo' | 'custom') => {
     setAddDialogTab(tab);
     setAddDialogOpen(true);
@@ -103,100 +101,35 @@ export function DashboardClient({
         onAddYahoo={() => openAddDialog('yahoo')}
         onAddCustom={() => openAddDialog('custom')}
       />
-      <div className="flex flex-col gap-6 sm:gap-8">
-        <Section delay="100ms" title="Portfolio Overview">
-          <PortfolioStats
-            totalValue={stats.totalValue}
-            totalReturn={totalReturn}
-            totalReturnPercentage={totalReturnPct}
-            totalInvestment={stats.totalInvestment}
-            productCount={stats.productCount}
-            profitRates={profitRates}
-            dailyChange={dailyChange}
-          />
-        </Section>
-
-        <Tabs
-          defaultValue="charts"
-          className="animate-fade-up"
-          style={{ animationDelay: '200ms' }}
-        >
-          <TabsList className="mx-auto mb-4 h-12 rounded-xl p-1.5">
-            <TabsTrigger
-              value="charts"
-              className="px-8 text-base font-semibold"
-            >
-              Charts
-            </TabsTrigger>
-            <TabsTrigger
-              value="products"
-              className="px-8 text-base font-semibold"
-            >
-              Products
-            </TabsTrigger>
-            <TabsTrigger value="skill" className="px-8 text-base font-semibold">
-              Skill
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="charts">
-            <DashboardChartsGrid
-              evolutionData={evolutionData}
-              monthlyWealthData={monthlyWealthData}
-              dailyChanges={dailyChanges}
-              monthlyContributions={monthlyContributions}
-              investedSeries={investedSeries}
-              allocationData={allocationData}
-              currencyAllocation={currencyAllocation}
-              categoryAllocation={categoryAllocation}
-              liquidityCurve={liquidityCurve}
-              performersData={performersData}
-            />
-          </TabsContent>
-
-          <TabsContent value="skill">
-            <SkillTab
-              serverUrl={skill.serverUrl}
-              token={skill.token}
-              mcpJson={skill.mcpJson}
-              tokenEnvVar={skill.tokenEnvVar}
-            />
-          </TabsContent>
-
-          <TabsContent value="products">
-            {productsWithValues.length === 0 ? (
-              <div className="text-center py-16 glass-card rounded-2xl bg-card">
-                <p className="text-muted-foreground mb-4">
-                  No products yet. Add your first product to get started!
-                </p>
-                <Button
-                  onClick={() => openAddDialog('yahoo')}
-                  className="rounded-xl"
-                >
-                  <Plus data-icon="inline-start" />
-                  Add Product
-                </Button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {productsWithValues.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    currentValue={product.currentValue}
-                    currentValueEur={product.currentValueEur}
-                    investedEur={product.investedEur}
-                    expectedAnnualReturn={product.expectedAnnualReturn}
-                    onEdit={setEditProduct}
-                    onDelete={setDeleteTarget}
-                    onView={setHistoryTarget}
-                  />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
+      <DashboardTabs
+        products={productsWithValues}
+        stats={{
+          totalValue: stats.totalValue,
+          totalReturn,
+          totalReturnPercentage: totalReturnPct,
+          totalInvestment: stats.totalInvestment,
+          productCount: stats.productCount,
+          profitRates,
+          dailyChange,
+        }}
+        charts={{
+          evolutionData,
+          monthlyWealthData,
+          dailyChanges,
+          monthlyContributions,
+          investedSeries,
+          allocationData,
+          currencyAllocation,
+          categoryAllocation,
+          liquidityCurve,
+          performersData,
+        }}
+        skill={skill}
+        onAddProduct={() => openAddDialog('yahoo')}
+        onEditProduct={setEditProduct}
+        onDeleteProduct={setDeleteTarget}
+        onViewProduct={setHistoryTarget}
+      />
 
       <AddProductDialog
         open={addDialogOpen}
@@ -220,28 +153,5 @@ export function DashboardClient({
         product={historyTarget}
       />
     </DisplayCurrencyProvider>
-  );
-}
-
-/** Section wrapper with title and animation delay */
-function Section({
-  delay,
-  title,
-  children,
-}: {
-  delay: string;
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="animate-fade-up" style={{ animationDelay: delay }}>
-      <div className="mb-5 flex items-baseline gap-4">
-        <h2 className="font-serif text-2xl sm:text-3xl text-foreground tracking-tight">
-          {title}
-        </h2>
-        <div className="flex-1 hairline" />
-      </div>
-      {children}
-    </div>
   );
 }

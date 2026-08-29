@@ -106,7 +106,7 @@ test.describe('Edit Product', () => {
 
     // Hover over card to reveal edit button, then click
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: originalName })
       .first();
     await productCard.hover();
@@ -150,7 +150,7 @@ test.describe('Edit Product', () => {
     await openProductsTab(page);
 
     const updatedCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: updatedName })
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });
@@ -168,7 +168,7 @@ test.describe('Edit Product', () => {
 
     // Hover and click edit
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: originalName })
       .first();
     await productCard.hover();
@@ -204,7 +204,7 @@ test.describe('Edit Product', () => {
     await openProductsTab(page);
 
     const updatedCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: updatedName })
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });
@@ -220,7 +220,7 @@ test.describe('Edit Product', () => {
     await createCustomProduct(page, productName, '5.5', '1000', '2024-01-01');
 
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
 
@@ -239,7 +239,7 @@ test.describe('Edit Product', () => {
 
     // Open edit dialog
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: originalName })
       .first();
     await productCard.hover();
@@ -257,7 +257,7 @@ test.describe('Edit Product', () => {
     await page.reload({ waitUntil: 'networkidle' });
     await openProductsTab(page);
     const unchangedCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: originalName })
       .first();
     await expect(unchangedCard).toBeVisible({ timeout: 15000 });
@@ -273,7 +273,7 @@ test.describe('Edit Product', () => {
 
     // Hover and click delete
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await productCard.hover();
@@ -316,7 +316,7 @@ test.describe('Edit Product', () => {
 
     // Hover and click delete
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await productCard.hover();
@@ -346,7 +346,7 @@ test.describe('Edit Product', () => {
     await createCustomProduct(page, productName, '5.5', '1000', '2024-01-01');
 
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await productCard.hover();
@@ -382,7 +382,7 @@ test.describe('Edit Product', () => {
 
     // Verify it shows MSFT badge
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await expect(productCard).toContainText('MSFT');
@@ -404,7 +404,7 @@ test.describe('Edit Product', () => {
 
     // Verify it's still a Yahoo Finance product
     const updatedCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await expect(updatedCard).toBeVisible({ timeout: 15000 });

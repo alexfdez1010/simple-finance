@@ -16,25 +16,20 @@ const geistMono = Geist_Mono({
 });
 
 const instrumentSerif = Instrument_Serif({
-  variable: '--font-serif',
+  variable: '--font-instrument-serif',
   weight: '400',
   subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: 'Simple Finance - Portfolio Tracker',
-  description: 'Track your financial products and portfolio performance',
+  title: 'Simple Finance',
+  description: 'A private view of your portfolio and its performance.',
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f5f0eb' },
-    { media: '(prefers-color-scheme: dark)', color: '#1a1a2e' },
-  ],
+  themeColor: '#f7f5f2',
 };
 
 export default async function RootLayout({
@@ -47,12 +42,15 @@ export default async function RootLayout({
   const isAuthPage = pathname === '/auth';
 
   return (
-    <html lang="en">
+    <html lang="en" data-theme="light">
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
       >
-        <div className="aurora" aria-hidden />
-        <div className="grain" aria-hidden />
+        {!isAuthPage && (
+          <a className="skip-link" href="#main-content">
+            Skip to content
+          </a>
+        )}
         {isAuthPage ? (
           children
         ) : (

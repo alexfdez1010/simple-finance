@@ -8,7 +8,7 @@
 
 'use client';
 
-import { Pencil, Trash2 } from 'lucide-react';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import type { CustomContribution } from '@/lib/domain/models/product.types';
 
@@ -50,7 +50,7 @@ export function ContributionRow({
           disabled={busy}
           aria-label="Edit movement"
         >
-          <Pencil />
+          <PencilSimple aria-hidden size={16} weight="bold" />
         </Button>
         <Button
           type="button"
@@ -61,7 +61,7 @@ export function ContributionRow({
           aria-label="Delete movement"
           className="text-destructive hover:text-destructive"
         >
-          <Trash2 />
+          <Trash aria-hidden size={16} weight="bold" />
         </Button>
       </div>
     </>

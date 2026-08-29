@@ -1,92 +1,85 @@
-import * as React from 'react';
+'use client';
 
+import { Card as HeroCard } from '@heroui/react';
 import { cn } from '@/lib/utils';
 
-function Card({ className, ...props }: React.ComponentProps<'div'>) {
+/** Renders a flat HeroUI financial surface. */
+function Card({ className, ...props }: React.ComponentProps<typeof HeroCard>) {
   return (
-    <div
-      data-slot="card"
+    <HeroCard
       className={cn(
-        'glass-card gradient-border beam lift relative bg-card text-card-foreground flex flex-col gap-6 rounded-xl py-6 shadow-sm',
+        'finance-card rounded-xl bg-surface py-0 text-foreground',
         className,
       )}
+      variant="default"
       {...props}
     />
   );
 }
 
-function CardHeader({ className, ...props }: React.ComponentProps<'div'>) {
+/** Renders the structured header of a financial card. */
+function CardHeader({
+  className,
+  ...props
+}: React.ComponentProps<typeof HeroCard.Header>) {
   return (
-    <div
-      data-slot="card-header"
-      className={cn(
-        '@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-2 px-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6',
-        className,
-      )}
-      {...props}
-    />
+    <HeroCard.Header className={cn('gap-1 p-5 pb-3', className)} {...props} />
   );
 }
 
-function CardTitle({ className, ...props }: React.ComponentProps<'div'>) {
+/** Renders a semantic HeroUI card heading. */
+function CardTitle({
+  className,
+  ...props
+}: React.ComponentProps<typeof HeroCard.Title>) {
   return (
-    <div
-      data-slot="card-title"
-      className={cn('leading-none font-semibold', className)}
+    <HeroCard.Title
+      className={cn('text-base font-semibold', className)}
       {...props}
     />
   );
 }
 
-function CardDescription({ className, ...props }: React.ComponentProps<'div'>) {
+/** Renders secondary explanatory text within a card header. */
+function CardDescription({
+  className,
+  ...props
+}: React.ComponentProps<typeof HeroCard.Description>) {
   return (
-    <div
-      data-slot="card-description"
-      className={cn('text-muted-foreground text-sm', className)}
+    <HeroCard.Description
+      className={cn('text-xs text-muted', className)}
       {...props}
     />
   );
 }
 
+/** Renders the main content region of a HeroUI card. */
+function CardContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof HeroCard.Content>) {
+  return <HeroCard.Content className={cn('px-5 pb-5', className)} {...props} />;
+}
+
+/** Renders an aligned footer region for card actions. */
+function CardFooter({
+  className,
+  ...props
+}: React.ComponentProps<typeof HeroCard.Footer>) {
+  return <HeroCard.Footer className={cn('px-5 pb-5', className)} {...props} />;
+}
+
+/** Renders a right-aligned card action without adding another surface. */
 function CardAction({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="card-action"
-      className={cn(
-        'col-start-2 row-span-2 row-start-1 self-start justify-self-end',
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-function CardContent({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="card-content"
-      className={cn('px-6', className)}
-      {...props}
-    />
-  );
-}
-
-function CardFooter({ className, ...props }: React.ComponentProps<'div'>) {
-  return (
-    <div
-      data-slot="card-footer"
-      className={cn('flex items-center px-6 [.border-t]:pt-6', className)}
-      {...props}
-    />
-  );
+  return <div className={cn('ml-auto self-start', className)} {...props} />;
 }
 
 export {
   Card,
-  CardHeader,
-  CardFooter,
-  CardTitle,
   CardAction,
-  CardDescription,
   CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 };

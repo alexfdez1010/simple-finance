@@ -67,7 +67,7 @@ export function DrawdownChart({ data }: DrawdownChartProps) {
 
   if (data.length === 0) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">Drawdown</CardTitle>
           <CardDescription>
@@ -86,7 +86,7 @@ export function DrawdownChart({ data }: DrawdownChartProps) {
   const atPeak = current >= -0.05;
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div>

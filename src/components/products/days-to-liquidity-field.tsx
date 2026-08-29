@@ -33,10 +33,11 @@ export function DaysToLiquidityField({
         placeholder="0"
         step="1"
         min="0"
+        aria-describedby={`${id}-description`}
         required
       />
-      <p className="text-[11px] text-muted-foreground">
-        Days needed to convert this asset to cash (0 = instantly liquid).
+      <p id={`${id}-description`} className="text-xs text-muted-foreground">
+        0 means immediately available.
       </p>
     </Field>
   );

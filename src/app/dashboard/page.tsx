@@ -132,8 +132,8 @@ async function DashboardContent() {
  */
 export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[oklch(0.97_0.008_80)] via-[oklch(0.96_0.015_240)] to-[oklch(0.95_0.02_280)] dark:from-slate-950 dark:via-[oklch(0.15_0.02_260)] dark:to-[oklch(0.13_0.025_280)]">
-      <div className="container mx-auto px-4 py-6 sm:py-8 max-w-7xl">
+    <main id="main-content" className="app-shell">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
         <Suspense
           fallback={
             <div className="space-y-6 sm:space-y-8">
@@ -150,6 +150,6 @@ export default function DashboardPage() {
           <DashboardContent />
         </Suspense>
       </div>
-    </div>
+    </main>
   );
 }

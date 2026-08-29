@@ -8,6 +8,7 @@
 import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChartContainer } from '@/components/ui/chart';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
 interface AllocationItem {
@@ -50,11 +51,9 @@ function CustomTooltip({
   const item = payload[0].payload;
 
   return (
-    <div className="glass-card bg-card p-3 rounded-xl shadow-lg">
+    <div className="rounded-md border border-border bg-overlay p-3 shadow-sm">
       <p className="text-xs font-semibold text-foreground mb-1">{item.name}</p>
-      <p className="text-sm text-primary font-bold tabular-nums">
-        {format(item.value)}
-      </p>
+      <p className="text-sm font-semibold tabular-nums">{format(item.value)}</p>
       <p className="text-xs text-muted-foreground">{item.pct.toFixed(1)}%</p>
     </div>
   );
@@ -80,22 +79,27 @@ export function PortfolioAllocationChart({
 
   if (chartData.length === 0) {
     return (
-      <div className="glass-card rounded-2xl bg-card p-5 shadow-sm">
-        <h3 className="font-serif text-lg text-foreground mb-4">Allocation</h3>
-        <div className="h-[200px] flex items-center justify-center">
-          <p className="text-muted-foreground text-sm">No products yet.</p>
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="font-serif text-lg">Allocation</CardTitle>
+        </CardHeader>
+        <CardContent className="flex h-[200px] items-center justify-center text-sm text-muted">
+          No products yet.
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="glass-card rounded-2xl bg-card shadow-sm px-4 sm:px-6 pt-5 pb-4">
-      <h3 className="font-serif text-lg text-foreground mb-2 px-1">
-        Portfolio Allocation
-      </h3>
-      <div className="flex flex-col sm:flex-row items-center gap-4">
+    <Card>
+      <CardHeader>
+        <CardTitle className="font-serif text-lg">
+          Portfolio Allocation
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex flex-col items-center gap-4 sm:flex-row">
         <ChartContainer
+          aria-label="Portfolio allocation by product"
           className="h-[200px] w-[200px] shrink-0"
           config={{ value: { label: 'Value', color: 'var(--chart-1)' } }}
         >
@@ -120,7 +124,6 @@ export function PortfolioAllocationChart({
           </ResponsiveContainer>
         </ChartContainer>
 
-        {/* Legend */}
         <div className="flex flex-col gap-1.5 w-full min-w-0 max-h-[200px] overflow-y-auto">
           {chartData.map((item, i) => (
             <div key={item.name} className="flex items-center gap-2 min-w-0">
@@ -137,7 +140,7 @@ export function PortfolioAllocationChart({
             </div>
           ))}
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }

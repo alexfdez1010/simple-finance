@@ -5,14 +5,15 @@
 
 'use client';
 
+import { Card } from '@heroui/react';
 import {
-  TrendingUp,
-  TrendingDown,
-  Wallet,
+  ChartBar,
   Package,
   PiggyBank,
-  BarChart3,
-} from 'lucide-react';
+  TrendDown,
+  TrendUp,
+  Wallet,
+} from '@phosphor-icons/react';
 import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
@@ -54,66 +55,85 @@ export function PortfolioStats({
 }: PortfolioStatsProps) {
   const { format: formatCurrency } = useDisplayCurrency();
   const isPositive = totalReturn >= 0;
-  const TrendIcon = isPositive ? TrendingUp : TrendingDown;
+  const TrendIcon = isPositive ? TrendUp : TrendDown;
   const isDailyPositive = dailyChange >= 0;
 
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
+    <section
+      aria-label="Portfolio summary"
+      className="grid grid-cols-2 gap-3 md:grid-cols-6 lg:grid-cols-12"
+    >
       <StatCard
-        icon={<Wallet className="w-3.5 h-3.5" />}
+        className="col-span-2 md:col-span-3 lg:col-span-4"
+        icon={<Wallet aria-hidden size={16} weight="duotone" />}
         label="Total Value"
         featured
       >
-        <p className="display-number text-xl sm:text-3xl font-semibold font-serif text-foreground">
+        <p className="display-number font-serif text-3xl font-semibold text-foreground sm:text-4xl">
           {formatCurrency(totalValue)}
         </p>
       </StatCard>
 
-      <StatCard icon={<PiggyBank className="w-3.5 h-3.5" />} label="Invested">
-        <p className="display-number text-xl sm:text-3xl font-semibold font-serif text-foreground">
+      <StatCard
+        className="md:col-span-3 lg:col-span-2"
+        icon={<PiggyBank aria-hidden size={16} weight="duotone" />}
+        label="Invested"
+      >
+        <p className="display-number font-serif text-2xl font-semibold text-foreground">
           {formatCurrency(totalInvestment)}
         </p>
       </StatCard>
 
       <StatCard
-        icon={<TrendIcon className="w-3.5 h-3.5" />}
+        className="md:col-span-2 lg:col-span-2"
+        icon={<TrendIcon aria-hidden size={16} weight="duotone" />}
         label="Return"
         tone={isPositive ? 'gain' : 'loss'}
       >
         <p
-          className={`display-number text-xl sm:text-3xl font-semibold font-serif ${isPositive ? 'text-gain' : 'text-loss'}`}
+          className={`display-number font-serif text-2xl font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}
         >
           {formatCurrency(totalReturn)}
         </p>
         <span
-          className={`text-xs sm:text-sm font-medium tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
+          className={`text-xs font-medium tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
         >
           {formatPercentage(totalReturnPercentage)}
         </span>
       </StatCard>
 
       <StatCard
-        icon={<BarChart3 className="w-3.5 h-3.5" />}
+        className="md:col-span-2 lg:col-span-2"
+        icon={<ChartBar aria-hidden size={16} weight="duotone" />}
         label="Today"
         tone={isDailyPositive ? 'gain' : 'loss'}
       >
         <p
-          className={`display-number text-xl sm:text-3xl font-semibold font-serif ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
+          className={`display-number font-serif text-2xl font-semibold ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
         >
           {formatCurrency(dailyChange)}
         </p>
       </StatCard>
 
-      <StatCard icon={<Package className="w-3.5 h-3.5" />} label="Products">
-        <p className="display-number text-xl sm:text-3xl font-semibold font-serif text-foreground">
+      <StatCard
+        className="md:col-span-2 lg:col-span-2"
+        icon={<Package aria-hidden size={16} weight="duotone" />}
+        label="Products"
+      >
+        <p className="display-number font-serif text-2xl font-semibold text-foreground">
           {productCount}
         </p>
       </StatCard>
 
-      <div className="glass-card gradient-border beam lift relative rounded-2xl bg-card shadow-sm col-span-2 sm:col-span-1">
-        <ProfitRateDisplay profitRates={profitRates} />
-      </div>
-    </div>
+      <Card
+        className="col-span-2 min-h-32 border border-border py-0 shadow-none md:col-span-6 lg:col-span-4"
+        variant="secondary"
+      >
+        <Card.Content className="h-full p-4 sm:p-5">
+          <ProfitRateDisplay profitRates={profitRates} />
+        </Card.Content>
+      </Card>
+    </section>
   );
 }
 
@@ -129,27 +149,33 @@ function StatCard({
   children,
   tone,
   featured,
+  className,
 }: {
   icon: React.ReactNode;
   label: string;
   children: React.ReactNode;
   tone?: 'gain' | 'loss';
   featured?: boolean;
+  className?: string;
 }) {
   const iconColor =
-    tone === 'gain' ? 'text-gain' : tone === 'loss' ? 'text-loss' : 'text-gold';
+    tone === 'gain'
+      ? 'text-gain'
+      : tone === 'loss'
+        ? 'text-loss'
+        : 'text-muted-foreground';
   return (
-    <div
-      className={`glass-card gradient-border beam lift relative rounded-2xl bg-card p-4 sm:p-5 shadow-sm overflow-hidden ${featured ? 'ring-1 ring-[oklch(0.68_0.13_78/25%)]' : ''}`}
+    <Card
+      className={`min-h-32 border border-border py-0 shadow-none ${featured ? 'bg-surface-secondary' : ''} ${className ?? ''}`}
+      variant={featured ? 'secondary' : 'default'}
     >
-      <div className="flex items-center gap-2 mb-3">
-        <span className={`${iconColor}`}>{icon}</span>
-        <p className="eyebrow !text-[0.62rem] !tracking-[0.2em] text-muted-foreground">
-          {label}
-        </p>
-      </div>
-      <div className="hairline mb-3 opacity-60" />
-      {children}
-    </div>
+      <Card.Content className="flex h-full flex-col justify-between p-4 sm:p-5">
+        <div className="mb-4 flex items-center gap-2">
+          <span className={`${iconColor}`}>{icon}</span>
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        </div>
+        <div>{children}</div>
+      </Card.Content>
+    </Card>
   );
 }

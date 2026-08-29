@@ -5,7 +5,11 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase, openProductsTab } from './test-helpers';
+import {
+  cleanDatabase,
+  openProductsTab,
+  selectHeroOption,
+} from './test-helpers';
 
 /**
  * Test suite for custom product creation flow
@@ -41,7 +45,7 @@ test.describe('Add Custom Product', () => {
     await page.getByLabel('Annual Rate (%)').fill('5.5');
 
     // Select currency (default is EUR)
-    await page.getByLabel('Currency', { exact: true }).selectOption('EUR');
+    await selectHeroOption(page, 'Currency', 'EUR (€)');
 
     // Fill in the initial investment
     await page.locator('#custom-investment').fill('10000');
@@ -71,12 +75,12 @@ test.describe('Add Custom Product', () => {
 
     // Verify product card displays key information
     const productCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
-    await expect(productCard).toContainText('Annual Rate');
-    await expect(productCard).toContainText('Expected Return');
-    await expect(productCard).toContainText('Investment');
+    await expect(productCard).toContainText('Annual rate');
+    await expect(productCard).toContainText('Expected return');
+    await expect(productCard).toContainText('Net investment');
     await expect(productCard).toContainText('Currency');
   });
 
@@ -113,7 +117,7 @@ test.describe('Add Custom Product', () => {
       timeout: 15000,
     });
     const highYieldCard = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await expect(highYieldCard.getByText(/15\.75%/).first()).toBeVisible();

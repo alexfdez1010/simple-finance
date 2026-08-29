@@ -11,13 +11,14 @@ import {
   createYahooProduct,
 } from '@/lib/actions/product-actions';
 import { type YahooQuote } from '@/lib/infrastructure/yahoo-finance/server-client';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
-import { SymbolValidator } from '@/components/products/symbol-validator';
-import { FormError } from '@/components/products/form-actions';
+import { FieldGroup } from '@/components/ui/field';
+import { FormError, LoadingButton } from '@/components/products/form-actions';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
 import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
+import {
+  YahooProductFields,
+  type YahooProductFormData,
+} from '@/components/products/yahoo-product-fields';
 import {
   DEFAULT_ASSET_CATEGORY,
   type AssetCategory,
@@ -34,7 +35,7 @@ interface YahooProductFormProps {
  * @returns Form element
  */
 export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<YahooProductFormData>({
     name: '',
     symbol: '',
     quantity: '',
@@ -51,8 +52,11 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
   const [quoteData, setQuoteData] = useState<YahooQuote | null>(null);
   const [validating, setValidating] = useState(false);
 
-  const update = (field: string, value: string) =>
+  /** Updates one Yahoo form field and invalidates symbol state when needed. */
+  const update = (field: keyof YahooProductFormData, value: string) => {
     setFormData({ ...formData, [field]: value });
+    if (field === 'symbol') setSymbolValidated(false);
+  };
 
   /** Validates the stock symbol via Yahoo Finance */
   const handleSymbolBlur = async () => {
@@ -123,82 +127,14 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
   return (
     <form onSubmit={handleSubmit}>
       <FieldGroup className="gap-4">
-        <Field>
-          <FieldLabel htmlFor="yahoo-symbol">Stock Symbol</FieldLabel>
-          <Input
-            id="yahoo-symbol"
-            value={formData.symbol}
-            onChange={(e) => {
-              update('symbol', e.target.value);
-              setSymbolValidated(false);
-            }}
-            onBlur={handleSymbolBlur}
-            disabled={validating}
-            className={symbolValidated ? 'ring-2 ring-gain border-gain' : ''}
-            style={{ textTransform: 'uppercase' }}
-            placeholder="AAPL"
-            required
-          />
-          <SymbolValidator
-            loading={validating}
-            validated={symbolValidated}
-            quoteData={quoteData}
-          />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="yahoo-name">Product Name</FieldLabel>
-          <Input
-            id="yahoo-name"
-            value={formData.name}
-            onChange={(e) => update('name', e.target.value)}
-            placeholder="Apple Stock"
-            required
-          />
-        </Field>
-
-        <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel htmlFor="yahoo-price">
-              Purchase Price (&euro;)
-            </FieldLabel>
-            <Input
-              id="yahoo-price"
-              type="number"
-              value={formData.purchasePrice}
-              onChange={(e) => update('purchasePrice', e.target.value)}
-              placeholder="150.25"
-              step="0.00001"
-              min="0.01"
-              required
-            />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="yahoo-qty">Quantity</FieldLabel>
-            <Input
-              id="yahoo-qty"
-              type="number"
-              value={formData.quantity}
-              onChange={(e) => update('quantity', e.target.value)}
-              placeholder="10"
-              step="0.0000001"
-              min="0"
-              required
-            />
-          </Field>
-        </div>
-
-        <Field>
-          <FieldLabel htmlFor="yahoo-date">Purchase Date</FieldLabel>
-          <Input
-            id="yahoo-date"
-            type="date"
-            value={formData.purchaseDate}
-            onChange={(e) => update('purchaseDate', e.target.value)}
-            max={new Date().toISOString().split('T')[0]}
-            required
-          />
-        </Field>
+        <YahooProductFields
+          data={formData}
+          validating={validating}
+          symbolValidated={symbolValidated}
+          quoteData={quoteData}
+          onChange={update}
+          onSymbolBlur={handleSymbolBlur}
+        />
 
         <AssetCategorySelect
           id="yahoo-category"
@@ -214,9 +150,14 @@ export function YahooProductForm({ onSuccess }: YahooProductFormProps) {
 
         <FormError error={error} />
 
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Adding...' : 'Add Product'}
-        </Button>
+        <LoadingButton
+          type="submit"
+          loading={loading}
+          loadingText="Adding..."
+          className="w-full"
+        >
+          Add Product
+        </LoadingButton>
       </FieldGroup>
     </form>
   );

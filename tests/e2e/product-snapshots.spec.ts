@@ -11,7 +11,11 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase, openProductsTab } from './test-helpers';
+import {
+  cleanDatabase,
+  openProductsTab,
+  selectHeroOption,
+} from './test-helpers';
 import { PrismaClient } from '../../generated/prisma';
 
 const prisma = new PrismaClient();
@@ -38,7 +42,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     await page.getByRole('tab', { name: 'Custom Product' }).click();
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('4');
-    await page.getByLabel('Currency', { exact: true }).selectOption('EUR');
+    await selectHeroOption(page, 'Currency', 'EUR (€)');
     await page.locator('#custom-investment').fill('1000');
     const oneYearAgo = new Date();
     oneYearAgo.setDate(oneYearAgo.getDate() - 365);
@@ -86,7 +90,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     await page.getByRole('tab', { name: 'Custom Product' }).click();
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('3');
-    await page.getByLabel('Currency', { exact: true }).selectOption('EUR');
+    await selectHeroOption(page, 'Currency', 'EUR (€)');
     await page.locator('#custom-investment').fill('500');
     await page
       .locator('#custom-date')
@@ -115,7 +119,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     await page.getByRole('tab', { name: 'Custom Product' }).click();
     await page.getByLabel('Product Name').fill(productName);
     await page.getByLabel('Annual Rate (%)').fill('5');
-    await page.getByLabel('Currency', { exact: true }).selectOption('EUR');
+    await selectHeroOption(page, 'Currency', 'EUR (€)');
     await page.locator('#custom-investment').fill('2000');
     await page
       .locator('#custom-date')
@@ -129,7 +133,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     await openProductsTab(page);
 
     const card = page
-      .locator('.glass-card.rounded-xl')
+      .getByTestId('product-card')
       .filter({ hasText: productName })
       .first();
     await card.hover();
@@ -137,8 +141,9 @@ test.describe('Per-product snapshots and history dialog', () => {
 
     // Dialog title carries the product name; horizon controls show the
     // simulation buttons because the seeded product is custom.
+    const dialog = page.getByRole('dialog');
     await expect(
-      page.getByRole('heading', { name: productName }),
+      dialog.getByRole('heading', { name: productName }),
     ).toBeVisible();
     await expect(page.getByRole('button', { name: '+1y' })).toBeVisible();
     await expect(page.getByRole('button', { name: '+5y' })).toBeVisible();

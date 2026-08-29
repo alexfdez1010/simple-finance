@@ -83,7 +83,7 @@ export function MonthlyContributionsChart({
 
   if (data.length === 0) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Monthly Contributions
@@ -98,7 +98,7 @@ export function MonthlyContributionsChart({
   }
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="font-serif text-lg">
           Monthly Contributions

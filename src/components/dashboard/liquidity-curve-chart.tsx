@@ -46,7 +46,7 @@ export function LiquidityCurveChart({ data }: LiquidityCurveChartProps) {
 
   if (data.length === 0) {
     return (
-      <Card className="glass-card">
+      <Card>
         <CardHeader>
           <CardTitle className="font-serif text-lg">
             Cash Availability
@@ -64,7 +64,7 @@ export function LiquidityCurveChart({ data }: LiquidityCurveChartProps) {
   const fullDays = data[data.length - 1]?.days ?? 0;
 
   return (
-    <Card className="glass-card">
+    <Card>
       <CardHeader className="pb-2">
         <CardTitle className="font-serif text-lg">Cash Availability</CardTitle>
         <CardDescription>

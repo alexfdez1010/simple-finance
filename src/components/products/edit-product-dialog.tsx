@@ -5,13 +5,7 @@
 
 'use client';
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+import { Modal } from '@heroui/react';
 import { Badge } from '@/components/ui/badge';
 import { EditYahooForm } from '@/components/products/edit-yahoo-form';
 import { EditCustomForm } from '@/components/products/edit-custom-form';
@@ -43,26 +37,38 @@ export function EditProductDialog({
   const isYahoo = product.type === 'YAHOO_FINANCE';
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <DialogTitle className="font-serif text-xl">
-              Edit Product
-            </DialogTitle>
-            <Badge variant="secondary">
-              {isYahoo ? 'Yahoo Finance' : 'Custom'}
-            </Badge>
-          </div>
-          <DialogDescription>{product.name}</DialogDescription>
-        </DialogHeader>
-
-        {isYahoo ? (
-          <EditYahooForm product={product} onSuccess={handleSuccess} />
-        ) : (
-          <EditCustomForm product={product} onSuccess={handleSuccess} />
-        )}
-      </DialogContent>
-    </Dialog>
+    <Modal>
+      <Modal.Backdrop
+        isOpen={open}
+        onOpenChange={onOpenChange}
+        variant="opaque"
+      >
+        <Modal.Container placement="center" scroll="inside" size="md">
+          <Modal.Dialog className="rounded-xl">
+            <Modal.CloseTrigger aria-label="Close" />
+            <Modal.Header className="pb-2">
+              <div className="flex items-center gap-2">
+                <Modal.Heading className="font-serif text-xl tracking-tight">
+                  Edit Product
+                </Modal.Heading>
+                <Badge variant="secondary">
+                  {isYahoo ? 'Yahoo Finance' : 'Custom'}
+                </Badge>
+              </div>
+              <p className="truncate text-sm text-muted-foreground">
+                {product.name}
+              </p>
+            </Modal.Header>
+            <Modal.Body className="pt-3">
+              {isYahoo ? (
+                <EditYahooForm product={product} onSuccess={handleSuccess} />
+              ) : (
+                <EditCustomForm product={product} onSuccess={handleSuccess} />
+              )}
+            </Modal.Body>
+          </Modal.Dialog>
+        </Modal.Container>
+      </Modal.Backdrop>
+    </Modal>
   );
 }

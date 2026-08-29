@@ -12,13 +12,10 @@
 import { useState } from 'react';
 import { createCustomProductAction } from '@/lib/actions/product-actions';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
-import { FormError } from '@/components/products/form-actions';
-import {
-  CURRENCY_OPTIONS,
-  currencySymbol,
-} from '@/components/products/currency-options';
+import { FormError, LoadingButton } from '@/components/products/form-actions';
+import { currencySymbol } from '@/components/products/currency-options';
+import { CurrencySelect } from '@/components/products/currency-select';
 import { FirstMovementFields } from '@/components/products/first-movement-fields';
 import { AssetCategorySelect } from '@/components/products/asset-category-select';
 import { DaysToLiquidityField } from '@/components/products/days-to-liquidity-field';
@@ -26,6 +23,7 @@ import {
   DEFAULT_ASSET_CATEGORY,
   type AssetCategory,
 } from '@/lib/domain/models/asset-category';
+import type { CustomProductCurrency } from '@/components/products/currency-options';
 
 interface CustomProductFormProps {
   onSuccess: () => void;
@@ -42,7 +40,7 @@ const todayIso = () => new Date().toISOString().split('T')[0];
 export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
   const [formData, setFormData] = useState({
     name: '',
-    currency: 'EUR',
+    currency: 'EUR' as CustomProductCurrency,
     annualReturnRate: '',
     firstMovementAmount: '',
     firstMovementDate: todayIso(),
@@ -55,9 +53,11 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  /** Updates one text-backed form value without mutating the current state. */
   const update = (field: string, value: string) =>
     setFormData({ ...formData, [field]: value });
 
+  /** Maps first-movement field names to the action payload state. */
   const onMovementChange = (field: 'amount' | 'date' | 'note', value: string) =>
     update(
       field === 'amount'
@@ -110,23 +110,14 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
           />
         </Field>
 
-        <div className="grid grid-cols-2 gap-4">
-          <Field>
-            <FieldLabel htmlFor="custom-currency">Currency</FieldLabel>
-            <select
-              id="custom-currency"
-              value={formData.currency}
-              onChange={(e) => update('currency', e.target.value)}
-              className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-              required
-            >
-              {CURRENCY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label} ({opt.symbol})
-                </option>
-              ))}
-            </select>
-          </Field>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <CurrencySelect
+            id="custom-currency"
+            value={formData.currency}
+            onChange={(currency) =>
+              setFormData((current) => ({ ...current, currency }))
+            }
+          />
           <Field>
             <FieldLabel htmlFor="custom-rate">Annual Rate (%)</FieldLabel>
             <Input
@@ -163,20 +154,23 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
           onChange={onMovementChange}
         />
 
-        <div className="rounded-lg bg-primary/5 border border-primary/10 p-3">
-          <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Compound interest A = P(1 + r/365)^days. The first movement above is
-            saved as a contribution; add more deposits or withdrawals from the
-            product&apos;s edit dialog. Currency is locked once the product is
-            created so amounts cannot be silently reinterpreted.
+        <aside className="rounded-md bg-muted/50 px-3 py-2">
+          <p className="text-xs leading-relaxed text-muted-foreground">
+            Compound interest: A = P(1 + r/365)^days. Currency stays fixed after
+            creation.
           </p>
-        </div>
+        </aside>
 
         <FormError error={error} />
 
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? 'Adding...' : 'Add Product'}
-        </Button>
+        <LoadingButton
+          type="submit"
+          loading={loading}
+          loadingText="Adding..."
+          className="w-full"
+        >
+          Add Product
+        </LoadingButton>
       </FieldGroup>
     </form>
   );

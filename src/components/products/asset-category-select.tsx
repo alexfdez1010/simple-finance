@@ -6,7 +6,7 @@
 
 'use client';
 
-import { Field, FieldLabel } from '@/components/ui/field';
+import { ProductSelect } from '@/components/products/product-select';
 import {
   ASSET_CATEGORIES,
   assetCategoryLabel,
@@ -25,22 +25,18 @@ export function AssetCategorySelect({
   value,
   onChange,
 }: AssetCategorySelectProps) {
+  const options = ASSET_CATEGORIES.map((category) => ({
+    value: category,
+    label: assetCategoryLabel(category),
+  }));
+
   return (
-    <Field>
-      <FieldLabel htmlFor={id}>Category</FieldLabel>
-      <select
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value as AssetCategory)}
-        className="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-        required
-      >
-        {ASSET_CATEGORIES.map((cat) => (
-          <option key={cat} value={cat}>
-            {assetCategoryLabel(cat)}
-          </option>
-        ))}
-      </select>
-    </Field>
+    <ProductSelect
+      id={id}
+      label="Category"
+      value={value}
+      options={options}
+      onChange={onChange}
+    />
   );
 }
