@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { findAllProducts } from '@/lib/infrastructure/database/product-repository';
-import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enrichment';
+import {
+  enrichProductsWithEurValues,
+  YahooQuoteUnavailableError,
+} from '@/lib/domain/services/product-enrichment';
+import { fetchYahooQuoteWithRetryServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { upsertPortfolioSnapshot } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import { upsertProductSnapshot } from '@/lib/infrastructure/database/product-snapshot-repository';
 import { generateAuthToken } from '@/lib/auth/auth-utils';
@@ -50,7 +54,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const enriched = await enrichProductsWithEurValues(products);
+    const enriched = await enrichProductsWithEurValues(products, {
+      fetchYahooQuote: fetchYahooQuoteWithRetryServer,
+      failOnMissingYahooQuote: true,
+    });
 
     const totalValue = enriched.reduce((acc, p) => acc + p.currentValueEur, 0);
     const totalInvestment = enriched.reduce((acc, p) => acc + p.investedEur, 0);
@@ -93,6 +100,19 @@ export async function GET(request: NextRequest) {
       { status: 200 },
     );
   } catch (error) {
+    if (error instanceof YahooQuoteUnavailableError) {
+      console.error('Snapshot skipped because a Yahoo quote was unavailable', {
+        productId: error.productId,
+        symbol: error.symbol,
+      });
+      return NextResponse.json(
+        {
+          message: 'Snapshot skipped because a Yahoo quote was unavailable',
+          skippedSymbol: error.symbol,
+        },
+        { status: 503 },
+      );
+    }
     console.error('Error creating portfolio snapshot:', error);
     return NextResponse.json(
       { error: 'Failed to create portfolio snapshot' },

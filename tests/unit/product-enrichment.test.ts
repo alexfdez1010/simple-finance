@@ -2,10 +2,16 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
-import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enrichment';
+import {
+  enrichProductsWithEurValues,
+  YahooQuoteUnavailableError,
+} from '@/lib/domain/services/product-enrichment';
 import { convertProductAmountToEur } from '@/lib/domain/services/product-currency-converter';
 import { ensureContributionEurAmounts } from '@/lib/domain/services/contribution-eur-backfill';
-import type { CustomProduct } from '@/lib/domain/models/product.types';
+import type {
+  CustomProduct,
+  YahooFinanceProduct,
+} from '@/lib/domain/models/product.types';
 
 vi.mock('@/lib/infrastructure/yahoo-finance/server-client', () => ({
   fetchYahooQuoteServer: vi.fn(),
@@ -60,12 +66,31 @@ const product: CustomProduct = {
   },
 };
 
+const yahooProduct: YahooFinanceProduct = {
+  id: 'apple',
+  type: 'YAHOO_FINANCE',
+  assetCategory: 'STOCKS',
+  daysToLiquidity: 2,
+  name: 'Apple',
+  quantity: 2,
+  createdAt: timestamp,
+  updatedAt: timestamp,
+  yahoo: {
+    id: 'apple-data',
+    symbol: 'AAPL',
+    purchasePrice: 100,
+    purchaseDate: timestamp,
+  },
+};
+
 describe('enrichProductsWithEurValues', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-09-04T00:00:00Z'));
-    vi.mocked(ensureContributionEurAmounts).mockResolvedValue([product]);
+    vi.mocked(ensureContributionEurAmounts).mockImplementation(
+      async (products) => products,
+    );
     vi.mocked(convertProductAmountToEur).mockImplementation(
       async (amount) => amount,
     );
@@ -85,5 +110,26 @@ describe('enrichProductsWithEurValues', () => {
     );
     expect(performersData[0].returnPct).toBeGreaterThan(0);
     expect(convertProductAmountToEur).toHaveBeenCalledTimes(1);
+  });
+
+  it('throws before snapshot persistence when strict Yahoo pricing fails', async () => {
+    const fetchYahooQuote = vi.fn().mockResolvedValue(null);
+
+    await expect(
+      enrichProductsWithEurValues([yahooProduct], {
+        fetchYahooQuote,
+        failOnMissingYahooQuote: true,
+      }),
+    ).rejects.toEqual(new YahooQuoteUnavailableError('apple', 'AAPL'));
+    expect(fetchYahooQuote).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the dashboard tolerant of a missing Yahoo quote', async () => {
+    const [enriched] = await enrichProductsWithEurValues([yahooProduct], {
+      fetchYahooQuote: vi.fn().mockResolvedValue(null),
+    });
+
+    expect(enriched.currentValueEur).toBe(0);
+    expect(enriched.investedEur).toBe(200);
   });
 });

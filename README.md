@@ -251,6 +251,12 @@ The application includes automated portfolio tracking with daily snapshots:
 2. **Evolution Chart** - View last 30 days of portfolio value trends
 3. **Daily Changes Chart** - See day-to-day value changes with color coding
 
+Yahoo quotes are attempted up to three times with exponential backoff during a
+snapshot run. If any required quote remains unavailable, the run returns 503
+and writes neither product nor portfolio rows for that date. This keeps a
+temporary provider failure from becoming a false zero-value loss. Vercel does
+not retry failed cron invocations, so retries are handled inside the route.
+
 **Setting up Cron Jobs:**
 
 ```bash

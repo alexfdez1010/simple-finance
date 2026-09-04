@@ -112,6 +112,39 @@ test.describe('Per-product snapshots and history dialog', () => {
     expect(afterSecond).toBe(afterFirst);
   });
 
+  test('cron skips the entire day when Yahoo remains unavailable', async ({
+    request,
+  }) => {
+    await prisma.financialProduct.create({
+      data: {
+        type: 'YAHOO_FINANCE',
+        assetCategory: 'STOCKS',
+        daysToLiquidity: 2,
+        name: 'Unavailable Yahoo asset',
+        quantity: 1,
+        yahoo: {
+          create: {
+            symbol: 'INVALIDXYZ123',
+            purchasePrice: 100,
+            purchaseDate: new Date(),
+          },
+        },
+      },
+    });
+
+    const cronToken = process.env.CRON_SECRET || 'test-token';
+    const response = await request.get(
+      'http://localhost:3000/api/cron/snapshot',
+      { headers: { Authorization: `Bearer ${cronToken}` } },
+    );
+    const body = await response.json();
+
+    expect(response.status()).toBe(503);
+    expect(body.skippedSymbol).toBe('INVALIDXYZ123');
+    expect(await prisma.productSnapshot.count()).toBe(0);
+    expect(await prisma.portfolioSnapshot.count()).toBe(0);
+  });
+
   test('product card eye button opens the history dialog', async ({ page }) => {
     const productName = `History Dialog ${Date.now()}`;
     await page.goto('http://localhost:3000/dashboard');

@@ -22,8 +22,20 @@ export interface YahooQuote {
   longName?: string;
 }
 
+export interface YahooQuoteRetryOptions {
+  attempts?: number;
+  delayMs?: number;
+  fetchQuote?: (symbol: string) => Promise<YahooQuote | null>;
+  wait?: (milliseconds: number) => Promise<void>;
+}
+
 // Create a single instance to reuse
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
+
+/** Resolves after a delay between retry attempts. */
+function wait(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
+}
 
 /**
  * Fetches a quote from Yahoo Finance on the server using yahoo-finance2
@@ -79,4 +91,32 @@ export async function fetchYahooQuoteServer(
     console.error(`Error fetching quote for ${symbol}:`, err);
     return null;
   }
+}
+
+/**
+ * Fetches a quote up to three times with exponential backoff. A nullable
+ * result is preserved after the final attempt so callers choose whether a
+ * missing quote is tolerable or must abort an atomic operation.
+ *
+ * @param symbol - Stock symbol to fetch
+ * @param options - Injectable retry policy and boundaries
+ * @returns First available quote, or null after all attempts fail
+ */
+export async function fetchYahooQuoteWithRetryServer(
+  symbol: string,
+  options: YahooQuoteRetryOptions = {},
+): Promise<YahooQuote | null> {
+  const attempts = Math.max(1, options.attempts ?? 3);
+  const delayMs = Math.max(0, options.delayMs ?? 250);
+  const fetchQuote = options.fetchQuote ?? fetchYahooQuoteServer;
+  const sleep = options.wait ?? wait;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const quote = await fetchQuote(symbol);
+    if (quote) return quote;
+    if (attempt < attempts) {
+      await sleep(delayMs * 2 ** (attempt - 1));
+    }
+  }
+  return null;
 }
