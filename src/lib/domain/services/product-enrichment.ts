@@ -16,19 +16,26 @@ import type {
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { getYahooExpectedReturn } from '@/lib/infrastructure/yahoo-finance/expected-return-client';
 import { getCurrencyExpectedReturnVsEur } from '@/lib/infrastructure/currency/currency-history-client';
+import { findFirstProductSnapshots } from '@/lib/infrastructure/database/product-snapshot-repository';
 import {
   calculateCustomProductValueFromContributions,
   calculateNetInvestedFromContributions,
 } from './custom-product-calculator';
 import { combineExpectedReturn } from './custom-expected-return';
-import { convertProductAmountToEur } from './product-currency-converter';
+import { calculateCustomReturnBasisEur } from './custom-return-basis';
+import {
+  convertProductAmountToEur,
+  convertProductAmountToEurAtDate,
+} from './product-currency-converter';
 
 /**
  * Enriches a list of products with their current values in EUR. Yahoo
  * prices are fetched live; custom products are valued from their
  * contributions in the chosen currency and then converted to EUR for
- * portfolio-level aggregation and per-card rendering (which uses the
- * dashboard's display-currency selector).
+ * portfolio-level aggregation. Their return basis is the first stored EUR
+ * snapshot adjusted by later cash flows at their historical EUR rates. This
+ * retains FX gains or losses without treating deposits as profit; before that
+ * snapshot exists, the current EUR conversion of net contributions is used.
  *
  * @param products - Raw products (custom ones include their contributions)
  * @returns Products extended with EUR totals
@@ -36,6 +43,11 @@ import { convertProductAmountToEur } from './product-currency-converter';
 export async function enrichProductsWithEurValues(
   products: FinancialProduct[],
 ): Promise<ProductWithValue[]> {
+  const valuationDate = new Date();
+  const firstSnapshotsPromise = findFirstProductSnapshots(
+    products.filter((product) => product.type === 'CUSTOM').map(({ id }) => id),
+  );
+
   return Promise.all(
     products.map(async (p): Promise<ProductWithValue> => {
       if (p.type === 'YAHOO_FINANCE') {
@@ -60,16 +72,30 @@ export async function enrichProductsWithEurValues(
       const totalProductCcy = calculateCustomProductValueFromContributions(
         p.custom.contributions,
         p.custom.annualReturnRate,
+        valuationDate,
       );
       const netInvestedProductCcy = calculateNetInvestedFromContributions(
         p.custom.contributions,
       );
 
-      const [currentValueEur, investedEur, fxGeomean] = await Promise.all([
+      const [currentValueEur, fxGeomean, firstSnapshots] = await Promise.all([
         convertProductAmountToEur(totalProductCcy, p.custom.currency),
-        convertProductAmountToEur(netInvestedProductCcy, p.custom.currency),
         getCurrencyExpectedReturnVsEur(p.custom.currency),
+        firstSnapshotsPromise,
       ]);
+      const firstSnapshot = firstSnapshots.get(p.id);
+      const investedEur = firstSnapshot
+        ? await calculateCustomReturnBasisEur(
+            firstSnapshot,
+            p.custom.contributions,
+            p.custom.currency,
+            valuationDate,
+            convertProductAmountToEurAtDate,
+          )
+        : await convertProductAmountToEur(
+            netInvestedProductCcy,
+            p.custom.currency,
+          );
 
       return {
         ...p,

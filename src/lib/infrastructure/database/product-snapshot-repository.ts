@@ -55,3 +55,36 @@ export async function findProductSnapshots(
   });
   return rows.map((r) => ({ date: r.date, value: r.value }));
 }
+
+/**
+ * Returns the earliest stored EUR snapshot for each requested product.
+ * Products without snapshots are omitted so callers can apply an explicit
+ * fallback until the first daily snapshot exists.
+ *
+ * @param productIds - Product ids whose historical EUR basis is required
+ * @returns Map from product id to its earliest dated snapshot in EUR
+ */
+export async function findFirstProductSnapshots(
+  productIds: string[],
+): Promise<Map<string, ProductSnapshotPoint>> {
+  if (productIds.length === 0) return new Map();
+
+  const products = await prisma.financialProduct.findMany({
+    where: { id: { in: productIds } },
+    select: {
+      id: true,
+      snapshots: {
+        orderBy: { date: 'asc' },
+        take: 1,
+        select: { date: true, value: true },
+      },
+    },
+  });
+
+  return new Map(
+    products.flatMap((product) => {
+      const firstSnapshot = product.snapshots[0];
+      return firstSnapshot ? [[product.id, firstSnapshot]] : [];
+    }),
+  );
+}

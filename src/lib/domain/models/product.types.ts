@@ -87,8 +87,11 @@ export type FinancialProduct = YahooFinanceProduct | CustomProduct;
  *   EUR value of all contributions).
  * - `currentValueEur`: total current value in EUR (Yahoo: price·quantity;
  *   Custom: full compounded portfolio of contributions).
- * - `investedEur`: total net invested in EUR (Yahoo: purchasePrice·quantity;
- *   Custom: signed sum of contributions converted to EUR).
+ * - `investedEur`: EUR basis used for return calculations. Yahoo products
+ *   use purchasePrice·quantity. Custom products use their earliest stored
+ *   EUR snapshot plus later signed cash flows converted at each movement date,
+ *   falling back to net contributions at the current rate until a snapshot
+ *   exists.
  * - `expectedAnnualReturn`: forward-looking annualised return as a decimal
  *   (0.07 = 7%). For Yahoo products this is the geometric mean of the last
  *   five years of monthly closes; for custom products it is the contractual

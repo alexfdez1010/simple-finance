@@ -26,12 +26,61 @@ import {
 const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 const ONE_DAY_SECONDS = 24 * 60 * 60;
+const HISTORY_LOOKBACK_DAYS = 7;
 
 const CURRENCY_TICKERS: Record<string, string> = {
   USD: 'USDEUR=X',
   BTC: 'BTC-EUR',
   ETH: 'ETH-EUR',
 };
+
+/** Returns a stable UTC date key for historical-rate cache arguments. */
+function toDateKey(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+/**
+ * Builds a Yahoo range ending after the target day and starting seven days
+ * earlier so weekends and market holidays have a prior close available.
+ */
+function historicalWindow(dateKey: string): { start: Date; end: Date } {
+  const target = new Date(`${dateKey}T00:00:00.000Z`);
+  const start = new Date(target);
+  const end = new Date(target);
+  start.setUTCDate(start.getUTCDate() - HISTORY_LOOKBACK_DAYS);
+  end.setUTCDate(end.getUTCDate() + 1);
+  return { start, end };
+}
+
+/**
+ * Loads the latest positive daily close on or before a target date.
+ *
+ * @param ticker - Yahoo Finance symbol quoted in the required target currency
+ * @param dateKey - UTC date in yyyy-mm-dd format
+ * @returns Historical close or null when Yahoo has no usable sample
+ */
+const fetchHistoricalRateForTicker = unstable_cache(
+  async (ticker: string, dateKey: string): Promise<number | null> => {
+    try {
+      const { start, end } = historicalWindow(dateKey);
+      const cutoff = new Date(`${dateKey}T23:59:59.999Z`).getTime();
+      const result = await yahooFinance.chart(ticker, {
+        period1: start,
+        period2: end,
+        interval: '1d',
+      });
+      const samples = samplesFromChartQuotes(result?.quotes ?? [])
+        .filter((sample) => sample.date.getTime() <= cutoff)
+        .sort((left, right) => left.date.getTime() - right.date.getTime());
+      return samples.at(-1)?.value ?? null;
+    } catch (error) {
+      console.error(`Historical currency rate failed for ${ticker}:`, error);
+      return null;
+    }
+  },
+  ['currency-rate-at-date'],
+  { revalidate: ONE_DAY_SECONDS },
+);
 
 const fetchGeomeanForTicker = unstable_cache(
   async (ticker: string): Promise<number | null> => {
@@ -78,4 +127,34 @@ export async function getCurrencyExpectedReturnVsEur(
   const ticker = CURRENCY_TICKERS[code];
   if (!ticker) return null;
   return fetchGeomeanForTicker(ticker);
+}
+
+/**
+ * Returns the EUR value of one unit of a supported currency on a historical
+ * date. XAUT is composed from its USD close and that day's USD→EUR close.
+ *
+ * @param currency - EUR, USD, BTC, ETH, or XAUT
+ * @param date - Movement date whose closing rate is required
+ * @returns EUR per currency unit, or null for unknown/unavailable history
+ */
+export async function getHistoricalCurrencyRateToEur(
+  currency: string | null | undefined,
+  date: Date,
+): Promise<number | null> {
+  const code = (currency ?? 'EUR').toUpperCase();
+  if (code === 'EUR') return 1;
+
+  const dateKey = toDateKey(date);
+  if (code === 'XAUT') {
+    const [xautUsd, usdEur] = await Promise.all([
+      fetchHistoricalRateForTicker('XAUT-USD', dateKey),
+      fetchHistoricalRateForTicker('USDEUR=X', dateKey),
+    ]);
+    if (xautUsd == null || usdEur == null) return null;
+    return xautUsd * usdEur;
+  }
+
+  const ticker = CURRENCY_TICKERS[code];
+  if (!ticker) return null;
+  return fetchHistoricalRateForTicker(ticker, dateKey);
 }

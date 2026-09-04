@@ -12,6 +12,7 @@
 
 import { convertToEur } from './currency-converter';
 import { convertCryptoAssetToEur } from './crypto-converter';
+import { getHistoricalCurrencyRateToEur } from '@/lib/infrastructure/currency/currency-history-client';
 
 const DEFAULT_CURRENCY = 'EUR';
 
@@ -33,4 +34,29 @@ export async function convertProductAmountToEur(
     return convertCryptoAssetToEur(amount, code);
   }
   return amount;
+}
+
+/**
+ * Converts a product-currency amount to EUR at its historical transaction
+ * date. If no historical close is available, it uses the current converter so
+ * the cash flow is still excluded from profit instead of becoming fake gain.
+ *
+ * @param amount - Signed movement amount in the product currency
+ * @param currency - Product currency code
+ * @param date - Date on which the movement occurred
+ * @returns Movement value in EUR at the best available rate
+ */
+export async function convertProductAmountToEurAtDate(
+  amount: number,
+  currency: string | null | undefined,
+  date: Date,
+): Promise<number> {
+  const code = (currency ?? DEFAULT_CURRENCY).toUpperCase();
+  if (code === 'EUR') return amount;
+
+  const historicalRate = await getHistoricalCurrencyRateToEur(code, date);
+  if (historicalRate == null) {
+    return convertProductAmountToEur(amount, code);
+  }
+  return amount * historicalRate;
 }

@@ -214,11 +214,17 @@ The password is stored in the `PASSWORD` environment variable for security.
 
 1. Click **"Add Custom Product"** on the dashboard
 2. Enter product name (e.g., "Savings Account")
-3. Enter initial investment in EUR (e.g., `1000`)
+3. Select the product currency and enter the first movement in that currency
 4. Enter annual return rate as percentage (e.g., `5.5` for 5.5%)
 5. Select investment date
-6. Enter quantity (usually `1` for custom products)
-7. Click **"Add Product"** - compound interest is calculated daily
+6. Click **"Add Product"** - compound interest is calculated daily
+
+Once the first daily EUR snapshot exists, it becomes the return basis for a
+custom product. Later deposits and withdrawals adjust that basis using their
+historical EUR rate, so cash flows are not reported as profit while subsequent
+currency movements are. The displayed gain or loss therefore includes both
+accrued interest and currency performance against EUR. Before the first
+snapshot, the current EUR value of net movements is used as a fallback.
 
 ### Viewing Portfolio Statistics
 
