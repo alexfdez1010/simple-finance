@@ -1,17 +1,14 @@
 /**
  * Server-side aggregations over contribution events that power the
  * dashboard's contribution-driven charts. Custom-product contributions
- * are converted from their product currency to EUR (current rate) so the
- * dashboard can present everything in the user's display currency without
- * doing async work on the client. Yahoo-Finance products are treated as
- * a single deposit on their `purchaseDate`.
+ * use the immutable EUR value stored on each movement date. Yahoo-Finance
+ * products are treated as a single deposit on their `purchaseDate`.
  *
  * @module domain/services/contributions-data
  */
 
 import 'server-only';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
-import { convertProductAmountToEur } from './product-currency-converter';
 
 /** A signed deposit/withdrawal event already converted to EUR. */
 export interface ContributionEvent {
@@ -35,20 +32,17 @@ export interface InvestedSeriesPoint {
 }
 
 /** Custom-only contribution events used by the monthly chart. */
-async function customEvents(
-  products: FinancialProduct[],
-): Promise<ContributionEvent[]> {
+function customEvents(products: FinancialProduct[]): ContributionEvent[] {
   const out: ContributionEvent[] = [];
   for (const p of products) {
     if (p.type !== 'CUSTOM') continue;
     for (const c of p.custom.contributions) {
-      const amountEur = await convertProductAmountToEur(
-        c.amount,
-        p.custom.currency,
-      );
+      if (c.amountEur == null) {
+        throw new Error(`Missing EUR basis for contribution ${c.id}`);
+      }
       out.push({
         date: c.date.toISOString().slice(0, 10),
-        amountEur,
+        amountEur: c.amountEur,
         source: 'CUSTOM',
       });
     }
@@ -60,7 +54,7 @@ async function customEvents(
 async function allEvents(
   products: FinancialProduct[],
 ): Promise<ContributionEvent[]> {
-  const out = await customEvents(products);
+  const out = customEvents(products);
   for (const p of products) {
     if (p.type !== 'YAHOO_FINANCE') continue;
     out.push({
@@ -83,7 +77,7 @@ async function allEvents(
 export async function getMonthlyContributions(
   products: FinancialProduct[],
 ): Promise<MonthlyContribution[]> {
-  const events = await customEvents(products);
+  const events = customEvents(products);
   const map = new Map<string, MonthlyContribution>();
   for (const e of events) {
     const month = e.date.slice(0, 7);

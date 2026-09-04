@@ -6,15 +6,20 @@
 import { prisma } from './prisma-client';
 import { mapCustomData } from './product-mappers';
 import type {
-  FinancialProduct,
   YahooFinanceProduct,
   CustomProduct,
   CreateYahooFinanceProductInput,
   CreateCustomProductInput,
-  UpdateProductQuantityInput,
-  UpdateYahooFinanceProductInput,
-  UpdateCustomProductInput,
 } from '@/lib/domain/models/product.types';
+
+export {
+  deleteProduct,
+  findAllProducts,
+  findProductById,
+  updateCustomProduct,
+  updateProductQuantity,
+  updateYahooFinanceProduct,
+} from './product-query-repository';
 
 /**
  * Creates a Yahoo Finance product
@@ -77,6 +82,7 @@ export async function createCustomProduct(
           contributions: {
             create: {
               amount: input.firstMovement.amount,
+              amountEur: input.firstMovement.amountEur,
               date: input.firstMovement.date,
               note,
             },
@@ -92,154 +98,4 @@ export async function createCustomProduct(
     type: 'CUSTOM',
     custom: mapCustomData(product.custom!),
   } as CustomProduct;
-}
-
-/**
- * Finds a product by ID
- *
- * @param productId - Product ID
- * @returns Product or null if not found
- */
-export async function findProductById(
-  productId: string,
-): Promise<FinancialProduct | null> {
-  const product = await prisma.financialProduct.findUnique({
-    where: { id: productId },
-    include: {
-      yahoo: true,
-      custom: { include: { contributions: true } },
-    },
-  });
-
-  if (!product) return null;
-
-  if (product.type === 'YAHOO_FINANCE' && product.yahoo) {
-    return {
-      ...product,
-      type: 'YAHOO_FINANCE',
-      yahoo: product.yahoo,
-    } as YahooFinanceProduct;
-  }
-
-  if (product.type === 'CUSTOM' && product.custom) {
-    return {
-      ...product,
-      type: 'CUSTOM',
-      custom: mapCustomData(product.custom),
-    } as CustomProduct;
-  }
-
-  return null;
-}
-
-/**
- * Finds all products in the portfolio.
- *
- * @returns Array of products with embedded contributions for custom ones
- */
-export async function findAllProducts(): Promise<FinancialProduct[]> {
-  const products = await prisma.financialProduct.findMany({
-    include: {
-      yahoo: true,
-      custom: { include: { contributions: true } },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
-
-  return products.map((product): FinancialProduct => {
-    if (product.type === 'YAHOO_FINANCE' && product.yahoo) {
-      return {
-        ...product,
-        type: 'YAHOO_FINANCE',
-        yahoo: product.yahoo,
-      } as YahooFinanceProduct;
-    }
-    return {
-      ...product,
-      type: 'CUSTOM',
-      custom: mapCustomData(product.custom!),
-    } as CustomProduct;
-  });
-}
-
-/**
- * Updates product quantity.
- */
-export async function updateProductQuantity(
-  input: UpdateProductQuantityInput,
-): Promise<FinancialProduct> {
-  await prisma.financialProduct.update({
-    where: { id: input.productId },
-    data: { quantity: input.quantity },
-  });
-  const product = await findProductById(input.productId);
-  if (!product) throw new Error('Product not found after update');
-  return product;
-}
-
-/**
- * Updates a Yahoo Finance product.
- */
-export async function updateYahooFinanceProduct(
-  input: UpdateYahooFinanceProductInput,
-): Promise<YahooFinanceProduct> {
-  const product = await prisma.financialProduct.update({
-    where: { id: input.productId },
-    data: {
-      name: input.name,
-      quantity: input.quantity,
-      assetCategory: input.assetCategory,
-      daysToLiquidity: input.daysToLiquidity,
-      yahoo: {
-        update: {
-          purchasePrice: input.purchasePrice,
-          purchaseDate: input.purchaseDate,
-        },
-      },
-    },
-    include: { yahoo: true },
-  });
-
-  return {
-    ...product,
-    type: 'YAHOO_FINANCE',
-    yahoo: product.yahoo!,
-  } as YahooFinanceProduct;
-}
-
-/**
- * Updates a custom product's metadata (name, quantity, rate). Currency is
- * intentionally not updatable here: changing it would silently
- * reinterpret every existing contribution. Contributions are managed via
- * contribution-repository.
- */
-export async function updateCustomProduct(
-  input: UpdateCustomProductInput,
-): Promise<CustomProduct> {
-  await prisma.financialProduct.update({
-    where: { id: input.productId },
-    data: {
-      name: input.name,
-      quantity: 1,
-      assetCategory: input.assetCategory,
-      daysToLiquidity: input.daysToLiquidity,
-      custom: {
-        update: {
-          annualReturnRate: input.annualReturnRate,
-        },
-      },
-    },
-  });
-  const product = await findProductById(input.productId);
-  if (!product || product.type !== 'CUSTOM') {
-    throw new Error('Custom product not found after update');
-  }
-  return product;
-}
-
-/**
- * Deletes a product (cascade removes its custom data and contributions).
- */
-export async function deleteProduct(productId: string): Promise<void> {
-  await prisma.financialProduct.delete({ where: { id: productId } });
 }

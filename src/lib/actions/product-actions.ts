@@ -8,12 +8,10 @@
 import { revalidatePath } from 'next/cache';
 import {
   createYahooFinanceProduct,
-  createCustomProduct,
   findAllProducts,
   findProductById,
   updateProductQuantity,
   updateYahooFinanceProduct,
-  updateCustomProduct,
   deleteProduct,
 } from '@/lib/infrastructure/database/product-repository';
 import {
@@ -22,9 +20,7 @@ import {
 } from '@/lib/infrastructure/yahoo-finance/server-client';
 import type {
   CreateYahooFinanceProductInput,
-  CreateCustomProductInput,
   UpdateYahooFinanceProductInput,
-  UpdateCustomProductInput,
   FinancialProduct,
 } from '@/lib/domain/models/product.types';
 import {
@@ -32,7 +28,6 @@ import {
   type AssetCategory,
 } from '@/lib/domain/models/asset-category';
 
-const DEFAULT_CURRENCY = 'EUR';
 const DEFAULT_DAYS_TO_LIQUIDITY = 0;
 
 /**
@@ -71,58 +66,6 @@ export async function createYahooProduct(
     return { success: true, productId: product.id };
   } catch (error) {
     console.error('Failed to create Yahoo Finance product:', error);
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : 'Failed to create product',
-    };
-  }
-}
-
-/**
- * Creates a custom product. The first movement is persisted as a
- * contribution in the chosen currency — there is no separate "initial
- * investment" snapshot stored on the product. The dashboard converts to
- * the user's display currency at render time.
- *
- * @param name - Product name
- * @param annualReturnRate - Annual return rate as decimal (0.05 = 5%)
- * @param firstMovementAmount - First deposit in `currency`
- * @param firstMovementDate - Date of first contribution
- * @param currency - Product currency (default EUR)
- * @param firstMovementNote - Optional note attached to the first movement
- * @returns Created product id or error
- */
-export async function createCustomProductAction(
-  name: string,
-  annualReturnRate: number,
-  firstMovementAmount: number,
-  firstMovementDate: Date,
-  currency: string = DEFAULT_CURRENCY,
-  firstMovementNote?: string | null,
-  assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
-  daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
-): Promise<{ success: boolean; error?: string; productId?: string }> {
-  try {
-    const input: CreateCustomProductInput = {
-      name,
-      annualReturnRate,
-      currency: currency || DEFAULT_CURRENCY,
-      assetCategory,
-      daysToLiquidity,
-      firstMovement: {
-        amount: firstMovementAmount,
-        date: firstMovementDate,
-        note: firstMovementNote,
-      },
-    };
-
-    const product = await createCustomProduct(input);
-
-    revalidatePath('/dashboard');
-    return { success: true, productId: product.id };
-  } catch (error) {
-    console.error('Failed to create custom product:', error);
     return {
       success: false,
       error:
@@ -227,42 +170,6 @@ export async function updateYahooProductAction(
     return { success: true };
   } catch (error) {
     console.error('Failed to update Yahoo Finance product:', error);
-    return {
-      success: false,
-      error:
-        error instanceof Error ? error.message : 'Failed to update product',
-    };
-  }
-}
-
-/**
- * Updates a custom product's metadata. Currency is set at creation and
- * cannot be changed here — it would silently reinterpret every existing
- * contribution. Contributions are managed via the dedicated contribution
- * actions.
- */
-export async function updateCustomProductAction(
-  productId: string,
-  name: string,
-  annualReturnRate: number,
-  assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
-  daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
-): Promise<{ success: boolean; error?: string }> {
-  try {
-    const input: UpdateCustomProductInput = {
-      productId,
-      name,
-      annualReturnRate,
-      assetCategory,
-      daysToLiquidity,
-    };
-
-    await updateCustomProduct(input);
-
-    revalidatePath('/dashboard');
-    return { success: true };
-  } catch (error) {
-    console.error('Failed to update custom product:', error);
     return {
       success: false,
       error:

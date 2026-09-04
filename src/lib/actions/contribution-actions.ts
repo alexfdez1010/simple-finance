@@ -7,11 +7,11 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { deleteContribution } from '@/lib/infrastructure/database/contribution-repository';
 import {
-  addContribution,
-  updateContribution,
-  deleteContribution,
-} from '@/lib/infrastructure/database/contribution-repository';
+  addContributionWithEurBasis,
+  updateContributionWithEurBasis,
+} from '@/lib/domain/services/custom-product-write-service';
 
 type ActionResult = { success: boolean; error?: string; id?: string };
 
@@ -48,7 +48,7 @@ export async function addContributionAction(
 ): Promise<ActionResult> {
   try {
     assertNotFuture(date);
-    const created = await addContribution({
+    const created = await addContributionWithEurBasis({
       customProductDataId,
       amount,
       date,
@@ -72,7 +72,7 @@ export async function updateContributionAction(
 ): Promise<ActionResult> {
   try {
     assertNotFuture(date);
-    await updateContribution({ id, amount, date, note });
+    await updateContributionWithEurBasis({ id, amount, date, note });
     revalidatePath('/dashboard');
     return { success: true, id };
   } catch (error) {

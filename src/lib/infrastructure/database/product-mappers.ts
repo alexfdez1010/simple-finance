@@ -15,6 +15,7 @@ export type CustomDataRow = {
   contributions: Array<{
     id: string;
     amount: number;
+    amountEur: number | null;
     date: Date;
     note: string | null;
     createdAt: Date;
@@ -35,6 +36,7 @@ export function mapCustomData(custom: CustomDataRow): CustomProduct['custom'] {
       .map((c): CustomContribution => ({
         id: c.id,
         amount: c.amount,
+        amountEur: c.amountEur,
         date: c.date,
         note: c.note,
         createdAt: c.createdAt,

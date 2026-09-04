@@ -10,7 +10,7 @@
 'use client';
 
 import { useState } from 'react';
-import { createCustomProductAction } from '@/lib/actions/product-actions';
+import { createCustomProductAction } from '@/lib/actions/custom-product-actions';
 import { Input } from '@/components/ui/input';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError, LoadingButton } from '@/components/products/form-actions';

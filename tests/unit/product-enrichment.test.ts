@@ -1,16 +1,10 @@
-/**
- * Regression tests for EUR enrichment of custom products.
- * @module tests/unit/product-enrichment
- */
+/** Regression tests for EUR enrichment of custom products. */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { computeDashboardData } from '@/lib/domain/services/dashboard-data';
 import { enrichProductsWithEurValues } from '@/lib/domain/services/product-enrichment';
-import {
-  convertProductAmountToEur,
-  convertProductAmountToEurAtDate,
-} from '@/lib/domain/services/product-currency-converter';
-import { findFirstProductSnapshots } from '@/lib/infrastructure/database/product-snapshot-repository';
+import { convertProductAmountToEur } from '@/lib/domain/services/product-currency-converter';
+import { ensureContributionEurAmounts } from '@/lib/domain/services/contribution-eur-backfill';
 import type { CustomProduct } from '@/lib/domain/models/product.types';
 
 vi.mock('@/lib/infrastructure/yahoo-finance/server-client', () => ({
@@ -24,41 +18,43 @@ vi.mock('@/lib/infrastructure/currency/currency-history-client', () => ({
 }));
 vi.mock('@/lib/domain/services/product-currency-converter', () => ({
   convertProductAmountToEur: vi.fn(),
-  convertProductAmountToEurAtDate: vi.fn(),
 }));
-vi.mock('@/lib/infrastructure/database/product-snapshot-repository', () => ({
-  findFirstProductSnapshots: vi.fn(),
+vi.mock('@/lib/domain/services/contribution-eur-backfill', () => ({
+  ensureContributionEurAmounts: vi.fn(),
 }));
 
+const timestamp = new Date('2026-04-01T00:00:00Z');
 const product: CustomProduct = {
-  id: 'usd-savings',
+  id: 'trade-republic',
   type: 'CUSTOM',
   assetCategory: 'CASH',
   daysToLiquidity: 0,
-  name: 'USD savings',
+  name: 'Trade Republic',
   quantity: 1,
-  createdAt: new Date('2025-09-04T00:00:00Z'),
-  updatedAt: new Date('2025-09-04T00:00:00Z'),
+  createdAt: timestamp,
+  updatedAt: timestamp,
   custom: {
-    id: 'usd-savings-data',
-    annualReturnRate: 0.05,
-    currency: 'USD',
+    id: 'trade-republic-data',
+    annualReturnRate: 0.0182,
+    currency: 'EUR',
     contributions: [
       {
         id: 'initial-deposit',
-        amount: 1_000,
-        date: new Date('2025-09-04T00:00:00Z'),
+        amount: 3_000,
+        amountEur: 3_000,
+        date: timestamp,
         note: null,
-        createdAt: new Date('2025-09-04T00:00:00Z'),
-        updatedAt: new Date('2025-09-04T00:00:00Z'),
+        createdAt: timestamp,
+        updatedAt: timestamp,
       },
       {
-        id: 'later-deposit',
-        amount: 200,
-        date: new Date('2026-03-04T00:00:00Z'),
+        id: 'extra-deposit',
+        amount: 496.76,
+        amountEur: 496.76,
+        date: new Date('2026-08-01T00:00:00Z'),
         note: null,
-        createdAt: new Date('2026-03-04T00:00:00Z'),
-        updatedAt: new Date('2026-03-04T00:00:00Z'),
+        createdAt: timestamp,
+        updatedAt: timestamp,
       },
     ],
   },
@@ -69,45 +65,25 @@ describe('enrichProductsWithEurValues', () => {
     vi.clearAllMocks();
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-09-04T00:00:00Z'));
+    vi.mocked(ensureContributionEurAmounts).mockResolvedValue([product]);
     vi.mocked(convertProductAmountToEur).mockImplementation(
-      async (amount) => amount * 0.8,
-    );
-    vi.mocked(convertProductAmountToEurAtDate).mockImplementation(
-      async (amount) => amount * 0.75,
+      async (amount) => amount,
     );
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+  afterEach(() => vi.useRealTimers());
 
-  it('includes both interest and FX movement from the first EUR snapshot', async () => {
-    vi.mocked(findFirstProductSnapshots).mockResolvedValue(
-      new Map([
-        [product.id, { date: new Date('2025-09-04T00:00:00Z'), value: 900 }],
-      ]),
-    );
-
+  it('uses all contributed EUR, not a valuation snapshot, as return basis', async () => {
     const [enriched] = await enrichProductsWithEurValues([product]);
     const { performersData } = computeDashboardData([enriched], []);
 
-    expect(enriched.currentValueEur).toBeCloseTo(1_005.1, 1);
-    expect(enriched.investedEur).toBe(1_050);
-    expect(performersData[0].returnValue).toBeCloseTo(-44.9, 1);
-    expect(convertProductAmountToEur).toHaveBeenCalledTimes(1);
-    expect(convertProductAmountToEurAtDate).toHaveBeenCalledWith(
-      200,
-      'USD',
-      new Date('2026-03-04T00:00:00Z'),
+    expect(enriched.investedEur).toBe(3_496.76);
+    expect(enriched.currentValueEur).toBeGreaterThan(enriched.investedEur);
+    expect(performersData[0].returnValue).toBeCloseTo(
+      enriched.currentValueEur - 3_496.76,
+      8,
     );
-  });
-
-  it('uses the current converted contribution basis before snapshots exist', async () => {
-    vi.mocked(findFirstProductSnapshots).mockResolvedValue(new Map());
-
-    const [enriched] = await enrichProductsWithEurValues([product]);
-
-    expect(enriched.investedEur).toBe(960);
-    expect(convertProductAmountToEur).toHaveBeenCalledTimes(2);
+    expect(performersData[0].returnPct).toBeGreaterThan(0);
+    expect(convertProductAmountToEur).toHaveBeenCalledTimes(1);
   });
 });

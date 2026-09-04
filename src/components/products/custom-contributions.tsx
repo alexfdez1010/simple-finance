@@ -27,8 +27,8 @@ interface Props {
 
 /**
  * Renders the contribution list and an inline form to add or edit one.
- * Withdrawals are entered as negative amounts. All amounts are persisted
- * in the product's currency — no EUR conversion happens on save.
+ * Withdrawals are entered as negative amounts. The native amount remains
+ * visible while its date-specific EUR basis is frozen by the write service.
  */
 export function CustomContributions({
   customProductDataId,

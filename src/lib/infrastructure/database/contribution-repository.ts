@@ -18,6 +18,7 @@ import type {
 function mapRow(c: {
   id: string;
   amount: number;
+  amountEur: number | null;
   date: Date;
   note: string | null;
   createdAt: Date;
@@ -26,6 +27,7 @@ function mapRow(c: {
   return {
     id: c.id,
     amount: c.amount,
+    amountEur: c.amountEur,
     date: c.date,
     note: c.note,
     createdAt: c.createdAt,
@@ -46,6 +48,7 @@ export async function addContribution(
     data: {
       customProductDataId: input.customProductDataId,
       amount: input.amount,
+      amountEur: input.amountEur,
       date: input.date,
       note: input.note ?? null,
     },
@@ -66,6 +69,7 @@ export async function updateContribution(
     where: { id: input.id },
     data: {
       amount: input.amount,
+      amountEur: input.amountEur,
       date: input.date,
       note: input.note ?? null,
     },
@@ -80,4 +84,55 @@ export async function updateContribution(
  */
 export async function deleteContribution(id: string): Promise<void> {
   await prisma.customProductContribution.delete({ where: { id } });
+}
+
+/**
+ * Finds the immutable currency of a custom product data row.
+ *
+ * @param customProductDataId - Custom product data id
+ * @returns Currency code, or null when the product does not exist
+ */
+export async function findCustomProductCurrency(
+  customProductDataId: string,
+): Promise<string | null> {
+  const row = await prisma.customProductData.findUnique({
+    where: { id: customProductDataId },
+    select: { currency: true },
+  });
+  return row?.currency ?? null;
+}
+
+/**
+ * Finds the parent currency for an existing contribution.
+ *
+ * @param id - Contribution id
+ * @returns Currency code, or null when the contribution does not exist
+ */
+export async function findContributionCurrency(
+  id: string,
+): Promise<string | null> {
+  const row = await prisma.customProductContribution.findUnique({
+    where: { id },
+    select: { customProduct: { select: { currency: true } } },
+  });
+  return row?.customProduct.currency ?? null;
+}
+
+/**
+ * Persists a legacy movement's EUR value only when it remains missing.
+ * Concurrent backfills are therefore safe and idempotent.
+ *
+ * @param id - Contribution id
+ * @param amountEur - Signed EUR value at the movement date
+ * @returns Whether this call filled the row
+ */
+export async function setContributionAmountEurIfMissing(
+  id: string,
+  amountEur: number,
+): Promise<boolean> {
+  const result = await prisma.customProductContribution.updateMany({
+    where: { id, amountEur: null },
+    data: { amountEur },
+  });
+  return result.count > 0;
 }

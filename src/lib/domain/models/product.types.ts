@@ -5,6 +5,16 @@
 
 import type { AssetCategory } from './asset-category';
 
+export type {
+  AddContributionInput,
+  CreateCustomProductInput,
+  CreateYahooFinanceProductInput,
+  UpdateContributionInput,
+  UpdateCustomProductInput,
+  UpdateProductQuantityInput,
+  UpdateYahooFinanceProductInput,
+} from './product-input.types';
+
 /**
  * Product type enumeration
  */
@@ -40,13 +50,14 @@ export interface YahooFinanceProduct extends BaseProduct {
 
 /**
  * Single deposit (positive) or withdrawal (negative) on a custom product.
- * `amount` is stored in the parent product's currency; conversion to a
- * common currency (e.g. EUR for portfolio aggregation) is done at runtime
- * by the consumer.
+ * `amount` is stored in the parent product's currency. `amountEur` is the
+ * signed value frozen at the movement date and is nullable only while a
+ * legacy row awaits its idempotent backfill.
  */
 export interface CustomContribution {
   id: string;
   amount: number;
+  amountEur: number | null;
   date: Date;
   note: string | null;
   createdAt: Date;
@@ -88,10 +99,8 @@ export type FinancialProduct = YahooFinanceProduct | CustomProduct;
  * - `currentValueEur`: total current value in EUR (Yahoo: price·quantity;
  *   Custom: full compounded portfolio of contributions).
  * - `investedEur`: EUR basis used for return calculations. Yahoo products
- *   use purchasePrice·quantity. Custom products use their earliest stored
- *   EUR snapshot plus later signed cash flows converted at each movement date,
- *   falling back to net contributions at the current rate until a snapshot
- *   exists.
+ *   use purchasePrice·quantity. Custom products sum the signed EUR value
+ *   frozen on every contribution date, including later deposits/withdrawals.
  * - `expectedAnnualReturn`: forward-looking annualised return as a decimal
  *   (0.07 = 7%). For Yahoo products this is the geometric mean of the last
  *   five years of monthly closes; for custom products it is the contractual
@@ -127,94 +136,6 @@ export interface Portfolio {
   createdAt: Date;
   updatedAt: Date;
   products?: FinancialProduct[];
-}
-
-/**
- * Input for creating a Yahoo Finance product
- */
-export interface CreateYahooFinanceProductInput {
-  name: string;
-  symbol: string;
-  quantity: number;
-  purchasePrice: number; // Purchase price per share in EUR
-  purchaseDate: Date; // Date of purchase
-  assetCategory: AssetCategory;
-  daysToLiquidity: number;
-}
-
-/**
- * Input for creating a custom product. The first movement (amount + date
- * + optional note) is persisted as the product's first contribution in
- * the chosen currency — there is no separate "initial investment" stored
- * on the product itself.
- */
-export interface CreateCustomProductInput {
-  name: string;
-  annualReturnRate: number;
-  currency: string;
-  assetCategory: AssetCategory;
-  daysToLiquidity: number;
-  firstMovement: {
-    amount: number;
-    date: Date;
-    note?: string | null;
-  };
-}
-
-/**
- * Input for updating product quantity
- */
-export interface UpdateProductQuantityInput {
-  productId: string;
-  quantity: number;
-}
-
-/**
- * Input for updating a Yahoo Finance product
- */
-export interface UpdateYahooFinanceProductInput {
-  productId: string;
-  name: string;
-  quantity: number;
-  purchasePrice: number; // Purchase price per share in EUR
-  purchaseDate: Date; // Date of purchase
-  assetCategory: AssetCategory;
-  daysToLiquidity: number;
-}
-
-/**
- * Input for updating a custom product's metadata
- * (does not modify contributions — use the contribution actions for that).
- * Currency is intentionally absent: it is fixed at creation time so the
- * stored contribution amounts cannot be reinterpreted under a different
- * currency without an explicit data migration.
- */
-export interface UpdateCustomProductInput {
-  productId: string;
-  name: string;
-  annualReturnRate: number;
-  assetCategory: AssetCategory;
-  daysToLiquidity: number;
-}
-
-/**
- * Input for adding a contribution (deposit or withdrawal).
- */
-export interface AddContributionInput {
-  customProductDataId: string;
-  amount: number;
-  date: Date;
-  note?: string | null;
-}
-
-/**
- * Input for updating an existing contribution.
- */
-export interface UpdateContributionInput {
-  id: string;
-  amount: number;
-  date: Date;
-  note?: string | null;
 }
 
 /**

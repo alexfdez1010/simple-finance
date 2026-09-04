@@ -11,7 +11,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { updateCustomProductAction } from '@/lib/actions/product-actions';
+import { updateCustomProductAction } from '@/lib/actions/custom-product-actions';
 import { Input } from '@/components/ui/input';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
 import { FormError, LoadingButton } from '@/components/products/form-actions';

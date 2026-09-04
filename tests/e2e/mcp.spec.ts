@@ -106,7 +106,7 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
       custom: {
         annualReturnRate: number;
         currency: string;
-        contributions: Array<{ amount: number }>;
+        contributions: Array<{ amount: number; amountEur: number | null }>;
       };
     }>(
       await client.callTool({
@@ -125,6 +125,7 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
     expect(custom.type).toBe('CUSTOM');
     expect(custom.custom.currency).toBe('EUR');
     expect(custom.custom.contributions[0]?.amount).toBeCloseTo(1000, 2);
+    expect(custom.custom.contributions[0]?.amountEur).toBeCloseTo(1000, 2);
 
     const list = parseToolJson<Array<{ id: string }>>(
       await client.callTool({ name: 'list_assets', arguments: {} }),
@@ -155,7 +156,11 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
     );
     expect(updated.custom.annualReturnRate).toBeCloseTo(0.07, 4);
 
-    const contribution = parseToolJson<{ id: string; amount: number }>(
+    const contribution = parseToolJson<{
+      id: string;
+      amount: number;
+      amountEur: number | null;
+    }>(
       await client.callTool({
         name: 'add_custom_contribution',
         arguments: {
@@ -167,8 +172,13 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
       }),
     );
     expect(contribution.amount).toBe(500);
+    expect(contribution.amountEur).toBe(500);
 
-    const updatedContribution = parseToolJson<{ id: string; amount: number }>(
+    const updatedContribution = parseToolJson<{
+      id: string;
+      amount: number;
+      amountEur: number | null;
+    }>(
       await client.callTool({
         name: 'update_custom_contribution',
         arguments: {
@@ -180,6 +190,7 @@ test('MCP exposes catalog and supports add/list/update/delete for both asset typ
       }),
     );
     expect(updatedContribution.amount).toBe(-100);
+    expect(updatedContribution.amountEur).toBe(-100);
 
     const deletedContribution = parseToolJson<{ deleted: string }>(
       await client.callTool({

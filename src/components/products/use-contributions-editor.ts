@@ -101,6 +101,7 @@ export function useContributionsEditor({
     const next: CustomContribution = {
       id,
       amount,
+      amountEur: null,
       date,
       note,
       createdAt: new Date(),

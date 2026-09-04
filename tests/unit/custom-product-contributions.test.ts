@@ -17,6 +17,7 @@ const contribution = (
 ): CustomContribution => ({
   id,
   amount,
+  amountEur: amount,
   date: new Date(date),
   note: null,
   createdAt: new Date(date),

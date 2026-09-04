@@ -219,12 +219,13 @@ The password is stored in the `PASSWORD` environment variable for security.
 5. Select investment date
 6. Click **"Add Product"** - compound interest is calculated daily
 
-Once the first daily EUR snapshot exists, it becomes the return basis for a
-custom product. Later deposits and withdrawals adjust that basis using their
-historical EUR rate, so cash flows are not reported as profit while subsequent
-currency movements are. The displayed gain or loss therefore includes both
-accrued interest and currency performance against EUR. Before the first
-snapshot, the current EUR value of net movements is used as a fallback.
+Every custom-product movement stores both its native amount and its EUR value
+at the movement date. Return is current EUR value minus the sum of those signed
+EUR movements. Extra deposits therefore increase invested capital instead of
+profit; withdrawals reduce it, and the displayed gain/loss contains only
+accrued interest plus currency performance after each movement. Legacy rows are
+filled once on read and retain that historical EUR value afterwards. Daily
+snapshots remain valuation history and are never used as cost basis.
 
 ### Viewing Portfolio Statistics
 
@@ -509,8 +510,16 @@ The database uses a **polymorphic design** with Prisma and PostgreSQL:
 **CustomProductData** (1:1 with FinancialProduct)
 
 - `annualReturnRate` - Annual return rate as decimal (e.g., 0.055 for 5.5%)
-- `initialInvestment` - Initial investment in EUR
-- `investmentDate` - Date of investment
+- `currency` - Immutable native currency for all movements
+
+**CustomProductContribution** (1:N with CustomProductData)
+
+- `amount` - Signed deposit/withdrawal in the product currency
+- `amountEur` - Signed EUR cost basis frozen at the movement date
+- `date` - Effective date used for both interest and historical conversion
+- Application writers (`createCustomProductWithEurBasis`,
+  `addContributionWithEurBasis`, `updateContributionWithEurBasis`) must be used
+  by UI or API entry points so `amountEur` is always persisted.
 
 **ProductSnapshot** (1:N with FinancialProduct)
 

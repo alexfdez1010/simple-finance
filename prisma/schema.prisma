@@ -92,12 +92,14 @@ model CustomProductData {
 /// A single deposit (positive amount) or withdrawal (negative amount)
 /// on a custom product. Each contribution accrues compound interest from
 /// its own date at the product's annual return rate.
-/// `amount` is stored in the parent product's currency; conversion to
-/// other currencies is performed at display/aggregation time.
+/// `amount` is stored in the parent product's currency. `amountEur` freezes
+/// its EUR value on the movement date so later FX changes affect return,
+/// while deposits and withdrawals never become artificial profit or loss.
 model CustomProductContribution {
   id                  String   @id @default(cuid())
   customProductDataId String
   amount              Float // Signed: > 0 = deposit, < 0 = withdrawal. In product currency.
+  amountEur           Float? // Signed EUR cost basis at the movement date. Nullable during legacy backfill.
   date                DateTime
   note                String?
   createdAt           DateTime @default(now())

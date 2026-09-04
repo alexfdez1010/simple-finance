@@ -1,5 +1,4 @@
-/**
- * MCP mutation tools that create, update and delete financial assets.
+/** MCP mutation tools that create, update and delete financial assets.
  * @module lib/mcp/tools/mutations
  */
 
@@ -9,17 +8,17 @@ import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import type { AssetCategory } from '@/lib/domain/models/asset-category';
 import {
   createYahooFinanceProduct,
-  createCustomProduct,
   updateYahooFinanceProduct,
   updateCustomProduct,
   deleteProduct,
   findProductById,
 } from '@/lib/infrastructure/database/product-repository';
+import { deleteContribution } from '@/lib/infrastructure/database/contribution-repository';
 import {
-  addContribution,
-  updateContribution,
-  deleteContribution,
-} from '@/lib/infrastructure/database/contribution-repository';
+  addContributionWithEurBasis,
+  createCustomProductWithEurBasis,
+  updateContributionWithEurBasis,
+} from '@/lib/domain/services/custom-product-write-service';
 import {
   contributionFields,
   customCreateFields,
@@ -63,11 +62,11 @@ export function registerMutationTools(server: McpServer): void {
     {
       title: 'Add a custom fixed-rate asset',
       description:
-        'Create a custom asset with a fixed annual return rate (e.g. savings account, bond). firstMovementDate is YYYY-MM-DD; firstMovementAmount is stored as the first contribution in the product currency (never converted to EUR). Currency is locked at creation.',
+        'Create a custom fixed-rate asset. The native first movement and its date-specific EUR cost basis are stored permanently. Currency is locked at creation.',
       inputSchema: customCreateFields,
     },
     async (input) => {
-      const created = await createCustomProduct({
+      const created = await createCustomProductWithEurBasis({
         name: input.name,
         annualReturnRate: input.annualReturnRate,
         currency: input.currency ?? 'EUR',
@@ -153,7 +152,7 @@ export function registerMutationTools(server: McpServer): void {
       if (!product || product.type !== 'CUSTOM') {
         throw new Error(`No custom asset found with id ${assetId}`);
       }
-      const created = await addContribution({
+      const created = await addContributionWithEurBasis({
         customProductDataId: product.custom.id,
         amount,
         date: new Date(date),
@@ -175,7 +174,7 @@ export function registerMutationTools(server: McpServer): void {
       },
     },
     async ({ id, amount, date, note }) => {
-      const updated = await updateContribution({
+      const updated = await updateContributionWithEurBasis({
         id,
         amount,
         date: new Date(date),

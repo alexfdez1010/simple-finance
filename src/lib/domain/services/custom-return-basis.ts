@@ -1,51 +1,27 @@
-/** Cash-flow-adjusted return basis for custom financial products. */
+/** Persisted cash-flow return basis for custom financial products. */
 
 import type { CustomContribution } from '@/lib/domain/models/product.types';
 
-export interface HistoricalEurSnapshot {
-  date: Date;
-  value: number;
-}
-
-export type HistoricalAmountConverter = (
-  amount: number,
-  currency: string,
-  date: Date,
-) => Promise<number>;
-
 /**
- * Adds every effective post-snapshot deposit or withdrawal to the first EUR
- * snapshot. Signed withdrawals reduce the basis. Movements already represented
- * by the snapshot and future-dated movements are excluded.
+ * Sums effective signed movements using their immutable date-specific EUR
+ * values. Deposits increase the basis and withdrawals reduce it; accrued
+ * interest and currency movement are therefore left exclusively in return.
  *
- * @param firstSnapshot - Earliest stored product value in EUR
- * @param contributions - Signed movements in the product currency
- * @param currency - Currency shared by all movements
+ * @param contributions - Signed movements with persisted EUR values
  * @param valuationDate - Date through which movements are effective
- * @param convertAtDate - Historical currency conversion dependency
- * @returns First EUR value adjusted by subsequent net cash flows
+ * @returns Net contributed capital in EUR
+ * @throws When a legacy row has not been backfilled before calculation
  */
-export async function calculateCustomReturnBasisEur(
-  firstSnapshot: HistoricalEurSnapshot,
+export function calculateCustomReturnBasisEur(
   contributions: CustomContribution[],
-  currency: string,
   valuationDate: Date,
-  convertAtDate: HistoricalAmountConverter,
-): Promise<number> {
-  const firstSnapshotTime = firstSnapshot.date.getTime();
+): number {
   const valuationTime = valuationDate.getTime();
-  const laterMovements = contributions.filter((contribution) => {
-    const movementTime = contribution.date.getTime();
-    return movementTime > firstSnapshotTime && movementTime <= valuationTime;
-  });
-  const movementsEur = await Promise.all(
-    laterMovements.map((movement) =>
-      convertAtDate(movement.amount, currency, movement.date),
-    ),
-  );
-
-  return movementsEur.reduce(
-    (basis, movementEur) => basis + movementEur,
-    firstSnapshot.value,
-  );
+  return contributions.reduce((basis, contribution) => {
+    if (contribution.date.getTime() > valuationTime) return basis;
+    if (contribution.amountEur == null) {
+      throw new Error(`Missing EUR basis for contribution ${contribution.id}`);
+    }
+    return basis + contribution.amountEur;
+  }, 0);
 }

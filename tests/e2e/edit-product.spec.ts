@@ -213,6 +213,43 @@ test.describe('Edit Product', () => {
   });
 
   /**
+   * Regression: an additional deposit increases value and cost basis equally,
+   * so it must never appear as investment return.
+   */
+  test('should not count an extra EUR contribution as return', async ({
+    page,
+  }) => {
+    const productName = `EUR Return Basis ${Date.now()}`;
+    const today = new Date().toISOString().split('T')[0];
+    await createCustomProduct(page, productName, '0', '1000', today);
+
+    const productCard = page
+      .getByTestId('product-card')
+      .filter({ hasText: productName })
+      .first();
+    await expect(productCard).toContainText('0,00 € (+0.00%)');
+
+    await productCard.getByRole('button', { name: 'Edit product' }).click();
+    await page.getByRole('button', { name: 'Add movement' }).click();
+    await page.getByPlaceholder('-100 = withdrawal').fill('500');
+    await page.locator('input[type="date"]').last().fill(today);
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.getByText('Movements (2)')).toBeVisible();
+    await page.getByRole('button', { name: 'Close' }).click();
+
+    await page.reload({ waitUntil: 'networkidle' });
+    await openProductsTab(page);
+    const refreshedCard = page
+      .getByTestId('product-card')
+      .filter({ hasText: productName })
+      .first();
+    await expect(
+      refreshedCard.getByText('1500,00 €', { exact: true }),
+    ).toHaveCount(2);
+    await expect(refreshedCard).toContainText('0,00 € (+0.00%)');
+  });
+
+  /**
    * Test: Edit button is visible on hover for product cards
    */
   test('should display Edit button on product card hover', async ({ page }) => {
