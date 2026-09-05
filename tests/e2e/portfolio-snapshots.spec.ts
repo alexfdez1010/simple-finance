@@ -25,10 +25,12 @@ test.describe('Portfolio Snapshots and Charts', () => {
     const monthlyChart = page.locator('text=Monthly Wealth Evolution').first();
     await expect(monthlyChart).toBeVisible();
 
+    await page.getByRole('button', { name: 'Risk', exact: true }).click();
     const dailyChart = page.locator('text=Daily Changes').first();
     await expect(dailyChart).toBeVisible();
 
-    // Check for empty state message (either chart can have it)
+    await page.getByRole('button', { name: 'Overview', exact: true }).click();
+    // Check the overview empty state after returning from Risk.
     const emptyMessage = page
       .locator('text=No historical data available yet')
       .first();
@@ -41,8 +43,8 @@ test.describe('Portfolio Snapshots and Charts', () => {
     await page.goto('http://localhost:3000/dashboard');
     await page.waitForLoadState('networkidle');
 
-    // "Today" stat card should be visible in the stats section
-    const todayStats = page.locator('text=Today').first();
+    // Latest snapshot change stat card should be visible in the stats section
+    const todayStats = page.locator('text=Latest change').first();
     await expect(todayStats).toBeVisible({ timeout: 10000 });
   });
 

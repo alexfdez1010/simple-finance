@@ -111,6 +111,7 @@ export function DashboardClient({
           productCount: stats.productCount,
           profitRates,
           dailyChange,
+          latestChangeDate: dailyChanges.at(-1)?.date,
         }}
         charts={{
           evolutionData,

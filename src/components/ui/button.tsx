@@ -60,7 +60,7 @@ function Button({
   return (
     <HeroButton
       className={cn(
-        'rounded-md font-medium transition-transform active:scale-[0.98]',
+        'rounded-xl font-medium transition-transform active:scale-[0.98]',
         isIconOnly && 'min-h-8 min-w-8',
         size === 'xs' && 'min-h-7 px-2 text-xs',
         className,

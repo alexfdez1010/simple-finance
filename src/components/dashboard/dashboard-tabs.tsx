@@ -1,12 +1,12 @@
 /** HeroUI navigation and content presentation for the dashboard. */
 'use client';
 
-import { Button, Card, Tabs } from '@heroui/react';
-import { Plus } from '@phosphor-icons/react';
+import { Tabs } from '@heroui/react';
 import { DashboardChartsGrid } from '@/components/dashboard/dashboard-charts-grid';
+import { PortfolioInsights } from '@/components/dashboard/portfolio-insights';
 import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
 import { SkillTab } from '@/components/dashboard/skill-tab';
-import { ProductCard } from '@/components/products/product-card';
+import { ProductsPanel } from '@/components/dashboard/products-panel';
 import type { DashboardChartsGridProps } from '@/components/dashboard/dashboard-charts-grid';
 import type { ProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 import type {
@@ -14,7 +14,7 @@ import type {
   ProductWithValue,
 } from '@/lib/domain/models/product.types';
 
-interface DashboardTabsProps {
+export interface DashboardTabsProps {
   products: ProductWithValue[];
   charts: DashboardChartsGridProps;
   stats: {
@@ -25,6 +25,7 @@ interface DashboardTabsProps {
     productCount: number;
     profitRates: ProfitRates;
     dailyChange: number;
+    latestChangeDate?: string;
   };
   skill: {
     serverUrl: string;
@@ -59,15 +60,19 @@ export function DashboardTabs({
       <section aria-labelledby="portfolio-summary-title">
         <h2
           id="portfolio-summary-title"
-          className="mb-4 font-serif text-xl text-foreground"
+          className="mb-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
         >
           Portfolio Overview
         </h2>
+        <p className="mb-6 text-sm text-muted-foreground">
+          The big picture. Every holding, working together.
+        </p>
         <PortfolioStats {...stats} />
       </section>
 
+      <PortfolioInsights holdings={products} />
       <Tabs defaultSelectedKey="charts" variant="secondary">
-        <Tabs.ListContainer className="mb-5 overflow-x-auto">
+        <Tabs.ListContainer className="mb-5 w-fit max-w-full overflow-x-auto rounded-2xl border-white/80 bg-white/55 p-2 shadow-sm backdrop-blur-xl">
           <Tabs.List aria-label="Dashboard sections" className="w-fit">
             <Tabs.Tab id="charts">
               Charts
@@ -101,56 +106,5 @@ export function DashboardTabs({
         </Tabs.Panel>
       </Tabs>
     </div>
-  );
-}
-
-/** Renders the product grid or its empty state. */
-function ProductsPanel({
-  products,
-  onAddProduct,
-  onEditProduct,
-  onDeleteProduct,
-  onViewProduct,
-}: Pick<
-  DashboardTabsProps,
-  | 'products'
-  | 'onAddProduct'
-  | 'onEditProduct'
-  | 'onDeleteProduct'
-  | 'onViewProduct'
->) {
-  if (products.length === 0) {
-    return (
-      <Card className="border border-border py-0 shadow-none">
-        <Card.Content className="flex min-h-52 flex-col items-center justify-center gap-4 p-6 text-center">
-          <p className="text-sm text-muted-foreground">No products yet.</p>
-          <Button onPress={onAddProduct} size="sm" variant="primary">
-            <Plus aria-hidden size={16} weight="bold" />
-            Add Product
-          </Button>
-        </Card.Content>
-      </Card>
-    );
-  }
-
-  return (
-    <section
-      aria-label="Products"
-      className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
-    >
-      {products.map((product) => (
-        <ProductCard
-          key={product.id}
-          product={product}
-          currentValue={product.currentValue}
-          currentValueEur={product.currentValueEur}
-          investedEur={product.investedEur}
-          expectedAnnualReturn={product.expectedAnnualReturn}
-          onEdit={onEditProduct}
-          onDelete={onDeleteProduct}
-          onView={onViewProduct}
-        />
-      ))}
-    </section>
   );
 }

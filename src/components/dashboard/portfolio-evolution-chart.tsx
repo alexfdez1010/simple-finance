@@ -83,12 +83,14 @@ export function PortfolioEvolutionChart({
   return (
     <Card>
       <CardHeader className="pb-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <CardTitle className="font-serif text-lg">
               Portfolio Evolution
             </CardTitle>
-            <CardDescription>Last {filteredData.length} days</CardDescription>
+            <CardDescription>
+              Latest {filteredData.length} snapshots · includes cash flows
+            </CardDescription>
           </div>
           <div className="flex gap-1">
             {DAY_OPTIONS.map((d) => (
@@ -96,10 +98,11 @@ export function PortfolioEvolutionChart({
                 key={d}
                 variant={range === d ? 'default' : 'ghost'}
                 size="xs"
+                aria-pressed={range === d}
                 onClick={() => setRange(d)}
                 disabled={data.length < d && d !== 30}
               >
-                {d}d
+                {d} pts
               </Button>
             ))}
           </div>
@@ -118,7 +121,7 @@ export function PortfolioEvolutionChart({
             {pct}%)
           </p>
         </div>
-        <ChartContainer config={chartConfig} className="h-[200px] w-full">
+        <ChartContainer config={chartConfig} className="h-[280px] w-full">
           <AreaChart data={filteredData} margin={{ left: 4, right: 4 }}>
             <CartesianGrid vertical={false} strokeOpacity={0.3} />
             <XAxis

@@ -66,7 +66,7 @@ export function ProductCard({
 
   return (
     <Card
-      className="h-full border border-border py-0 shadow-none transition-transform duration-200 hover:-translate-y-0.5"
+      className="finance-card h-full py-0 transition-transform duration-200 hover:-translate-y-0.5"
       data-testid="product-card"
     >
       <Card.Header className="flex-row items-start justify-between p-5 pb-3">

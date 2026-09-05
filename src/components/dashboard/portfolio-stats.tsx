@@ -26,6 +26,7 @@ interface PortfolioStatsProps {
   productCount: number;
   profitRates: ProfitRates;
   dailyChange: number;
+  latestChangeDate?: string;
 }
 
 /**
@@ -52,6 +53,7 @@ export function PortfolioStats({
   productCount,
   profitRates,
   dailyChange,
+  latestChangeDate,
 }: PortfolioStatsProps) {
   const { format: formatCurrency } = useDisplayCurrency();
   const isPositive = totalReturn >= 0;
@@ -69,8 +71,11 @@ export function PortfolioStats({
         label="Total Value"
         featured
       >
-        <p className="display-number font-serif text-4xl font-semibold text-foreground sm:text-5xl">
+        <p className="display-number font-sans text-4xl font-semibold text-foreground sm:text-5xl lg:text-[2.6rem]">
           {formatCurrency(totalValue)}
+        </p>
+        <p className="mt-4 text-sm text-muted-foreground">
+          Across {productCount} holdings · current valuation
         </p>
       </StatCard>
 
@@ -79,7 +84,7 @@ export function PortfolioStats({
         icon={<PiggyBank aria-hidden size={16} weight="duotone" />}
         label="Invested"
       >
-        <p className="display-number font-serif text-2xl font-semibold text-foreground">
+        <p className="display-number font-serif text-lg font-semibold xl:text-xl text-foreground">
           {formatCurrency(totalInvestment)}
         </p>
       </StatCard>
@@ -91,7 +96,7 @@ export function PortfolioStats({
         tone={isPositive ? 'gain' : 'loss'}
       >
         <p
-          className={`display-number font-serif text-2xl font-semibold ${isPositive ? 'text-gain' : 'text-loss'}`}
+          className={`display-number font-serif text-lg font-semibold xl:text-xl ${isPositive ? 'text-gain' : 'text-loss'}`}
         >
           {formatCurrency(totalReturn)}
         </p>
@@ -105,13 +110,16 @@ export function PortfolioStats({
       <StatCard
         className="md:col-span-2 lg:col-span-2"
         icon={<ChartBar aria-hidden size={16} weight="duotone" />}
-        label="Today"
+        label="Latest change"
         tone={isDailyPositive ? 'gain' : 'loss'}
       >
         <p
-          className={`display-number font-serif text-2xl font-semibold ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
+          className={`display-number font-serif text-lg font-semibold xl:text-xl ${isDailyPositive ? 'text-gain' : 'text-loss'}`}
         >
-          {formatCurrency(dailyChange)}
+          {latestChangeDate ? formatCurrency(dailyChange) : '—'}
+        </p>
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          {latestChangeDate ?? 'Awaiting snapshots'}
         </p>
       </StatCard>
 
@@ -120,14 +128,14 @@ export function PortfolioStats({
         icon={<Package aria-hidden size={16} weight="duotone" />}
         label="Products"
       >
-        <p className="display-number font-serif text-2xl font-semibold text-foreground">
+        <p className="display-number font-serif text-lg font-semibold xl:text-xl text-foreground">
           {productCount}
         </p>
       </StatCard>
 
       <Card
         aria-label="Projected profit"
-        className="col-span-2 min-h-32 rounded-xl border border-border py-0 shadow-none md:col-span-4 lg:col-span-8"
+        className="finance-card col-span-2 min-h-32 py-0 md:col-span-4 lg:col-span-8"
         role="group"
         variant="secondary"
       >
@@ -169,12 +177,12 @@ function StatCard({
   return (
     <Card
       aria-label={label}
-      className={`min-h-32 border border-border py-0 shadow-none ${featured ? 'h-full rounded-xl bg-surface-secondary' : 'rounded-lg'} ${className ?? ''}`}
+      className={`finance-card min-h-32 py-0 ${featured ? 'wealth-surface h-full' : ''} ${className ?? ''}`}
       role="group"
       variant={featured ? 'secondary' : 'default'}
     >
       <Card.Content
-        className={`flex h-full flex-col justify-between ${featured ? 'p-5 sm:p-6 lg:p-7' : 'p-4 sm:p-5'}`}
+        className={`flex h-full flex-col justify-between ${featured ? 'p-5 sm:p-6 lg:p-7' : 'p-3 sm:p-4'}`}
       >
         <div className="mb-4 flex items-center gap-2">
           <span className={`${iconColor}`}>{icon}</span>

@@ -712,3 +712,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ---
 
 **⭐ If you find this project useful, please consider giving it a star on GitHub!**
+
+## Glass dashboard and portfolio insights
+
+See [Portfolio experience](docs/portfolio-experience.md) for analytics views, searchable holdings, statistic definitions, module usage, and verification instructions.

@@ -1,13 +1,26 @@
 @layer components {
   .app-shell {
     min-height: 100dvh;
-    background-color: var(--background);
+    @apply bg-[radial-gradient(ellipse_at_5%_0%,#cce3f9_0%,transparent_45%),radial-gradient(ellipse_at_95%_35%,#d4eee6_0%,transparent_40%),radial-gradient(ellipse_at_35%_100%,#e2e5f4_0%,transparent_45%)] bg-fixed;
   }
 
   .finance-card {
-    border: 1px solid var(--border);
-    background-color: var(--surface);
-    box-shadow: var(--surface-shadow);
+    @apply min-w-0 rounded-3xl border border-white/80 bg-white/65 shadow-[0_8px_32px_-16px_rgba(45,76,115,0.25),inset_0_1px_0_rgba(255,255,255,0.9)] backdrop-blur-xl;
+  }
+
+  .glass-toolbar {
+    @apply rounded-2xl border border-white/80 bg-white/55 p-2 shadow-[0_4px_24px_-12px_rgba(45,76,115,0.2)] backdrop-blur-xl;
+  }
+
+  .wealth-surface {
+    @apply bg-[radial-gradient(ellipse_at_top_right,rgba(133,192,236,0.3),transparent_70%)] bg-white/60;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .finance-card,
+    .glass-toolbar {
+      @apply bg-white backdrop-blur-none;
+    }
   }
 
   .lift {
@@ -35,6 +48,7 @@
   }
 
   .display-number {
+    @apply [overflow-wrap:anywhere];
     font-feature-settings: 'tnum', 'ss01';
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.035em;

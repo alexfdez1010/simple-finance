@@ -20,7 +20,7 @@ export function StatsLoadingSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <Card
           key={i}
-          className={`${i === 0 ? 'col-span-2 h-full rounded-xl md:col-span-4 lg:col-span-4 lg:row-span-2' : i === 5 ? 'col-span-2 rounded-xl md:col-span-4 lg:col-span-8' : 'rounded-lg md:col-span-2 lg:col-span-2'} min-h-32 border border-border py-0 shadow-none`}
+          className={`${i === 0 ? 'col-span-2 h-full rounded-xl md:col-span-4 lg:col-span-4 lg:row-span-2' : i === 5 ? 'col-span-2 rounded-xl md:col-span-4 lg:col-span-8' : 'rounded-lg md:col-span-2 lg:col-span-2'} finance-card min-h-32 py-0`}
         >
           <Card.Content className="flex h-full flex-col justify-between p-4 sm:p-5">
             <Skeleton className="h-3 w-20 rounded-sm" />
@@ -39,7 +39,7 @@ export function StatsLoadingSkeleton() {
  */
 export function ChartLoadingSkeleton() {
   return (
-    <Card aria-hidden="true" className="border border-border py-0 shadow-none">
+    <Card aria-hidden="true" className="finance-card py-0">
       <Card.Content className="p-5 sm:p-6">
         <Skeleton className="mb-2 h-5 w-40 rounded-sm" />
         <Skeleton className="mb-6 h-3 w-60 max-w-full rounded-sm" />
@@ -61,7 +61,7 @@ export function ProductsLoadingSkeleton() {
       className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
     >
       {Array.from({ length: 3 }).map((_, i) => (
-        <Card key={i} className="border border-border py-0 shadow-none">
+        <Card key={i} className="finance-card py-0">
           <Card.Content className="p-5">
             <div className="mb-6 flex justify-between">
               <div>

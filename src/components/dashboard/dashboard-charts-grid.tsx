@@ -6,6 +6,8 @@
 
 'use client';
 
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
 import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
 import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
@@ -73,45 +75,86 @@ export function DashboardChartsGrid({
   liquidityCurve,
   performersData,
 }: DashboardChartsGridProps) {
+  const [view, setView] = useState('Overview');
   return (
     <div className="flex flex-col gap-4 sm:gap-6">
-      <MonthlyWealthChart data={monthlyWealthData} />
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <PortfolioEvolutionChart data={evolutionData} />
-        <InvestedVsValueChart
-          evolution={evolutionData}
-          invested={investedSeries}
-        />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight">
+            Portfolio analytics
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Explore your growth, allocation, and cash flow.
+          </p>
+        </div>
+        <div
+          className="flex flex-wrap gap-1"
+          role="group"
+          aria-label="Analytics view"
+        >
+          {['Overview', 'Allocation', 'Cash flow', 'Risk'].map((option) => (
+            <Button
+              key={option}
+              size="sm"
+              variant={view === option ? 'default' : 'ghost'}
+              aria-pressed={view === option}
+              onClick={() => setView(option)}
+            >
+              {option}
+            </Button>
+          ))}
+        </div>
       </div>
+      {view === 'Overview' && (
+        <>
+          <PortfolioEvolutionChart data={evolutionData} />
+          <MonthlyWealthChart data={monthlyWealthData} />
 
-      <MonthlyContributionsChart data={monthlyContributions} />
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <TopPerformers performers={performersData} />
+            <InvestedVsValueChart
+              evolution={evolutionData}
+              invested={investedSeries}
+            />
+          </div>
+        </>
+      )}
+      {view === 'Cash flow' && (
+        <>
+          <MonthlyContributionsChart data={monthlyContributions} />
+          <LiquidityCurveChart data={liquidityCurve} />
+        </>
+      )}
+      {view === 'Risk' && (
+        <>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <DailyChangesChart data={dailyChanges} />
+            <RollingReturnChart data={evolutionData} />
+          </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DailyChangesChart data={dailyChanges} />
-        <RollingReturnChart data={evolutionData} />
-      </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <DrawdownChart data={evolutionData} />
+            <ReturnsDistributionChart data={evolutionData} />
+          </div>
+          <DailyHeatmapChart data={evolutionData} />
+          <p className="text-xs text-muted-foreground">
+            Snapshot value changes include deposits and withdrawals; they are
+            not cash-flow-adjusted investment returns.
+          </p>
+        </>
+      )}
+      {view === 'Allocation' && (
+        <>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <PortfolioAllocationChart data={allocationData} />
+            <AllocationByCategoryChart data={categoryAllocation} />
+          </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <PortfolioAllocationChart data={allocationData} />
-        <AllocationByCategoryChart data={categoryAllocation} />
-      </div>
+          <AllocationByCurrencyChart data={currencyAllocation} />
 
-      <AllocationByCurrencyChart data={currencyAllocation} />
-
-      <LiquidityCurveChart data={liquidityCurve} />
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <TopPerformers performers={performersData} />
-        <ContributionChart data={performersData} />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <DrawdownChart data={evolutionData} />
-        <ReturnsDistributionChart data={evolutionData} />
-      </div>
-
-      <DailyHeatmapChart data={evolutionData} />
+          <ContributionChart data={performersData} />
+        </>
+      )}
     </div>
   );
 }

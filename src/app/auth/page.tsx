@@ -48,7 +48,7 @@ export default function AuthPage() {
       className="app-shell flex items-center justify-center px-5 py-16"
       id="main-content"
     >
-      <Card className="w-full max-w-sm rounded-xl border border-border bg-surface p-0 shadow-none">
+      <Card className="finance-card w-full max-w-sm p-0">
         <Card.Header className="gap-2 border-b border-border px-7 py-6">
           <p className="font-mono text-[0.65rem] font-semibold tracking-[0.14em] text-muted uppercase">
             Private portfolio

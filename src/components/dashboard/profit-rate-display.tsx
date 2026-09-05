@@ -85,7 +85,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
     <div className="flex h-full flex-col justify-between gap-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-medium text-muted-foreground">
-          {config.label} profit
+          Estimated {config.label.toLowerCase()} profit
         </p>
         <Button
           onPress={handleCycle}

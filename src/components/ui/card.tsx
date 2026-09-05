@@ -3,14 +3,11 @@
 import { Card as HeroCard } from '@heroui/react';
 import { cn } from '@/lib/utils';
 
-/** Renders a flat HeroUI financial surface. */
+/** Renders a glass financial surface; accepts card props and children without side effects. */
 function Card({ className, ...props }: React.ComponentProps<typeof HeroCard>) {
   return (
     <HeroCard
-      className={cn(
-        'finance-card rounded-xl bg-surface py-0 text-foreground',
-        className,
-      )}
+      className={cn('finance-card py-0 text-foreground', className)}
       variant="default"
       {...props}
     />
