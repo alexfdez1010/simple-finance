@@ -1,7 +1,7 @@
 /** Searchable portfolio holdings workspace. */
 'use client';
 import { useState } from 'react';
-import { Button, Card } from '@heroui/react';
+import { Button, Card, Label, ListBox, Select } from '@heroui/react';
 import { Plus, MagnifyingGlass } from '@phosphor-icons/react';
 import { ProductCard } from '@/components/products/product-card';
 import type { DashboardTabsProps } from './dashboard-tabs';
@@ -76,18 +76,38 @@ export function ProductsPanel({
             />
           </span>
         </label>
-        <label className="text-xs font-medium text-muted-foreground">
-          Sort holdings
-          <select
-            value={sort}
-            onChange={(event) => setSort(event.target.value)}
-            className="finance-card mt-2 block rounded-xl px-3 py-3 text-sm text-foreground"
-          >
-            <option value="value">Highest value</option>
-            <option value="gain">Highest gain</option>
-            <option value="name">Name A–Z</option>
-          </select>
-        </label>
+        <Select
+          aria-label="Sort holdings"
+          className="w-44"
+          variant="secondary"
+          value={sort}
+          onChange={(value) => {
+            if (value === 'value' || value === 'gain' || value === 'name')
+              setSort(value);
+          }}
+        >
+          <Label className="text-xs font-medium text-muted-foreground">
+            Sort holdings
+          </Label>
+          <Select.Trigger className="min-h-11 rounded-xl">
+            <Select.Value />
+            <Select.Indicator />
+          </Select.Trigger>
+          <Select.Popover>
+            <ListBox aria-label="Sort options" selectionMode="single">
+              {[
+                ['value', 'Highest value'],
+                ['gain', 'Highest gain'],
+                ['name', 'Name A–Z'],
+              ].map(([id, label]) => (
+                <ListBox.Item key={id} id={id} textValue={label}>
+                  {label}
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </Select.Popover>
+        </Select>
       </div>
       <p role="status" className="text-xs text-muted-foreground">
         {filtered.length} of {products.length} holdings

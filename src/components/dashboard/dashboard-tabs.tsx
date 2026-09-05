@@ -72,7 +72,7 @@ export function DashboardTabs({
 
       <PortfolioInsights holdings={products} />
       <Tabs defaultSelectedKey="charts" variant="secondary">
-        <Tabs.ListContainer className="mb-5 w-fit max-w-full overflow-x-auto rounded-2xl border-white/80 bg-white/55 p-2 shadow-sm backdrop-blur-xl">
+        <Tabs.ListContainer className="mx-auto mb-5 w-fit max-w-full overflow-x-auto rounded-2xl border-white/80 bg-white/55 p-2 shadow-sm backdrop-blur-xl">
           <Tabs.List aria-label="Dashboard sections" className="w-fit">
             <Tabs.Tab id="charts">
               Charts

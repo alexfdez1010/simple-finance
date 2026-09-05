@@ -1,7 +1,11 @@
 import { test, expect } from '@playwright/test';
 import { PrismaClient } from '../../generated/prisma';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase, openProductsTab } from './test-helpers';
+import {
+  cleanDatabase,
+  openProductsTab,
+  selectHeroOption,
+} from './test-helpers';
 
 const prisma = new PrismaClient();
 
@@ -71,8 +75,11 @@ test('searches and sorts holdings, recovers from no results, and opens editing',
   await openProductsTab(page);
   const cards = page.getByTestId('product-card');
   await expect(cards.first()).toContainText('Reserve');
-  await page.getByLabel('Sort holdings').selectOption('name');
+  await selectHeroOption(page, 'Sort holdings', 'Name A–Z');
   await expect(cards.first()).toContainText('Bond ladder');
+  await expect(page.getByRole('listbox')).not.toBeVisible();
+  await selectHeroOption(page, 'Sort holdings', 'Highest value');
+  await expect(cards.first()).toContainText('Reserve');
   await page.getByLabel('Search holdings').fill('reserve');
   await expect(cards).toHaveCount(1);
   await page.getByLabel('Search holdings').fill('missing');
@@ -83,7 +90,9 @@ test('searches and sorts holdings, recovers from no results, and opens editing',
     .first()
     .getByRole('button', { name: 'Edit product', exact: true })
     .click();
-  await expect(page.getByRole('dialog')).toBeVisible();
+  await expect(
+    page.getByRole('dialog', { name: 'Edit Product', exact: true }),
+  ).toBeVisible();
 });
 
 test('keeps glass surfaces and content usable on mobile with reduced motion', async ({
@@ -128,4 +137,16 @@ test('contains large balances on a narrow screen', async ({ page }) => {
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+});
+
+/** The workspace navigation stays centered at both desktop and mobile widths. */
+test('centers dashboard navigation across breakpoints', async ({ page }) => {
+  for (const width of [1280, 390]) {
+    await page.setViewportSize({ width, height: 900 });
+    const tabs = page.getByRole('tablist', { name: 'Dashboard sections' });
+    await expect(tabs).toBeVisible();
+    const bounds = await tabs.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(Math.abs(bounds!.x + bounds!.width / 2 - width / 2)).toBeLessThan(2);
+  }
 });
