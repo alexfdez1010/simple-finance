@@ -73,28 +73,4 @@ describe('snapshot route Yahoo failure', () => {
     expect(mocks.upsertProductSnapshot).not.toHaveBeenCalled();
     expect(mocks.upsertPortfolioSnapshot).not.toHaveBeenCalled();
   });
-  it('captures invested capital from exactly the holdings used for valuation', async () => {
-    mocks.enrichProductsWithEurValues.mockResolvedValue([
-      { id: 'cash', quantity: 1, currentValueEur: 1210.25, investedEur: 1200 },
-      { id: 'fund', quantity: 2, currentValueEur: 520, investedEur: 500 },
-    ]);
-    mocks.upsertPortfolioSnapshot.mockImplementation(async (date, value) => ({
-      date,
-      value,
-    }));
-    const response = await GET(
-      new NextRequest('http://localhost/api/cron/snapshot', {
-        headers: { authorization: 'Bearer test-secret' },
-      }),
-    );
-    expect(response.status).toBe(200);
-    expect(mocks.upsertPortfolioSnapshot).toHaveBeenCalledWith(
-      expect.any(Date),
-      1730.25,
-      1700,
-    );
-    const date = mocks.upsertPortfolioSnapshot.mock.calls[0][0] as Date;
-    expect(date.getUTCHours()).toBe(0);
-    expect(date.getUTCMinutes()).toBe(0);
-  });
 });

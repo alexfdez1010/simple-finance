@@ -6,8 +6,6 @@
 
 'use client';
 
-import type { computePortfolioRisk } from '@/lib/domain/services/portfolio-risk';
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
@@ -51,7 +49,6 @@ export interface DashboardChartsGridProps {
     withdrawals: number;
     net: number;
   }>;
-  riskData: ReturnType<typeof computePortfolioRisk>;
   investedSeries: Array<{ date: string; invested: number }>;
   allocationData: AllocationItem[];
   currencyAllocation: Array<{ currency: string; value: number }>;
@@ -69,9 +66,9 @@ export interface DashboardChartsGridProps {
 export function DashboardChartsGrid({
   evolutionData,
   monthlyWealthData,
+  dailyChanges,
   monthlyContributions,
   investedSeries,
-  riskData,
   allocationData,
   currencyAllocation,
   categoryAllocation,
@@ -131,18 +128,18 @@ export function DashboardChartsGrid({
       {view === 'Risk' && (
         <>
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <DailyChangesChart data={riskData.dailyChanges} />
-            <RollingReturnChart data={riskData.performance} />
+            <DailyChangesChart data={dailyChanges} />
+            <RollingReturnChart data={evolutionData} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <DrawdownChart data={riskData.performance} />
-            <ReturnsDistributionChart data={riskData.performance} />
+            <DrawdownChart data={evolutionData} />
+            <ReturnsDistributionChart data={evolutionData} />
           </div>
-          <DailyHeatmapChart data={riskData.performance} />
+          <DailyHeatmapChart data={evolutionData} />
           <p className="text-xs text-muted-foreground">
-            Returns exclude recorded deposits and withdrawals, assuming cash
-            flows occur at the end of each snapshot period.
+            Snapshot value changes include deposits and withdrawals; they are
+            not cash-flow-adjusted investment returns.
           </p>
         </>
       )}

@@ -7,7 +7,7 @@ The dashboard uses a cool glass surface system with Tailwind CSS 4, Geist typogr
 - Charts → Overview shows valuation history, monthly wealth, top performers and invested capital versus value.
 - Charts → Allocation groups holdings by product, category and currency and shows contribution to gains.
 - Charts → Cash flow shows movements and the configured liquidity curve.
-- Charts → Risk shows cash-flow-adjusted changes, rolling returns, drawdowns, distribution and the calendar heatmap. Click or keyboard-activate a populated heatmap day to open its date and signed percentage return; Escape or clicking outside closes the popover. Zero-return days remain available.
+- Charts → Risk shows snapshot changes, rolling changes, drawdowns, distribution and the calendar heatmap. These snapshot-based measures include external cash flows; they are not cash-flow-adjusted returns.
 - Products → Search holdings matches name, ticker or native currency. For example, enter “EUR” to find custom euro holdings. Sort holdings offers highest value, highest absolute EUR gain and alphabetical order. Clearing a search restores the full list.
 - The global display currency applies to insight amounts as well as existing portfolio values. Percentages remain currency independent.
 
@@ -39,27 +39,3 @@ Run `bun run lint-format`, `bun run test:unit`, and `bun run build`. End-to-end 
 ## Maintenance notes
 
 Keep diagnostics in the pure domain service and rendering in small components (single responsibility and interface segregation). Do not add fetching to the insight cards or change historical accounting to implement a visual enhancement. The existing UI adapter layer preserves stable callers while the surface system changes (open/closed principle). No dependencies or database schema changes are required.
-
-## Cash-flow-adjusted risk calculations
-
-`computePortfolioRisk` in `src/lib/domain/services/portfolio-risk.ts` accepts chronological EUR valuations and cumulative EUR contributions aligned by ISO date. Invoke `computePortfolioRisk(snapshotData.riskValuations, investedSeries)` to obtain adjusted EUR `dailyChanges` and a base-100 `performance` index. For example, a portfolio moving from EUR 100 to EUR 160 after a EUR 50 deposit reports EUR 10 profit and a 10% return. If it then rises to EUR 176 without contributions, the next return is 10% and the compounded index is 121.
-
-Each interval subtracts its change in capital actually included in the snapshots from its change in valuation. The Risk view uses `getSnapshotInvestedSeries(productsWithValues, snapshotData.snapshots)` as the second argument to `computePortfolioRisk`; calendar-date cost basis remains specific to the Overview chart. Returns divide this adjusted gain by opening portfolio value and compound geometrically. All Risk charts use this shared calculation; Overview continues to show actual wealth. The calculation uses up to 365 days of snapshots and the existing contribution ledger, including custom deposits/withdrawals at their stored EUR basis and Yahoo purchases. Missing contribution bases throw an error. Empty histories stay empty, single snapshots establish a baseline, and intervals without positive opening capital leave the index unchanged. Daily data assumes end-of-period flows; gaps represent returns between available snapshots, and intraday timing cannot be reconstructed. Deleted or backdated holdings/movements can limit accuracy against previously stored snapshots.
-
-`DailyHeatmapDay` accepts a `cell` containing an ISO date and percentage (or null), plus `maxAbs` for color intensity. For example, render it with `cell={{ date: '2026-09-02', pct: 10 }}` and `maxAbs={10}` to show a clickable +10.00% day. Null returns render noninteractive placeholders. The component uses the existing HeroUI popover for focus, keyboard and dismissal behavior.
-
-References: [React memoization](https://react.dev/reference/react/useMemo), [HeroUI Popover](https://heroui.com/en/docs/react/components/popover), [GIPS return calculation standards](https://www.gipsstandards.org/wp-content/uploads/2021/03/2020_gips_standards_firms.pdf), and [Vitest](https://vitest.dev/guide/).
-
-## Snapshot timing and migration
-
-A snapshot is captured at the cron invocation time (scheduled at 05:00 UTC), not at the end of its calendar date. Previously, adding a same-day contribution after that capture subtracted money from a snapshot that did not yet include it, producing a false loss and a corresponding gain at the next capture.
-
-`getSnapshotInvestedSeries` in `src/lib/domain/services/snapshot-invested-series.ts` accepts enriched products plus snapshots with `date`, `createdAt`, and nullable `investedEur`. Invoke it with `getSnapshotInvestedSeries(productsWithValues, snapshots)`. Recorded capital is authoritative, including zero. For legacy snapshots, a custom contribution is included only after both its entry timestamp and effective timestamp, and after the product existed. Yahoo holdings are included after product creation, matching the valuation pipeline. This reconstruction is read-only; it does not change snapshot values or contribution dates. Later edits/deletions, imports with altered creation timestamps, and legacy same-day snapshot overwrites limit what can be reconstructed. The original creation timestamp is not an audit log.
-
-Migration `20260906160000_capture_snapshot_invested_eur` adds one nullable column to `portfolio_snapshots`. No historical rows are rewritten and no guessed basis is permanently backfilled. New cron runs save value and invested EUR from the same enriched holdings in one portfolio-row write; reruns replace both together. New day labels use UTC consistently.
-
-Apply with `bun run database:deploy` against the deployment database, then run `bunx prisma generate` and build/deploy the app. During a staggered rollout, new readers and writers can still operate against the old schema: a missing-column error falls back to legacy snapshots, and the writer logs that the migration is pending. Other database errors propagate. Rollback consists of restoring the prior app version while retaining the nullable column; do not drop historical data. Avoid rerunning snapshots with an old writer after rollback, since old versions cannot keep captured capital in sync when overwriting values.
-
-The regression suite covers afternoon deposits/withdrawals after a morning snapshot, early deposits, backdated entries, future effective dates, timezone offsets, frozen zero, mixed legacy/new rows, same-day rewrites and pre-migration compatibility. The exact migration SQL is verified against the preceding schema with an existing valuation retained unchanged.
-
-Reference: [Prisma expand-and-contract migrations](https://www.prisma.io/docs/guides/database/data-migration).

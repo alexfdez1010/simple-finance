@@ -1,8 +1,6 @@
 /** Dashboard client component with lazy-loaded charts and dialog management */
 'use client';
 
-import type { computePortfolioRisk } from '@/lib/domain/services/portfolio-risk';
-
 import { useState } from 'react';
 import { DashboardHeader } from '@/components/dashboard/dashboard-header';
 import { DashboardTabs } from '@/components/dashboard/dashboard-tabs';
@@ -31,7 +29,6 @@ interface DashboardClientProps {
     withdrawals: number;
     net: number;
   }>;
-  riskData: ReturnType<typeof computePortfolioRisk>;
   investedSeries: Array<{ date: string; invested: number }>;
   displayRates: Record<DisplayCurrency, number>;
   skill: {
@@ -55,7 +52,6 @@ export function DashboardClient({
   dailyChanges,
   monthlyContributions,
   investedSeries,
-  riskData,
   displayRates,
   skill,
 }: DashboardClientProps) {
@@ -123,7 +119,6 @@ export function DashboardClient({
           dailyChanges,
           monthlyContributions,
           investedSeries,
-          riskData,
           allocationData,
           currencyAllocation,
           categoryAllocation,
