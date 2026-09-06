@@ -1,5 +1,31 @@
 import { prisma } from './prisma-client';
 
+const snapshotSelect = { id: true, date: true, value: true } as const;
+const legacySelect = { ...snapshotSelect, createdAt: true } as const;
+
+/**
+ * Detects an unapplied additive migration without hiding other database errors.
+ * @param error - Unknown Prisma failure from a snapshot query.
+ * @returns Whether a referenced column is missing; no side effects.
+ */
+function isMissingColumn(error: unknown): boolean {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    error.code === 'P2022'
+  );
+}
+
+/** Stored valuation and the capital captured alongside it; legacy bases are null. */
+export interface PortfolioSnapshotPoint {
+  id: string;
+  date: Date;
+  value: number;
+  createdAt: Date;
+  investedEur: number | null;
+}
+
 /**
  * Creates a new portfolio snapshot for a given date.
  *
@@ -12,6 +38,7 @@ export async function createPortfolioSnapshot(
   value: number,
 ): Promise<{ id: string; date: Date; value: number }> {
   return await prisma.portfolioSnapshot.create({
+    select: snapshotSelect,
     data: {
       date,
       value,
@@ -30,6 +57,7 @@ export async function getLatestPortfolioSnapshot(): Promise<{
   value: number;
 } | null> {
   return await prisma.portfolioSnapshot.findFirst({
+    select: snapshotSelect,
     orderBy: {
       date: 'desc',
     },
@@ -40,24 +68,31 @@ export async function getLatestPortfolioSnapshot(): Promise<{
  * Gets portfolio snapshots for the last N days.
  *
  * @param days - Number of days to retrieve
- * @returns Array of snapshots ordered by date ascending
+ * @returns Ascending snapshots; before migration, missing capital is returned as null.
  */
 export async function getPortfolioSnapshotsLastNDays(
   days: number,
-): Promise<Array<{ id: string; date: Date; value: number }>> {
+): Promise<PortfolioSnapshotPoint[]> {
   const startDate = new Date();
   startDate.setDate(startDate.getDate() - days);
 
-  return await prisma.portfolioSnapshot.findMany({
-    where: {
-      date: {
-        gte: startDate,
-      },
-    },
-    orderBy: {
-      date: 'asc',
-    },
-  });
+  const query = {
+    where: { date: { gte: startDate } },
+    orderBy: { date: 'asc' as const },
+  };
+  try {
+    return await prisma.portfolioSnapshot.findMany({
+      ...query,
+      select: { ...legacySelect, investedEur: true },
+    });
+  } catch (error) {
+    if (!isMissingColumn(error)) throw error;
+    const rows = await prisma.portfolioSnapshot.findMany({
+      ...query,
+      select: legacySelect,
+    });
+    return rows.map((row) => ({ ...row, investedEur: null }));
+  }
 }
 
 /**
@@ -76,26 +111,36 @@ export async function snapshotExistsForDate(date: Date): Promise<boolean> {
 }
 
 /**
- * Updates or creates a portfolio snapshot for a given date.
+ * Updates or creates a portfolio snapshot with its matching invested capital.
  *
  * @param date - The date of the snapshot
  * @param value - The total portfolio value in EUR
- * @returns The created or updated snapshot
+ * @param investedEur - Capital from the same valuation; omitted legacy writes clear it.
+ * @returns The row, writing value and capital atomically when the migration is present.
+ * Before migration, persists a legacy snapshot and logs that capture is pending.
  */
 export async function upsertPortfolioSnapshot(
   date: Date,
   value: number,
+  investedEur: number | null = null,
 ): Promise<{ id: string; date: Date; value: number }> {
-  return await prisma.portfolioSnapshot.upsert({
-    where: {
-      date,
-    },
-    update: {
-      value,
-    },
-    create: {
-      date,
-      value,
-    },
-  });
+  try {
+    return await prisma.portfolioSnapshot.upsert({
+      where: { date },
+      select: snapshotSelect,
+      update: { value, investedEur },
+      create: { date, value, investedEur },
+    });
+  } catch (error) {
+    if (!isMissingColumn(error)) throw error;
+    console.warn(
+      'Snapshot capital capture needs migration 20260906160000_capture_snapshot_invested_eur',
+    );
+    return await prisma.portfolioSnapshot.upsert({
+      where: { date },
+      select: snapshotSelect,
+      update: { value },
+      create: { date, value },
+    });
+  }
 }

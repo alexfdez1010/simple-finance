@@ -40,8 +40,8 @@ test('excludes deposits from risk and opens day returns with mouse and keyboard'
   });
   await prisma.portfolioSnapshot.createMany({
     data: [
-      { date: yesterday, value: 100 },
-      { date: today, value: 160 },
+      { date: yesterday, value: 100, investedEur: 100 },
+      { date: today, value: 160, investedEur: 150 },
     ],
   });
   await authenticateTestUser(page);
@@ -69,4 +69,61 @@ test('excludes deposits from risk and opens day returns with mouse and keyboard'
   const bounds = await dialog.boundingBox();
   expect(bounds!.x).toBeGreaterThanOrEqual(0);
   expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(390);
+});
+
+test('legacy snapshot excludes a deposit entered after capture on the same day', async ({
+  page,
+}) => {
+  await cleanDatabase();
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const prior = new Date(today);
+  prior.setUTCDate(today.getUTCDate() - 1);
+  const inception = new Date(today);
+  inception.setUTCDate(today.getUTCDate() - 3);
+  const morning = new Date(today.getTime() + 5 * 3600000);
+  const afternoon = new Date(today.getTime() + 12 * 3600000);
+  await prisma.financialProduct.create({
+    data: {
+      name: 'Late deposit regression',
+      type: 'CUSTOM',
+      quantity: 1,
+      assetCategory: 'CASH',
+      createdAt: inception,
+      custom: {
+        create: {
+          currency: 'EUR',
+          annualReturnRate: 0,
+          contributions: {
+            create: [
+              {
+                date: inception,
+                createdAt: inception,
+                amount: 1000,
+                amountEur: 1000,
+              },
+              {
+                date: today,
+                createdAt: afternoon,
+                amount: 200,
+                amountEur: 200,
+              },
+            ],
+          },
+        },
+      },
+    },
+  });
+  await prisma.portfolioSnapshot.createMany({
+    data: [
+      { date: prior, createdAt: prior, value: 1000 },
+      { date: today, createdAt: morning, value: 1000 },
+    ],
+  });
+  await authenticateTestUser(page);
+  await page.goto('http://localhost:3000/dashboard');
+  await page.getByRole('button', { name: 'Risk', exact: true }).click();
+  await page.getByRole('button', { name: /\+0.00% return/ }).click();
+  await expect(page.getByRole('dialog')).toContainText('+0.00%');
+  await expect(page.getByRole('dialog')).not.toContainText('-20.00%');
 });

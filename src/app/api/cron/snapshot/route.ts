@@ -12,7 +12,7 @@ import { generateAuthToken } from '@/lib/auth/auth-utils';
 /**
  * API endpoint to create a daily portfolio snapshot.
  * Protected by bearer token authentication.
- * Should be called by a cron job at midnight.
+ * Scheduled at 05:00 UTC; capital is captured from the same enriched holdings.
  *
  * @returns JSON response with snapshot data or error
  */
@@ -66,7 +66,7 @@ export async function GET(request: NextRequest) {
       totalInvestment > 0 ? (totalReturn / totalInvestment) * 100 : 0;
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
     await Promise.all(
       enriched.map((p) =>
@@ -82,6 +82,7 @@ export async function GET(request: NextRequest) {
     const snapshot = await upsertPortfolioSnapshot(
       today,
       Math.round(totalValue * 100) / 100,
+      totalInvestment,
     );
 
     return NextResponse.json(

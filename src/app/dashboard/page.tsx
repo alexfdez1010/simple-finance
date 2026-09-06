@@ -6,6 +6,7 @@
 
 import { Suspense } from 'react';
 import { computePortfolioRisk } from '@/lib/domain/services/portfolio-risk';
+import { getSnapshotInvestedSeries } from '@/lib/domain/services/snapshot-invested-series';
 import { headers } from 'next/headers';
 import { getProducts } from '@/lib/actions/product-actions';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
@@ -74,6 +75,7 @@ async function getSnapshotData() {
   return {
     evolutionData: riskValuations.slice(-90),
     riskValuations,
+    snapshots,
     monthlyWealthData,
     dailyChanges,
   };
@@ -127,7 +129,7 @@ async function DashboardContent() {
       investedSeries={investedSeries}
       riskData={computePortfolioRisk(
         snapshotData.riskValuations,
-        investedSeries,
+        getSnapshotInvestedSeries(productsWithValues, snapshotData.snapshots),
       )}
       displayRates={displayRates}
       skill={skill}
