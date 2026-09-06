@@ -5,6 +5,7 @@
  */
 
 import { Suspense } from 'react';
+import { computePortfolioRisk } from '@/lib/domain/services/portfolio-risk';
 import { headers } from 'next/headers';
 import { getProducts } from '@/lib/actions/product-actions';
 import { DashboardClient } from '@/components/dashboard/dashboard-client';
@@ -46,7 +47,7 @@ async function getProductsWithValues(): Promise<ProductWithValue[]> {
 async function getSnapshotData() {
   const snapshots = await getPortfolioSnapshotsLastNDays(365);
 
-  const evolutionData = snapshots.slice(-90).map((s) => ({
+  const riskValuations = snapshots.map((s) => ({
     date: s.date.toISOString().split('T')[0],
     value: s.value,
   }));
@@ -70,7 +71,12 @@ async function getSnapshotData() {
     });
   }
 
-  return { evolutionData, monthlyWealthData, dailyChanges };
+  return {
+    evolutionData: riskValuations.slice(-90),
+    riskValuations,
+    monthlyWealthData,
+    dailyChanges,
+  };
 }
 
 /**
@@ -107,7 +113,7 @@ async function DashboardContent() {
     getMonthlyContributions(productsWithValues),
     getInvestedSeries(
       productsWithValues,
-      snapshotData.evolutionData.map((p) => p.date),
+      snapshotData.riskValuations.map((p) => p.date),
     ),
   ]);
 
@@ -119,6 +125,10 @@ async function DashboardContent() {
       dailyChanges={snapshotData.dailyChanges}
       monthlyContributions={monthlyContributions}
       investedSeries={investedSeries}
+      riskData={computePortfolioRisk(
+        snapshotData.riskValuations,
+        investedSeries,
+      )}
       displayRates={displayRates}
       skill={skill}
     />

@@ -2,6 +2,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { DailyHeatmapDay } from './daily-heatmap-day';
 import {
   Card,
   CardContent,
@@ -11,8 +12,6 @@ import {
 } from '@/components/ui/card';
 import {
   buildHeatmapModel,
-  formatHeatmapDate,
-  heatmapCellColor,
   HEATMAP_WEEKS,
   WEEKDAYS,
 } from '@/components/dashboard/daily-heatmap-utils';
@@ -29,9 +28,8 @@ interface DailyHeatmapChartProps {
  */
 export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
   const model = useMemo(() => buildHeatmapModel(data), [data]);
-  const sample = model.up + model.down;
 
-  if (sample === 0) {
+  if (!model.grid.some((week) => week.some((cell) => cell.pct !== null))) {
     return (
       <Card>
         <CardHeader>
@@ -64,7 +62,7 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
             worst <span className="text-loss"> {model.worst.toFixed(2)}%</span>
           </span>
         </div>
-        <div aria-label={summary} className="flex gap-2" role="img">
+        <div aria-label={summary} className="flex gap-2" role="group">
           <div className="flex flex-col gap-[3px] pr-1 text-[10px] text-muted">
             {WEEKDAYS.map((day, index) => (
               <span
@@ -79,26 +77,13 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
           <div className="flex flex-1 gap-[3px] overflow-x-auto pb-1">
             {model.grid.map((column, columnIndex) => (
               <div className="flex flex-col gap-[3px]" key={columnIndex}>
-                {column.map((cell) => {
-                  const label =
-                    cell.pct === null
-                      ? `${formatHeatmapDate(cell.date)} · no data`
-                      : `${formatHeatmapDate(cell.date)} · ${cell.pct >= 0 ? '+' : ''}${cell.pct.toFixed(2)}%`;
-                  return (
-                    <span
-                      aria-hidden="true"
-                      className="size-3.5 rounded-sm"
-                      key={cell.date}
-                      style={{
-                        backgroundColor: heatmapCellColor(
-                          cell.pct,
-                          model.maxAbs,
-                        ),
-                      }}
-                      title={label}
-                    />
-                  );
-                })}
+                {column.map((cell) => (
+                  <DailyHeatmapDay
+                    key={cell.date}
+                    cell={cell}
+                    maxAbs={model.maxAbs}
+                  />
+                ))}
               </div>
             ))}
           </div>

@@ -62,7 +62,9 @@ test('shows value-weighted insights and preserves every analytics workspace', as
     page.getByText('Cash Availability', { exact: true }),
   ).toBeVisible();
   await page.getByRole('button', { name: 'Risk', exact: true }).click();
-  await expect(page.getByText(/Snapshot value changes include/)).toBeVisible();
+  await expect(
+    page.getByText(/Returns exclude recorded deposits/),
+  ).toBeVisible();
   await page.getByRole('button', { name: 'Overview', exact: true }).click();
   await expect(
     page.getByText('Portfolio Evolution', { exact: true }),
