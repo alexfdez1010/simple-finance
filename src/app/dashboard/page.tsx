@@ -4,6 +4,7 @@
  * @module app/dashboard/page
  */
 
+import { computeMonthlyInvestmentGains } from '@/lib/domain/services/monthly-investment-gains';
 import { Suspense } from 'react';
 import { headers } from 'next/headers';
 import { getProducts } from '@/lib/actions/product-actions';
@@ -46,7 +47,7 @@ async function getProductsWithValues(): Promise<ProductWithValue[]> {
 async function getSnapshotData() {
   const snapshots = await getPortfolioSnapshotsLastNDays(365);
 
-  const evolutionData = snapshots.slice(-90).map((s) => ({
+  const allEvolutionData = snapshots.map((s) => ({
     date: s.date.toISOString().split('T')[0],
     value: s.value,
   }));
@@ -70,7 +71,12 @@ async function getSnapshotData() {
     });
   }
 
-  return { evolutionData, monthlyWealthData, dailyChanges };
+  return {
+    evolutionData: allEvolutionData.slice(-90),
+    allEvolutionData,
+    monthlyWealthData,
+    dailyChanges,
+  };
 }
 
 /**
@@ -107,7 +113,7 @@ async function DashboardContent() {
     getMonthlyContributions(productsWithValues),
     getInvestedSeries(
       productsWithValues,
-      snapshotData.evolutionData.map((p) => p.date),
+      snapshotData.allEvolutionData.map((p) => p.date),
     ),
   ]);
 
@@ -118,7 +124,12 @@ async function DashboardContent() {
       monthlyWealthData={snapshotData.monthlyWealthData}
       dailyChanges={snapshotData.dailyChanges}
       monthlyContributions={monthlyContributions}
-      investedSeries={investedSeries}
+      investedSeries={investedSeries.slice(-90)}
+      monthlyInvestmentGains={computeMonthlyInvestmentGains(
+        snapshotData.allEvolutionData,
+        investedSeries,
+        new Date().toISOString().slice(0, 10),
+      )}
       displayRates={displayRates}
       skill={skill}
     />

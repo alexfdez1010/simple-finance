@@ -39,3 +39,17 @@ Run `bun run lint-format`, `bun run test:unit`, and `bun run build`. End-to-end 
 ## Maintenance notes
 
 Keep diagnostics in the pure domain service and rendering in small components (single responsibility and interface segregation). Do not add fetching to the insight cards or change historical accounting to implement a visual enhancement. The existing UI adapter layer preserves stable callers while the surface system changes (open/closed principle). No dependencies or database schema changes are required.
+
+## Monthly investment gains
+
+Charts → Overview → Monthly Investment Gains shows monetary gains for completed months: closing portfolio value minus the previous month's closing value minus signed net contributions. For example, a previous close of €1,000, a new close of €1,350, deposits of €500 and withdrawals of −€200 produce a €50 gain. Negative gains remain losses. The tooltip and “View monthly breakdown” expose every term.
+
+`computeMonthlyInvestmentGains(snapshots, invested, today)` in `src/lib/domain/services/monthly-investment-gains.ts` is a pure function taking daily ISO EUR valuations, cumulative EUR invested amounts aligned by date, and an explicit UTC ISO current date. For example, call it with the annual snapshot series, `await getInvestedSeries(products, snapshots.map(point => point.date))`, and `new Date().toISOString().slice(0, 10)`. It returns sorted `MonthlyInvestmentGain` rows. The full annual series is used independently of the 90-point evolution chart.
+
+`MonthlyInvestmentGainsChart` takes those rows in its `data` prop inside `DisplayCurrencyProvider`; for example render it alongside `MonthlyWealthChart` in the Overview grid. No fetching or mutations occur inside either the calculator or chart. Empty data renders a history explanation.
+
+Both exact calendar month-end snapshots and their cost bases are required. Missing boundaries, the first month without an opening close, non-finite data and the current unfinished month are omitted, never estimated. Leap years and year boundaries use UTC. Contributions reuse the stored historical EUR basis for custom products and the existing Yahoo purchase cost convention. Results depend on the accuracy/completeness of recorded movements and valuations; edited/deleted holdings cannot reconstruct an immutable historical transaction ledger. Display currency conversion follows the dashboard's existing EUR-based formatting.
+
+Maintenance decision: keep the calculation in a pure service (single responsibility), reuse the existing contribution aggregation (dependency on focused value inputs), and compose the new card into Overview without changing other charts. Regression coverage includes withdrawals, loss/zero months, missing boundaries, leap years, and integration with both contribution sources.
+
+Chart API reference: [Recharts Bar](https://recharts.github.io/en-US/api/Bar/).

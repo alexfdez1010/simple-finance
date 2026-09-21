@@ -6,8 +6,10 @@
 
 'use client';
 
+import type { MonthlyInvestmentGain } from '@/lib/domain/services/monthly-investment-gains';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { MonthlyInvestmentGainsChart } from './monthly-investment-gains-chart';
 import { MonthlyWealthChart } from '@/components/dashboard/monthly-wealth-chart';
 import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
 import { DailyChangesChart } from '@/components/dashboard/daily-changes-chart';
@@ -49,6 +51,7 @@ export interface DashboardChartsGridProps {
     withdrawals: number;
     net: number;
   }>;
+  monthlyInvestmentGains: MonthlyInvestmentGain[];
   investedSeries: Array<{ date: string; invested: number }>;
   allocationData: AllocationItem[];
   currencyAllocation: Array<{ currency: string; value: number }>;
@@ -69,6 +72,7 @@ export function DashboardChartsGrid({
   dailyChanges,
   monthlyContributions,
   investedSeries,
+  monthlyInvestmentGains,
   allocationData,
   currencyAllocation,
   categoryAllocation,
@@ -108,6 +112,7 @@ export function DashboardChartsGrid({
       {view === 'Overview' && (
         <>
           <PortfolioEvolutionChart data={evolutionData} />
+          <MonthlyInvestmentGainsChart data={monthlyInvestmentGains} />
           <MonthlyWealthChart data={monthlyWealthData} />
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
