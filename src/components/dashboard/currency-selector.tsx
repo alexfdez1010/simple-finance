@@ -38,7 +38,7 @@ export function CurrencySelector() {
       }}
     >
       <Label className="sr-only">Display currency</Label>
-      <Select.Trigger className="min-h-8 px-2.5">
+      <Select.Trigger className="min-h-11 px-2.5">
         <Select.Value />
         <Select.Indicator />
       </Select.Trigger>

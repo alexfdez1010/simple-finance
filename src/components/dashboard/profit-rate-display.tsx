@@ -97,9 +97,13 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
           <ArrowRight aria-hidden size={14} />
         </Button>
       </div>
-      <div className="flex flex-wrap items-baseline gap-2">
+      <div
+        className="flex min-w-0 flex-wrap items-baseline gap-2"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         <p
-          className={`font-serif text-2xl font-semibold tabular-nums ${
+          className={`display-number min-w-0 font-sans text-2xl font-semibold ${
             value >= 0 ? 'text-gain' : 'text-loss'
           }`}
         >

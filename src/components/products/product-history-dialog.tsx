@@ -38,17 +38,20 @@ interface Props {
  * History + simulation dialog.
  *
  * @param props - product (non-null when open), open, onOpenChange
- * @returns Dialog element
+ * @returns Dialog element, or null without a product.
+ * @remarks Loads history when opened or retried; cleanup ignores stale responses.
  */
 export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
   const { format } = useDisplayCurrency();
   const [data, setData] = useState<ProductHistoryResult | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [horizon, setHorizon] = useState<HorizonYears>(0);
+  const [attempt, setAttempt] = useState(0);
+  const productId = product?.id;
 
   useEffect(() => {
-    if (!open || !product) return;
+    if (!open || !productId) return;
     let cancelled = false;
     queueMicrotask(() => {
       if (cancelled) return;
@@ -56,7 +59,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
       setData(null);
       setLoadError(null);
       setHorizon(0);
-      getProductHistoryAction(product.id)
+      getProductHistoryAction(productId)
         .then((result) => {
           if (cancelled) return;
           if (!result) setLoadError('History could not be loaded.');
@@ -72,7 +75,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [open, product]);
+  }, [open, productId, attempt]);
 
   const merged = useMemo(
     () => (data ? buildHistoryChartData(data, horizon) : []),
@@ -97,8 +100,8 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
           <Modal.Dialog className="rounded-xl">
             <Modal.CloseTrigger aria-label="Close" />
             <Modal.Header className="pb-2">
-              <div className="flex items-center gap-2">
-                <Modal.Heading className="truncate font-serif text-xl tracking-tight">
+              <div className="flex min-w-0 flex-wrap items-center gap-2 pr-8">
+                <Modal.Heading className="min-w-0 break-words font-serif text-xl tracking-tight [overflow-wrap:anywhere]">
                   {product.name}
                 </Modal.Heading>
                 <Badge variant="secondary">
@@ -115,12 +118,26 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
                   <Skeleton className="h-[260px] w-full rounded-md" />
                 </div>
               ) : loadError || !data ? (
-                <p
-                  className="py-12 text-center text-sm text-destructive"
-                  role="alert"
-                >
-                  {loadError ?? 'History could not be loaded.'}
-                </p>
+                <div className="flex flex-col items-center gap-3 py-12">
+                  <p
+                    className="text-center text-sm text-destructive"
+                    role="alert"
+                  >
+                    {loadError ?? 'History could not be loaded.'}
+                  </p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setLoading(true);
+                      setLoadError(null);
+                      setAttempt((previous) => previous + 1);
+                    }}
+                  >
+                    Retry history
+                  </Button>
+                </div>
               ) : data.history.length === 0 ? (
                 <p className="py-12 text-center text-sm text-muted-foreground">
                   No snapshots yet. The first appears after the next daily run.
@@ -128,12 +145,12 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
               ) : (
                 <>
                   <div className="flex flex-wrap items-baseline justify-between gap-3">
-                    <p className="text-2xl font-semibold tabular-nums">
+                    <p className="min-w-0 max-w-full break-words text-2xl font-semibold tabular-nums [overflow-wrap:anywhere]">
                       {format(lastActual)}
                     </p>
                     {canProject && (
                       <div
-                        className="flex gap-1"
+                        className="flex flex-wrap gap-1"
                         aria-label="Projection horizon"
                       >
                         {HORIZON_OPTIONS.map((years) => (

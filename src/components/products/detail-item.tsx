@@ -17,10 +17,10 @@ interface DetailItemProps {
  */
 export function DetailItem({ label, value, className }: DetailItemProps) {
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="mb-0.5 text-xs text-muted-foreground">{label}</dt>
       <dd
-        className={`text-sm font-medium tabular-nums ${className ?? 'text-foreground'}`}
+        className={`display-number text-sm font-medium tracking-normal ${className ?? 'text-foreground'}`}
       >
         {value}
       </dd>

@@ -8,6 +8,7 @@
 
 'use client';
 
+import { useId } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field';
@@ -28,11 +29,15 @@ interface Props {
   busy: boolean;
 }
 
-/**
- * Renders the amount/date/note inputs plus Save/Cancel buttons.
- */
+/** Returns today's UTC calendar date for the native date maximum; no side effects. */
 const todayIso = () => new Date().toISOString().split('T')[0];
 
+/**
+ * Renders a controlled movement editor with uniquely associated field labels.
+ * @param props - Current fields, currency symbol, pending state and editor callbacks.
+ * @returns Responsive inputs and save/cancel actions; busy disables every control.
+ * Changes call setForm; actions call the supplied callbacks. Empty required fields block save.
+ */
 export function ContributionFormRow({
   form,
   setForm,
@@ -41,16 +46,26 @@ export function ContributionFormRow({
   onSave,
   busy,
 }: Props) {
-  /** Updates a single movement field immutably. */
+  const fieldId = useId();
+  /**
+   * Sends one immutable field change to the parent; accepts empty values while editing.
+   * @param field - Movement field to update.
+   * @param value - New input value.
+   * @returns Nothing; calls setForm without modifying the supplied state.
+   */
   const update = (field: keyof ContributionFormState, value: string) =>
     setForm({ ...form, [field]: value });
 
   return (
-    <div className="flex w-full flex-col gap-2">
-      <div className="grid grid-cols-2 gap-2">
-        <Field>
-          <FieldLabel className="text-[11px]">Amount ({symbol})</FieldLabel>
+    <div className="flex min-w-0 w-full flex-col gap-2">
+      <div className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2">
+        <Field className="min-w-0">
+          <FieldLabel htmlFor={`${fieldId}-amount`} className="text-[11px]">
+            Amount ({symbol})
+          </FieldLabel>
           <Input
+            id={`${fieldId}-amount`}
+            className="min-h-11"
             type="number"
             value={form.amount}
             onChange={(e) => update('amount', e.target.value)}
@@ -60,9 +75,13 @@ export function ContributionFormRow({
             required
           />
         </Field>
-        <Field>
-          <FieldLabel className="text-[11px]">Date</FieldLabel>
+        <Field className="min-w-0">
+          <FieldLabel htmlFor={`${fieldId}-date`} className="text-[11px]">
+            Date
+          </FieldLabel>
           <Input
+            id={`${fieldId}-date`}
+            className="min-h-11"
             type="date"
             value={form.date}
             onChange={(e) => update('date', e.target.value)}
@@ -72,9 +91,13 @@ export function ContributionFormRow({
           />
         </Field>
       </div>
-      <Field>
-        <FieldLabel className="text-[11px]">Note (optional)</FieldLabel>
+      <Field className="min-w-0">
+        <FieldLabel htmlFor={`${fieldId}-note`} className="text-[11px]">
+          Note (optional)
+        </FieldLabel>
         <Input
+          id={`${fieldId}-note`}
+          className="min-h-11"
           value={form.note}
           onChange={(e) => update('note', e.target.value)}
           placeholder="Monthly contribution"
@@ -85,6 +108,7 @@ export function ContributionFormRow({
         <LoadingButton
           type="button"
           size="sm"
+          className="min-h-11"
           onClick={onSave}
           disabled={busy || !form.amount || !form.date}
           loading={busy}
@@ -95,6 +119,7 @@ export function ContributionFormRow({
         <Button
           type="button"
           size="sm"
+          className="min-h-11"
           variant="outline"
           onClick={onCancel}
           disabled={busy}

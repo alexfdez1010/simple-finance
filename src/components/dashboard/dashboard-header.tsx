@@ -41,13 +41,28 @@ export function DashboardHeader({
           </div>
         </div>
 
-        <div className="glass-toolbar flex flex-wrap items-center gap-2">
-          <CurrencySelector />
-          <Button onPress={onAddYahoo} size="sm" variant="primary">
+        <div className="glass-toolbar grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+          <div className="col-span-2 flex items-center justify-between gap-3 px-1 pb-1 sm:contents">
+            <span className="text-xs text-muted-foreground sm:hidden">
+              Display currency
+            </span>
+            <CurrencySelector />
+          </div>
+          <Button
+            className="min-h-11"
+            onPress={onAddYahoo}
+            size="sm"
+            variant="primary"
+          >
             <Plus aria-hidden size={16} weight="bold" />
             <span>Yahoo Product</span>
           </Button>
-          <Button onPress={onAddCustom} variant="outline" size="sm">
+          <Button
+            className="min-h-11"
+            onPress={onAddCustom}
+            variant="outline"
+            size="sm"
+          >
             <Plus aria-hidden size={16} weight="bold" />
             <span>Custom Product</span>
           </Button>

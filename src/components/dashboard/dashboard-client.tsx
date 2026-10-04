@@ -147,6 +147,7 @@ export function DashboardClient({
         product={editProduct}
       />
       <DeleteProductDialog
+        key={deleteTarget?.id ?? 'closed'}
         open={!!deleteTarget}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         productName={deleteTarget?.name ?? ''}

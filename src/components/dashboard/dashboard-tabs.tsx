@@ -56,55 +56,52 @@ export function DashboardTabs({
   onViewProduct,
 }: DashboardTabsProps) {
   return (
-    <div className="flex flex-col gap-8">
-      <section aria-labelledby="portfolio-summary-title">
-        <h2
-          id="portfolio-summary-title"
-          className="mb-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
-        >
-          Portfolio Overview
-        </h2>
-        <p className="mb-6 text-sm text-muted-foreground">
-          The big picture. Every holding, working together.
-        </p>
-        <PortfolioStats {...stats} />
-      </section>
+    <Tabs defaultSelectedKey="charts" variant="secondary">
+      <Tabs.ListContainer className="mx-auto mb-6 w-fit max-w-full overflow-x-auto rounded-2xl border-white/80 bg-white/55 p-2 shadow-sm backdrop-blur-xl sm:mb-8">
+        <Tabs.List aria-label="Dashboard sections" className="w-fit">
+          <Tabs.Tab id="charts" className="min-h-11">
+            Charts
+            <Tabs.Indicator />
+          </Tabs.Tab>
+          <Tabs.Tab id="products" className="min-h-11">
+            Products
+            <Tabs.Indicator />
+          </Tabs.Tab>
+          <Tabs.Tab id="skill" className="min-h-11">
+            Skill
+            <Tabs.Indicator />
+          </Tabs.Tab>
+        </Tabs.List>
+      </Tabs.ListContainer>
 
-      <PortfolioInsights holdings={products} />
-      <Tabs defaultSelectedKey="charts" variant="secondary">
-        <Tabs.ListContainer className="mx-auto mb-5 w-fit max-w-full overflow-x-auto rounded-2xl border-white/80 bg-white/55 p-2 shadow-sm backdrop-blur-xl">
-          <Tabs.List aria-label="Dashboard sections" className="w-fit">
-            <Tabs.Tab id="charts">
-              Charts
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab id="products">
-              Products
-              <Tabs.Indicator />
-            </Tabs.Tab>
-            <Tabs.Tab id="skill">
-              Skill
-              <Tabs.Indicator />
-            </Tabs.Tab>
-          </Tabs.List>
-        </Tabs.ListContainer>
-
-        <Tabs.Panel id="charts">
-          <DashboardChartsGrid {...charts} />
-        </Tabs.Panel>
-        <Tabs.Panel id="products">
-          <ProductsPanel
-            products={products}
-            onAddProduct={onAddProduct}
-            onEditProduct={onEditProduct}
-            onDeleteProduct={onDeleteProduct}
-            onViewProduct={onViewProduct}
-          />
-        </Tabs.Panel>
-        <Tabs.Panel id="skill">
-          <SkillTab {...skill} />
-        </Tabs.Panel>
-      </Tabs>
-    </div>
+      <Tabs.Panel id="charts" className="space-y-6 sm:space-y-8">
+        <section aria-labelledby="portfolio-summary-title">
+          <h2
+            id="portfolio-summary-title"
+            className="mb-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl"
+          >
+            Portfolio Overview
+          </h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            The big picture. Every holding, working together.
+          </p>
+          <PortfolioStats {...stats} />
+        </section>
+        <PortfolioInsights holdings={products} />
+        <DashboardChartsGrid {...charts} />
+      </Tabs.Panel>
+      <Tabs.Panel id="products">
+        <ProductsPanel
+          products={products}
+          onAddProduct={onAddProduct}
+          onEditProduct={onEditProduct}
+          onDeleteProduct={onDeleteProduct}
+          onViewProduct={onViewProduct}
+        />
+      </Tabs.Panel>
+      <Tabs.Panel id="skill">
+        <SkillTab {...skill} />
+      </Tabs.Panel>
+    </Tabs>
   );
 }

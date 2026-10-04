@@ -8,6 +8,7 @@
 
 'use client';
 
+import { useId } from 'react';
 import { Button, Card, Chip } from '@heroui/react';
 import { Eye, PencilSimple, TrashSimple } from '@phosphor-icons/react';
 import { ProductDetails } from '@/components/products/product-details';
@@ -51,6 +52,7 @@ export function ProductCard({
   onDelete,
   onView,
 }: ProductCardProps) {
+  const nameId = useId();
   const { format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
   const totalValue = currentValueEur ?? currentValue * product.quantity;
@@ -65,13 +67,13 @@ export function ProductCard({
   const isPositive = returnValue >= 0;
 
   return (
-    <Card
-      className="finance-card h-full py-0 transition-transform duration-200 hover:-translate-y-0.5"
-      data-testid="product-card"
-    >
-      <Card.Header className="flex-row items-start justify-between p-5 pb-3">
-        <div className="min-w-0 flex-1 mr-2">
-          <h3 className="text-base font-semibold text-foreground truncate">
+    <Card className="finance-card h-full py-0" data-testid="product-card">
+      <Card.Header className="p-5 pb-3">
+        <div className="min-w-0">
+          <h3
+            id={nameId}
+            className="text-base font-semibold text-foreground [overflow-wrap:anywhere]"
+          >
             {product.name}
           </h3>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
@@ -90,51 +92,15 @@ export function ProductCard({
             </span>
           </div>
         </div>
-        <div className="flex gap-1">
-          {onView && (
-            <Button
-              variant="ghost"
-              size="sm"
-              isIconOnly
-              onPress={() => onView(product)}
-              aria-label="View product history"
-            >
-              <Eye aria-hidden size={16} />
-            </Button>
-          )}
-          {onEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
-              isIconOnly
-              onPress={() => onEdit(product)}
-              aria-label="Edit product"
-            >
-              <PencilSimple aria-hidden size={16} />
-            </Button>
-          )}
-          {onDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
-              isIconOnly
-              onPress={() => onDelete(product)}
-              aria-label="Delete product"
-              className="text-loss"
-            >
-              <TrashSimple aria-hidden size={16} />
-            </Button>
-          )}
-        </div>
       </Card.Header>
 
       <Card.Content className="flex flex-1 flex-col px-5 pb-5">
         <div className="mb-6">
-          <p className="font-serif text-3xl font-semibold text-foreground tabular-nums">
+          <p className="display-number font-sans text-3xl font-semibold text-foreground">
             {formatCurrency(totalValue)}
           </p>
           <p
-            className={`text-sm font-semibold tabular-nums mt-0.5 ${isPositive ? 'text-gain' : 'text-loss'}`}
+            className={`display-number mt-1 text-sm font-semibold tracking-normal ${isPositive ? 'text-gain' : 'text-loss'}`}
           >
             {formatCurrency(returnValue)} ({formatPercentage(returnPct)})
           </p>
@@ -147,6 +113,55 @@ export function ProductCard({
           formatCurrency={formatCurrency}
         />
       </Card.Content>
+      {(onView || onEdit || onDelete) && (
+        <Card.Footer className="mx-5 justify-between border-t border-separator px-0 py-2">
+          <div
+            className="flex gap-1"
+            role="group"
+            aria-label={`Actions for ${product.name}`}
+          >
+            {onView && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={() => onView(product)}
+                aria-label="View product history"
+                aria-describedby={nameId}
+                className="min-h-11 gap-2"
+              >
+                <Eye aria-hidden size={16} />
+                History
+              </Button>
+            )}
+            {onEdit && (
+              <Button
+                variant="ghost"
+                size="sm"
+                isIconOnly
+                onPress={() => onEdit(product)}
+                aria-label="Edit product"
+                aria-describedby={nameId}
+                className="min-h-11 min-w-11"
+              >
+                <PencilSimple aria-hidden size={16} />
+              </Button>
+            )}
+            {onDelete && (
+              <Button
+                variant="ghost"
+                size="sm"
+                isIconOnly
+                onPress={() => onDelete(product)}
+                aria-label="Delete product"
+                aria-describedby={nameId}
+                className="min-h-11 min-w-11 text-loss"
+              >
+                <TrashSimple aria-hidden size={16} />
+              </Button>
+            )}
+          </div>
+        </Card.Footer>
+      )}
     </Card>
   );
 }

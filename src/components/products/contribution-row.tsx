@@ -20,6 +20,12 @@ interface Props {
   onDelete: () => void;
 }
 
+/**
+ * Renders a movement in its original currency without truncating amounts or notes.
+ * @param props - Movement, currency symbol, pending state and action callbacks.
+ * @returns Wrapping movement details and touch-sized edit/delete controls.
+ * Actions invoke callbacks; busy blocks them. Missing notes show only the UTC date.
+ */
 export function ContributionRow({
   contribution: c,
   symbol,
@@ -29,19 +35,19 @@ export function ContributionRow({
 }: Props) {
   return (
     <>
-      <div className="flex flex-col">
+      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span
-          className={`font-mono ${c.amount >= 0 ? 'text-gain' : 'text-loss'}`}
+          className={`break-all font-mono tabular-nums ${c.amount >= 0 ? 'text-gain' : 'text-loss'}`}
         >
           {c.amount >= 0 ? '+' : ''}
           {c.amount} {symbol}
         </span>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-[11px] text-muted-foreground [overflow-wrap:anywhere]">
           {new Date(c.date).toISOString().split('T')[0]}
           {c.note ? ` · ${c.note}` : ''}
         </span>
       </div>
-      <div className="flex gap-1">
+      <div className="ml-2 flex shrink-0 gap-1">
         <Button
           type="button"
           variant="ghost"
@@ -49,6 +55,7 @@ export function ContributionRow({
           onClick={onEdit}
           disabled={busy}
           aria-label="Edit movement"
+          className="min-h-11 min-w-11"
         >
           <PencilSimple aria-hidden size={16} weight="bold" />
         </Button>
@@ -59,7 +66,7 @@ export function ContributionRow({
           onClick={onDelete}
           disabled={busy}
           aria-label="Delete movement"
-          className="text-destructive hover:text-destructive"
+          className="min-h-11 min-w-11 text-destructive hover:text-destructive"
         >
           <Trash aria-hidden size={16} weight="bold" />
         </Button>

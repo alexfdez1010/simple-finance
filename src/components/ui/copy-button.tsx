@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 
 interface CopyButtonProps {
@@ -14,29 +14,79 @@ interface CopyButtonProps {
 }
 
 /**
- * Button that writes `value` to the clipboard and briefly shows "Copied".
+ * Writes a value to the clipboard with accessible success and failure feedback.
  *
- * @param value - String to copy
- * @param label - Optional button label (default "Copy")
+ * @param props - String to copy and optional button label (default "Copy").
+ * @returns A copy control and a live feedback region.
+ * @remarks Prevents duplicate writes; unmounting cancels feedback timers and
+ * ignores pending results. Clipboard denial leaves the control ready to retry.
  */
 export function CopyButton({ value, label = 'Copy' }: CopyButtonProps) {
-  const [copied, setCopied] = useState(false);
+  const [status, setStatus] = useState<'idle' | 'pending' | 'copied' | 'error'>(
+    'idle',
+  );
+  const pending = useRef(false);
+  const mounted = useRef(false);
+  const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (timeout.current !== null) clearTimeout(timeout.current);
+    };
+  }, []);
+
+  /**
+   * Writes the current value once and updates live feedback.
+   * @returns Completion after clipboard success or handled denial.
+   * @remarks Concurrent clicks are ignored; unmounted results have no effect.
+   */
+  async function copy(): Promise<void> {
+    if (pending.current) return;
+    pending.current = true;
+    if (timeout.current !== null) clearTimeout(timeout.current);
+    setStatus('pending');
+    try {
+      await navigator.clipboard.writeText(value);
+      if (!mounted.current) return;
+      setStatus('copied');
+      timeout.current = setTimeout(() => setStatus('idle'), 1500);
+    } catch {
+      if (mounted.current) setStatus('error');
+    } finally {
+      pending.current = false;
+    }
+  }
+
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="sm"
-      onClick={async () => {
-        try {
-          await navigator.clipboard.writeText(value);
-          setCopied(true);
-          setTimeout(() => setCopied(false), 1500);
-        } catch {
-          /* clipboard blocked — silently ignore */
-        }
-      }}
-    >
-      {copied ? 'Copied' : label}
-    </Button>
+    <span className="inline-flex max-w-full flex-col items-start gap-1">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={status === 'pending'}
+        onClick={copy}
+      >
+        {status === 'copied'
+          ? 'Copied'
+          : status === 'pending'
+            ? 'Copying…'
+            : label}
+      </Button>
+      <span
+        role="status"
+        aria-live="polite"
+        className={status === 'error' ? 'text-xs text-destructive' : 'sr-only'}
+      >
+        {status === 'error'
+          ? 'Copy failed. Try again.'
+          : status === 'copied'
+            ? 'Copied to clipboard.'
+            : status === 'pending'
+              ? 'Copying to clipboard…'
+              : ''}
+      </span>
+    </span>
   );
 }
