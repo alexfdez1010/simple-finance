@@ -11,6 +11,10 @@ Built following **SOLID principles** and enterprise-level best practices with co
 [![Prisma](https://img.shields.io/badge/Prisma-6.7.0-2D3748)](https://www.prisma.io/)
 [![HeroUI](https://img.shields.io/badge/HeroUI-3.2.4-111111)](https://heroui.com/)
 
+## Workspace navigation
+
+The home dashboard at `/dashboard` summarizes portfolio value, returns, recent evolution, allocation, and the largest holdings. `/` and default sign-in redirect there. Holdings (`/dashboard/portfolio`), analytics (`/dashboard/analytics`), and agent setup (`/dashboard/skill`) each load their own data and client components. Analytics has independent allocation, cash-flow, and risk routes. See [portfolio experience and module usage](docs/portfolio-experience.md) for route responsibilities, public component/loader invocation examples, accounting definitions, and verification guidance.
+
 ## 🎯 Features
 
 ### 📊 Dual Product Types

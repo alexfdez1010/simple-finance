@@ -152,7 +152,7 @@ export function InvestedVsValueChart({
             <YAxis
               tickLine={false}
               axisLine={false}
-              width={60}
+              width={76}
               tick={{ fontSize: 11 }}
               tickFormatter={(v) => format(Number(v), { compact: true })}
             />
@@ -174,6 +174,7 @@ export function InvestedVsValueChart({
               }
             />
             <Area
+              isAnimationActive={false}
               dataKey="value"
               type="monotone"
               fill="var(--color-value)"
@@ -182,6 +183,7 @@ export function InvestedVsValueChart({
               strokeWidth={2}
             />
             <Line
+              isAnimationActive={false}
               type="monotone"
               dataKey="invested"
               stroke="var(--color-invested)"

@@ -1,16 +1,18 @@
 # Portfolio experience
 
-The dashboard uses a cool glass surface system with Tailwind CSS 4, Geist typography, white edge highlights and translucent panels. Shared card components retain the existing compositional API. Existing HeroUI controls retain their accessible interaction behavior. Reduced-motion preferences disable entry animations; reduced-transparency preferences make glass panels opaque.
+The application uses opaque white surfaces on a mist-gray ground, forest-green navigation and actions, Geist typography, and aligned financial figures. Tailwind CSS 4 supplies the tokens and responsive layouts. Shared compositional card/button adapters and existing HeroUI form controls preserve their interaction contracts. Charts render without entrance animations.
 
 ## Explore the portfolio
 
-- Dashboard navigation is immediately below the header. Charts contains the shared valuation summary, portfolio insights and analytics; Products and Skill open their own workspaces directly, without scrolling through the summary first. Keyboard navigation follows the existing HeroUI tabs contract.
-- Charts → Overview shows valuation history, monthly wealth, top performers and invested capital versus value.
-- Charts → Allocation groups holdings by product, category and currency and shows contribution to gains.
-- Charts → Cash flow shows movements and the configured liquidity curve.
-- Charts → Risk shows snapshot changes, rolling changes, drawdowns, distribution and the calendar heatmap. These snapshot-based measures include external cash flows; they are not cash-flow-adjusted returns.
-- Products → Search holdings matches name, ticker or native currency. For example, enter “EUR” to find custom euro holdings. Sort holdings offers highest value, highest absolute EUR gain and alphabetical order. Clearing a search restores the full list.
-- Products → Clear search restores all holdings, keeps the selected sort and returns focus to the search field. A search with no results explains how to recover and provides a Show all holdings action. The empty portfolio offers an Add Product action.
+- Home (`/dashboard`) is the landing dashboard: current balance, invested capital, return, latest snapshot change, projected profit, recent evolution, asset-class composition, five largest holdings, and portfolio diagnostics.
+- Holdings (`/dashboard/portfolio`) owns search, sorting, adding, editing, deleting, contribution management, and product history. Search matches name, ticker, or native currency; sort by highest value, highest absolute EUR gain, or name.
+- Analytics overview (`/dashboard/analytics`) shows evolution, completed-month investment gains, monthly wealth, performers, and invested capital versus value.
+- Allocation (`/dashboard/analytics/allocation`) groups holdings by product, category, and currency and shows contribution to gains.
+- Cash flow (`/dashboard/analytics/cash-flow`) shows signed custom-product movements and the configured liquidity curve.
+- Risk (`/dashboard/analytics/risk`) shows snapshot changes, rolling changes, drawdowns, distribution, and the calendar heatmap. These measures include external cash flows; they are not cash-flow-adjusted investment returns.
+- Agent setup (`/dashboard/skill`) owns skill/config downloads and MCP connection details. It reads no portfolio, snapshot, contribution, or display-rate data.
+- Navigation uses real links with `aria-current`, supports keyboard activation, deep links, reloads, and browser back/forward. Desktop uses a persistent rail; mobile presents four visible destinations. Data prefetching is disabled on workspace links to avoid loading other sections before they are needed.
+- An empty holdings portfolio offers an Add Product action. Clearing search restores the complete list and returns focus to its field; a failed search offers Show all holdings.
 - Product cards show complete holding names and wrap large amounts. History, edit and delete controls have at least 44 px touch targets and identify the relevant holding through their accessible group and description.
 - Movement editors associate each label with a unique field ID. Long movement notes and amounts wrap inside the dialog, and pending writes disable the controls.
 - History errors provide a Retry history action. Late responses from an earlier selection or a closed dialog cannot replace the active history. Copy controls announce success or failure, allow retry after denial and block overlapping writes.
@@ -20,7 +22,7 @@ The dashboard uses a cool glass surface system with Tailwind CSS 4, Geist typogr
 
 `computePortfolioInsights` in `src/lib/domain/services/portfolio-insights.ts` accepts a readonly list of `InsightHolding` values and returns descriptive diagnostics without side effects. Invoke it with the already enriched EUR portfolio, for example `computePortfolioInsights(productsWithValues)`. Passing an empty list returns null percentages; callers must display missing values rather than imply zero.
 
-`PortfolioInsights` accepts the same list through its `holdings` prop. Render it within `DisplayCurrencyProvider` so liquidity amounts follow the active currency. `ProductsPanel` accepts products and the existing add, edit, delete and history callbacks; `DashboardTabs` composes it with charts and insights.
+`PortfolioInsights` accepts the same list through its `holdings` prop. Render it within `DisplayCurrencyProvider` so liquidity amounts follow the active currency. `ProductsPanel` accepts products and the existing add, edit, delete and history callbacks; `HoldingsWorkspace` composes it with focused management state; set `showHeading={false}` when a page-level heading already exists.
 
 `queryHoldings` in `src/components/dashboard/holdings-query.ts` is a pure view helper: invoke `queryHoldings(productsWithValues, 'EUR', 'value')` to obtain a filtered, sorted copy. `HoldingsSort` accepts `value`, `gain` or `name`. Empty or whitespace queries match all holdings; EUR gain ordering uses enriched values rather than display-currency text. Inputs and their order remain untouched.
 
@@ -32,7 +34,7 @@ The dashboard uses a cool glass surface system with Tailwind CSS 4, Geist typogr
 
 `ProductHistoryDialog` retains its `product`, `open` and `onOpenChange` contract. Pass the selected product and a controlled open flag; the component loads history on opening and retry, and ignores obsolete responses. `CopyButton` takes `value` and an optional `label`: use it with the exact configuration string to copy. Clipboard failure remains visible until the next attempt; success resets after 1.5 seconds and timers are cleared on unmount.
 
-`DashboardHeader` takes `onAddYahoo` and `onAddCustom` callbacks and composes `CurrencySelector` inside `DisplayCurrencyProvider`. `ProfitRateDisplay` takes prepared `profitRates` within that provider; its period control cycles daily, weekly, monthly and annual estimates and announces the changed amount. The selected global currency applies throughout all workspaces.
+`ProfitRateDisplay` takes prepared `profitRates` within that provider; its period control cycles daily, weekly, monthly and annual estimates and announces the changed amount. The selected global currency applies throughout all workspaces.
 
 - Largest position: largest positive holding value divided by total positive holding value. It measures concentration by product, not underlying issuer or fund overlap.
 - Available within 7 days: positive values with configured liquidity horizons from zero through seven days. This describes potential proceeds at current valuations, not guaranteed sale prices.
@@ -48,7 +50,7 @@ Run `bun run lint-format`, `bun run test:unit`, and `bun run build`. End-to-end 
 
 ## References
 
-- [Tailwind backdrop blur](https://tailwindcss.com/docs/backdrop-filter-blur)
+- [Tailwind theme tokens](https://tailwindcss.com/docs/theme)
 - [React derived state guidance](https://react.dev/learn/you-might-not-need-an-effect)
 - [Next.js server and client components](https://nextjs.org/docs/app/getting-started/server-and-client-components)
 - [shadcn compositional card API](https://ui.shadcn.com/docs/components/card)
@@ -59,7 +61,7 @@ Keep diagnostics in the pure domain service and rendering in small components (s
 
 ## Monthly investment gains
 
-Charts → Overview → Monthly Investment Gains shows monetary gains for completed months: closing portfolio value minus the previous month's closing value minus signed net contributions. For example, a previous close of €1,000, a new close of €1,350, deposits of €500 and withdrawals of −€200 produce a €50 gain. Negative gains remain losses. The tooltip and “View monthly breakdown” expose every term.
+Analytics → Overview → Monthly Investment Gains shows monetary gains for completed months: closing portfolio value minus the previous month's closing value minus signed net contributions. For example, a previous close of €1,000, a new close of €1,350, deposits of €500 and withdrawals of −€200 produce a €50 gain. Negative gains remain losses. The tooltip and “View monthly breakdown” expose every term.
 
 `computeMonthlyInvestmentGains(snapshots, invested, today)` in `src/lib/domain/services/monthly-investment-gains.ts` is a pure function taking daily ISO EUR valuations, cumulative EUR invested amounts aligned by date, and an explicit UTC ISO current date. For example, call it with the annual snapshot series, `await getInvestedSeries(products, snapshots.map(point => point.date))`, and `new Date().toISOString().slice(0, 10)`. It returns sorted `MonthlyInvestmentGain` rows. The full annual series is used independently of the 90-point evolution chart.
 
@@ -82,3 +84,29 @@ Run database-backed checks against a dedicated database: the existing Playwright
 Official implementation references: [Next.js server/client composition](https://nextjs.org/docs/app/getting-started/server-and-client-components), [React component props](https://react.dev/learn/passing-props-to-a-component), [React useId](https://react.dev/reference/react/useId), [React effect cleanup](https://react.dev/reference/react/useEffect), [Tailwind responsive utilities](https://tailwindcss.com/docs/responsive-design), [HeroUI Button](https://heroui.com/docs/react/components/button).
 
 Validation for this update: 131 unit tests passed; all 53 existing E2E flows passed and six new production E2E cases passed. The keyboard setup uses a real tab interaction before asserting keyboard navigation, avoiding reliance on programmatic focus during page startup. Lint/format and the production build passed. The build retains a Prisma/Turbopack file-tracing warning from unchanged infrastructure. Desktop/mobile checks covered 320, 390, 768 and 1440 px, with no horizontal overflow or JavaScript page errors. Every changed production code file remains below 200 lines.
+
+## Workspace architecture — 2026-10-11
+
+`src/lib/server/portfolio-page-data.ts` exports six focused server loaders. Call `await loadOverviewPage()` for summary/recent history; `await loadHoldingsPage()` for products and rates; `await loadGrowthPage()` for annual history and aligned cost basis; `await loadAllocationPage()` for present-day composition; `await loadCashFlowPage()` for contributions/liquidity; and `await loadRiskPage()` for snapshot-based changes only. These loaders propagate failures to the workspace retry boundary. They do not read MCP credentials.
+
+`loadPortfolioProducts()`, `loadPortfolioHistory(days = 365)`, and `loadDisplayRates()` in `src/lib/server/portfolio-queries.ts` deduplicate reads within a server render with React `cache`; they do not create a global cache of a private portfolio. Product reads use the existing repository and enrichment (including historical EUR-basis backfill). Snapshot grouping uses UTC month keys through `buildSnapshotData(snapshots)`; empty histories remain empty and the chart series retains the latest 90 observations.
+
+`await loadAgentPage()` in `src/lib/server/agent-page-data.ts` resolves authenticated setup details from request headers and configured credentials solely for the integration route. Render its result with `SkillTab`; connection details must never be passed to other workspaces.
+
+`WorkspaceNavigation` and `AnalyticsNavigation` render route links; `DashboardLayout` and `AnalyticsLayout` compose them with server children without data reads. `PageHeading` takes `title`, `description`, and optional `actions`; `CurrencyWorkspace` additionally takes route-specific `rates` and children. Compose currency-aware charts within that provider. `HoldingsPreview` takes sorted products and renders the largest five; mobile amounts use compact notation, while the holdings page shows full amounts. `HoldingsWorkspace` takes products/rates and owns conditional dynamic imports for add, edit, delete, and history dialogs.
+
+`computeReturnDistribution(snapshotValues)` derives histogram bins and descriptive statistics without mutation. For example, pass an ordered ISO-date/value array from `loadPortfolioHistory()`; non-positive prior values skip percentage changes. The caller retains the existing minimum sample requirement. Chart marks disable entrance animation so reduced-motion rendering and initial hydration cannot leave axes without data marks.
+
+`formatDrawdownTick(value)` renders percentage-point axis values with up to two decimals and normalizes negative zero. For example, a -0.25 value renders as -0.25%, keeping shallow decline levels distinguishable. `DailyHeatmapChart` opens its focusable history region at the latest week when the input series changes; arrow keys and horizontal scrolling reveal earlier observations.
+
+Product, contribution, and custom-product actions revalidate `/dashboard` at layout scope. This invalidates every descendant workspace after a write, including previously visited analytics. No dependencies or database schema changes were added.
+
+SOLID: routes and focused loaders have a single responsibility; existing adapters remain composable; small page contracts keep management independent of analytics and credentials. Domain calculations remain independent of presentation and repositories continue to own persistence.
+
+Official references: [Next.js layouts and pages](https://nextjs.org/docs/app/getting-started/layouts-and-pages), [Next.js navigation](https://nextjs.org/docs/app/getting-started/linking-and-navigating), [layout revalidation](https://nextjs.org/docs/app/api-reference/functions/revalidatePath), [React render-scoped cache](https://react.dev/reference/react/cache), [Tailwind themes](https://tailwindcss.com/docs/theme).
+
+Validation for this redesign: `bun run lint-format`, 156 unit tests, all 65 production E2E tests, and the production build passed. E2E coverage includes product writes, contributions, history, MCP, authentication, every deep link, display-currency persistence, 320px layouts, and real keyboard browsing of recent heatmap data. The final fallback-only copy removal was rebuilt and the missing-route recovery was checked directly. All fourteen final desktop/mobile workspace captures showed no document overflow or JavaScript page errors. Computed styles confirmed Geist for body/headings and 12px financial surfaces. Every source file stays within 200 lines. The unchanged Prisma/Turbopack file-tracing warning remains.
+
+Maintenance context: the user confirmed the personal portfolio purpose, four principal workspaces, and implementation in code with review of the running app. `PRODUCT.md`, `DESIGN.md`, the design sidecar, and the surface brief retain that context. Keep desktop/mobile calendar history initially positioned at recent observations, preserve decimal tick labels for shallow drawdowns, and keep credentials isolated to the integration page. Synthetic visual fixtures and destructive test cleanup belong exclusively to the disposable test database.
+
+Independent finish review covered the workspace captures and sampled loading, refresh, accounting, and credential boundaries. Its seven findings were resolved; the bounded follow-up validated all fourteen replacement captures and returned `ship`. This verdict covers those fixes and the sampled review scope, rather than certifying every unchanged component.

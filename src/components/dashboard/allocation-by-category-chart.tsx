@@ -142,7 +142,7 @@ export function AllocationByCategoryChart({
                 />
               }
             />
-            <Bar dataKey="value" radius={4}>
+            <Bar isAnimationActive={false} dataKey="value" radius={4}>
               {enriched.map((d, i) => (
                 <Cell key={`c-${i}`} fill={CATEGORY_COLORS[d.category]} />
               ))}

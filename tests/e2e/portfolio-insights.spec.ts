@@ -3,7 +3,7 @@ import { PrismaClient } from '../../generated/prisma';
 import { authenticateTestUser } from './auth-helper';
 import {
   cleanDatabase,
-  openProductsTab,
+  openHoldingsPage,
   selectHeroOption,
 } from './test-helpers';
 
@@ -45,6 +45,49 @@ test.afterAll(async () => {
   await prisma.$disconnect();
 });
 
+/** Recent risk observations must be visible on mobile and history navigable by keyboard. */
+test('opens the mobile heatmap at recent data and allows keyboard history browsing', async ({
+  page,
+}) => {
+  const today = new Date();
+  await prisma.portfolioSnapshot.createMany({
+    data: [100, 110, 99].map((value, index) => ({
+      date: new Date(
+        Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate() - 2 + index,
+        ),
+      ),
+      value,
+      investedEur: 100,
+    })),
+  });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('http://localhost:3000/dashboard/analytics/risk');
+  const history = page.getByRole('region', { name: 'Daily return history' });
+  await expect(history).toBeVisible();
+  await expect
+    .poll(() =>
+      history.evaluate((element) =>
+        Math.abs(
+          element.scrollWidth - element.clientWidth - element.scrollLeft,
+        ),
+      ),
+    )
+    .toBeLessThan(2);
+  const recentOffset = await history.evaluate((element) => element.scrollLeft);
+  expect(recentOffset).toBeGreaterThan(0);
+  await history.focus();
+  await history.press('ArrowLeft');
+  await expect
+    .poll(() => history.evaluate((element) => element.scrollLeft))
+    .toBeLessThan(recentOffset);
+  await expect(
+    page.getByText(/arrow keys to explore earlier weeks/),
+  ).toBeVisible();
+});
+
 test('shows value-weighted insights and preserves every analytics workspace', async ({
   page,
 }) => {
@@ -53,17 +96,18 @@ test('shows value-weighted insights and preserves every analytics workspace', as
   await expect(insights).toContainText('100.0%');
   await expect(insights).toContainText('0 / 2');
   await expect(insights).toContainText('Reserve');
-  await page.getByRole('button', { name: 'Allocation', exact: true }).click();
+  await page.getByRole('link', { name: 'Analytics', exact: true }).click();
+  await page.getByRole('link', { name: 'Allocation', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'Allocation', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('button', { name: 'Cash flow', exact: true }).click();
+    page.getByRole('link', { name: 'Allocation', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
+  await page.getByRole('link', { name: 'Cash flow', exact: true }).click();
   await expect(
     page.getByText('Cash Availability', { exact: true }),
   ).toBeVisible();
-  await page.getByRole('button', { name: 'Risk', exact: true }).click();
+  await page.getByRole('link', { name: 'Risk', exact: true }).click();
   await expect(page.getByText(/Snapshot value changes include/)).toBeVisible();
-  await page.getByRole('button', { name: 'Overview', exact: true }).click();
+  await page.getByRole('link', { name: 'Overview', exact: true }).click();
   await expect(
     page.getByText('Portfolio Evolution', { exact: true }),
   ).toBeVisible();
@@ -72,7 +116,7 @@ test('shows value-weighted insights and preserves every analytics workspace', as
 test('searches and sorts holdings, recovers from no results, and opens editing', async ({
   page,
 }) => {
-  await openProductsTab(page);
+  await openHoldingsPage(page);
   const cards = page.getByTestId('product-card');
   await expect(cards.first()).toContainText('Reserve');
   await selectHeroOption(page, 'Sort holdings', 'Name A–Z');
@@ -95,7 +139,7 @@ test('searches and sorts holdings, recovers from no results, and opens editing',
   ).toBeVisible();
 });
 
-test('keeps glass surfaces and content usable on mobile with reduced motion', async ({
+test('keeps workspace surfaces and content usable on mobile with reduced motion', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
@@ -108,7 +152,7 @@ test('keeps glass surfaces and content usable on mobile with reduced motion', as
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
-  await openProductsTab(page);
+  await openHoldingsPage(page);
   await page.getByLabel('Search holdings').fill('EUR');
   await expect(page.getByTestId('product-card')).toHaveCount(2);
   expect(
@@ -139,14 +183,22 @@ test('contains large balances on a narrow screen', async ({ page }) => {
   ).toBe(true);
 });
 
-/** The workspace navigation stays centered at both desktop and mobile widths. */
-test('centers dashboard navigation across breakpoints', async ({ page }) => {
+/** Persistent navigation identifies the current route at desktop and mobile widths. */
+test('keeps route navigation accessible across breakpoints', async ({
+  page,
+}) => {
   for (const width of [1280, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    const tabs = page.getByRole('tablist', { name: 'Dashboard sections' });
-    await expect(tabs).toBeVisible();
-    const bounds = await tabs.boundingBox();
+    const navigation = page.getByRole('navigation', {
+      name: 'Main navigation',
+    });
+    await expect(navigation).toBeVisible();
+    await expect(
+      navigation.getByRole('link', { name: 'Home', exact: true }),
+    ).toHaveAttribute('aria-current', 'page');
+    const bounds = await navigation.boundingBox();
     expect(bounds).not.toBeNull();
-    expect(Math.abs(bounds!.x + bounds!.width / 2 - width / 2)).toBeLessThan(2);
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
   }
 });

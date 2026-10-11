@@ -54,7 +54,7 @@ export async function addContributionAction(
       date,
       note,
     });
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true, id: created.id };
   } catch (error) {
     return fail(error, 'Failed to add contribution');
@@ -73,7 +73,7 @@ export async function updateContributionAction(
   try {
     assertNotFuture(date);
     await updateContributionWithEurBasis({ id, amount, date, note });
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true, id };
   } catch (error) {
     return fail(error, 'Failed to update contribution');
@@ -88,7 +88,7 @@ export async function deleteContributionAction(
 ): Promise<ActionResult> {
   try {
     await deleteContribution(id);
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true };
   } catch (error) {
     return fail(error, 'Failed to delete contribution');

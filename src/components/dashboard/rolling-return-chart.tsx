@@ -171,6 +171,7 @@ export function RollingReturnChart({ data }: RollingReturnChartProps) {
               }
             />
             <Area
+              isAnimationActive={false}
               dataKey="rolling"
               type="monotone"
               fill="var(--color-rolling)"

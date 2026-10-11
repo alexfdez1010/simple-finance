@@ -14,6 +14,7 @@ import type {
 
 interface ProductsPanelProps {
   products: ProductWithValue[];
+  showHeading?: boolean;
   onAddProduct: () => void;
   onEditProduct: (product: FinancialProduct) => void;
   onDeleteProduct: (product: FinancialProduct) => void;
@@ -28,6 +29,7 @@ interface ProductsPanelProps {
  */
 export function ProductsPanel({
   products,
+  showHeading = true,
   onAddProduct,
   onEditProduct,
   onDeleteProduct,
@@ -39,27 +41,29 @@ export function ProductsPanel({
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Your holdings
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Manage your positions and explore their history.
-          </p>
+      {showHeading && (
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+              Your holdings
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Manage your positions and explore their history.
+            </p>
+          </div>
+          {products.length > 0 && (
+            <Button
+              className="min-h-11"
+              onPress={onAddProduct}
+              size="sm"
+              variant="primary"
+            >
+              <Plus aria-hidden size={16} weight="bold" />
+              Add Product
+            </Button>
+          )}
         </div>
-        {products.length > 0 && (
-          <Button
-            className="min-h-11"
-            onPress={onAddProduct}
-            size="sm"
-            variant="primary"
-          >
-            <Plus aria-hidden size={16} weight="bold" />
-            Add Product
-          </Button>
-        )}
-      </div>
+      )}
       {products.length === 0 ? (
         <Card className="finance-card py-0">
           <Card.Content className="flex min-h-52 flex-col items-center justify-center gap-4 p-6 text-center">

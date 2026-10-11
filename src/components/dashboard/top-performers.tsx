@@ -57,7 +57,7 @@ export function TopPerformers({ performers }: TopPerformersProps) {
           Performance Ranking
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex max-h-[300px] flex-col gap-1 overflow-y-auto">
+      <CardContent className="flex max-h-[380px] flex-col gap-1 overflow-y-auto">
         {sorted.map((item, i) => {
           const isPositive = item.returnPct >= 0;
           return (

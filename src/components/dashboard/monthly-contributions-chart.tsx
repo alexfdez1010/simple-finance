@@ -137,7 +137,7 @@ export function MonthlyContributionsChart({
             <YAxis
               tickLine={false}
               axisLine={false}
-              width={60}
+              width={76}
               tick={{ fontSize: 11 }}
               tickFormatter={(v) => format(Number(v), { compact: true })}
             />
@@ -160,17 +160,28 @@ export function MonthlyContributionsChart({
                 />
               }
             />
-            <Bar dataKey="deposits" stackId="net" radius={[4, 4, 0, 0]}>
+            <Bar
+              isAnimationActive={false}
+              dataKey="deposits"
+              stackId="net"
+              radius={[4, 4, 0, 0]}
+            >
               {data.map((d, i) => (
                 <Cell key={`d-${i}`} fill={GAIN_COLOR} fillOpacity={0.85} />
               ))}
             </Bar>
-            <Bar dataKey="withdrawals" stackId="net" radius={[0, 0, 4, 4]}>
+            <Bar
+              isAnimationActive={false}
+              dataKey="withdrawals"
+              stackId="net"
+              radius={[0, 0, 4, 4]}
+            >
               {data.map((d, i) => (
                 <Cell key={`w-${i}`} fill={LOSS_COLOR} fillOpacity={0.85} />
               ))}
             </Bar>
             <Line
+              isAnimationActive={false}
               type="monotone"
               dataKey="net"
               stroke="var(--foreground)"

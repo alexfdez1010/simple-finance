@@ -102,6 +102,7 @@ export function ProductHistoryChart({ data, splitDate }: Props) {
           />
         )}
         <Line
+          isAnimationActive={false}
           dataKey="actual"
           type="monotone"
           stroke="var(--color-actual)"
@@ -110,6 +111,7 @@ export function ProductHistoryChart({ data, splitDate }: Props) {
           connectNulls
         />
         <Line
+          isAnimationActive={false}
           dataKey="projected"
           type="monotone"
           stroke="var(--color-projected)"

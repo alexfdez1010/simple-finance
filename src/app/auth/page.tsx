@@ -50,9 +50,6 @@ export default function AuthPage() {
     >
       <Card className="finance-card w-full max-w-sm p-0">
         <Card.Header className="gap-2 border-b border-border px-7 py-6">
-          <p className="font-mono text-[0.65rem] font-semibold tracking-[0.14em] text-muted uppercase">
-            Private portfolio
-          </p>
           <Card.Title className="font-serif text-3xl font-normal tracking-tight">
             Simple Finance
           </Card.Title>

@@ -13,7 +13,7 @@ import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
 import {
   cleanDatabase,
-  openProductsTab,
+  openHoldingsPage,
   selectHeroOption,
 } from './test-helpers';
 import { PrismaClient } from '../../generated/prisma';
@@ -37,7 +37,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     // Seed one custom product so the cron has something to snapshot.
     // A custom product is the cheapest path: no Yahoo round-trip to fail.
     const productName = `Cron Custom ${Date.now()}`;
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
     await page.getByLabel('Product Name').fill(productName);
@@ -49,7 +49,10 @@ test.describe('Per-product snapshots and history dialog', () => {
     await page
       .locator('#custom-date')
       .fill(oneYearAgo.toISOString().split('T')[0]);
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
     await expect(
       page.getByRole('heading', { name: 'Add Product' }),
     ).not.toBeVisible({ timeout: 10000 });
@@ -85,7 +88,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     request,
   }) => {
     const productName = `Cron Idempotent ${Date.now()}`;
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
     await page.getByLabel('Product Name').fill(productName);
@@ -95,7 +98,10 @@ test.describe('Per-product snapshots and history dialog', () => {
     await page
       .locator('#custom-date')
       .fill(new Date().toISOString().split('T')[0]);
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
     await expect(
       page.getByRole('heading', { name: 'Add Product' }),
     ).not.toBeVisible({ timeout: 10000 });
@@ -147,7 +153,7 @@ test.describe('Per-product snapshots and history dialog', () => {
 
   test('product card eye button opens the history dialog', async ({ page }) => {
     const productName = `History Dialog ${Date.now()}`;
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
     await page.getByLabel('Product Name').fill(productName);
@@ -157,13 +163,16 @@ test.describe('Per-product snapshots and history dialog', () => {
     await page
       .locator('#custom-date')
       .fill(new Date().toISOString().split('T')[0]);
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
     await expect(
       page.getByRole('heading', { name: 'Add Product' }),
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     const card = page
       .getByTestId('product-card')

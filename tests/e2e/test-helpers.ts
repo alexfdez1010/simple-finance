@@ -9,13 +9,15 @@ import { PrismaClient } from '../../generated/prisma';
 const prisma = new PrismaClient();
 
 /**
- * Activate the "Products" tab on the dashboard so product cards become
- * visible in the DOM. The dashboard defaults to the "Charts" tab.
- *
- * @param page - Playwright page
+ * Navigates to the dedicated holdings workspace through the persistent navigation.
+ * @param page - Authenticated Playwright page; works from any dashboard route.
+ * @returns Resolves after the management heading is visible.
  */
-export async function openProductsTab(page: Page): Promise<void> {
-  await page.getByRole('tab', { name: 'Products' }).click();
+export async function openHoldingsPage(page: Page): Promise<void> {
+  await page.getByRole('link', { name: 'Holdings', exact: true }).click();
+  await page
+    .getByRole('heading', { name: 'Your holdings', exact: true })
+    .waitFor();
 }
 
 /**

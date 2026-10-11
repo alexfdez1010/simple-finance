@@ -8,6 +8,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import { computeReturnDistribution } from './returns-distribution-data';
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts';
 import {
   Card,
@@ -33,64 +34,6 @@ const chartConfig = {
 
 const GAIN_COLOR = 'oklch(0.55 0.17 155)';
 const LOSS_COLOR = 'oklch(0.55 0.20 25)';
-const BIN_COUNT = 51;
-
-interface Bin {
-  label: string;
-  count: number;
-  mid: number;
-}
-
-/** Day-over-day arithmetic % returns from a value series. */
-function dailyPcts(series: Array<{ date: string; value: number }>): number[] {
-  const out: number[] = [];
-  for (let i = 1; i < series.length; i++) {
-    const prev = series[i - 1].value;
-    if (prev > 0) out.push(((series[i].value - prev) / prev) * 100);
-  }
-  return out;
-}
-
-/** Below this |%| the symlog scale is ~linear; beyond it grows logarithmic. */
-const LINTHRESH = 0.5;
-const fwd = (r: number): number => Math.asinh(r / LINTHRESH);
-const inv = (t: number): number => LINTHRESH * Math.sinh(t);
-
-/** Format a return midpoint compactly: 1 dp under 10%, 0 dp above. */
-function fmtPct(v: number): string {
-  const sign = v >= 0 ? '+' : '';
-  return `${sign}${Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(1)}%`;
-}
-
-/** Symmetric symlog binning: edges uniform in asinh-space, labels in real %. */
-function toBins(pcts: number[]): Bin[] {
-  if (pcts.length === 0) return [];
-  const tMax = Math.max(...pcts.map((p) => Math.abs(fwd(p))), fwd(0.01));
-  const width = (tMax * 2) / BIN_COUNT;
-  const counts = new Array<number>(BIN_COUNT).fill(0);
-  for (const p of pcts) {
-    let idx = Math.floor((fwd(p) + tMax) / width);
-    if (idx < 0) idx = 0;
-    if (idx >= BIN_COUNT) idx = BIN_COUNT - 1;
-    counts[idx] += 1;
-  }
-  return Array.from({ length: BIN_COUNT }, (_, i) => {
-    const tMid = -tMax + (i + 0.5) * width;
-    const mid = inv(tMid);
-    return { label: fmtPct(mid), count: counts[i], mid };
-  });
-}
-
-/** Percentile (linear, 0..1) from an unsorted sample. */
-function percentile(arr: number[], p: number): number {
-  const sorted = [...arr].sort((a, b) => a - b);
-  const idx = Math.min(
-    Math.max(Math.floor(sorted.length * p), 0),
-    sorted.length - 1,
-  );
-  return sorted[idx];
-}
-
 /**
  * Histogram of daily percent returns with tail-risk metrics.
  *
@@ -100,22 +43,10 @@ function percentile(arr: number[], p: number): number {
 export function ReturnsDistributionChart({
   data,
 }: ReturnsDistributionChartProps) {
-  const { bins, mean, var5, hitRate, sample } = useMemo(() => {
-    const pcts = dailyPcts(data);
-    if (pcts.length === 0) {
-      return { bins: [], mean: 0, var5: 0, hitRate: 0, sample: 0 };
-    }
-    const m = pcts.reduce((s, x) => s + x, 0) / pcts.length;
-    const v = percentile(pcts, 0.05);
-    const up = pcts.filter((x) => x > 0).length;
-    return {
-      bins: toBins(pcts),
-      mean: m,
-      var5: v,
-      hitRate: (up / pcts.length) * 100,
-      sample: pcts.length,
-    };
-  }, [data]);
+  const { bins, mean, var5, hitRate, sample } = useMemo(
+    () => computeReturnDistribution(data),
+    [data],
+  );
 
   if (sample < 5) {
     return (
@@ -163,7 +94,8 @@ export function ReturnsDistributionChart({
               tickLine={false}
               axisLine={false}
               tick={{ fontSize: 10 }}
-              interval={2}
+              minTickGap={24}
+              interval="preserveStartEnd"
             />
             <YAxis
               tickLine={false}
@@ -179,7 +111,11 @@ export function ReturnsDistributionChart({
                 />
               }
             />
-            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+            <Bar
+              isAnimationActive={false}
+              dataKey="count"
+              radius={[4, 4, 0, 0]}
+            >
               {bins.map((b, i) => (
                 <Cell
                   key={`cell-${i}`}

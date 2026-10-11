@@ -4,7 +4,7 @@
   }
 
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
 
   body {
@@ -13,6 +13,7 @@
     color: var(--foreground);
     font-feature-settings: 'ss01', 'cv11', 'cv02';
     text-rendering: optimizeLegibility;
+    caret-color: var(--accent);
   }
 
   ::selection {
@@ -28,7 +29,12 @@
   }
 
   :focus-visible {
-    outline-color: var(--focus);
+    outline: 2px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  a {
+    text-underline-offset: 0.2em;
   }
 
   .tabular-nums,

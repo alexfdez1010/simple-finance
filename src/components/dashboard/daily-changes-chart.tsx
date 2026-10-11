@@ -110,7 +110,7 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
                 />
               }
             />
-            <Bar dataKey="change" radius={4}>
+            <Bar isAnimationActive={false} dataKey="change" radius={4}>
               {data.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}

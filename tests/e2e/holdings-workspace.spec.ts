@@ -4,7 +4,7 @@ import { authenticateTestUser } from './auth-helper';
 import {
   cleanDatabase,
   disconnectDatabase,
-  openProductsTab,
+  openHoldingsPage,
 } from './test-helpers';
 
 const prisma = new PrismaClient();
@@ -47,21 +47,22 @@ test.afterAll(async () => {
 });
 
 for (const width of [320, 390, 1280]) {
-  test(`keeps navigation visible and centered and large holdings contained at ${width}px`, async ({
+  test(`keeps navigation visible and large holdings contained at ${width}px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.evaluate(() => window.scrollTo(0, 0));
-    const tabs = page.getByRole('tablist', { name: 'Dashboard sections' });
+    const tabs = page.getByRole('navigation', { name: 'Main navigation' });
     await expect(tabs).toBeVisible();
     const bounds = await tabs.boundingBox();
     expect(bounds).not.toBeNull();
     expect(bounds!.y).toBeGreaterThanOrEqual(0);
     expect(bounds!.y + bounds!.height).toBeLessThan(900);
-    expect(Math.abs(bounds!.x + bounds!.width / 2 - width / 2)).toBeLessThan(2);
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
 
-    await openProductsTab(page);
+    await openHoldingsPage(page);
     const search = page.getByLabel('Search holdings');
     await expect(search).toBeVisible();
     const searchBounds = await search.boundingBox();
@@ -99,15 +100,13 @@ for (const width of [320, 390, 1280]) {
   });
 }
 
-test('activates the Products workspace with the keyboard', async ({ page }) => {
-  const charts = page.getByRole('tab', { name: 'Charts', exact: true });
-  const products = page.getByRole('tab', { name: 'Products', exact: true });
-  await charts.click();
-  await expect(charts).toBeFocused();
-  await page.keyboard.press('ArrowRight');
-  await expect(products).toBeFocused();
+test('opens the holdings route with the keyboard', async ({ page }) => {
+  const holdings = page.getByRole('link', { name: 'Holdings', exact: true });
+  await holdings.focus();
+  await expect(holdings).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(products).toHaveAttribute('aria-selected', 'true');
+  await expect(page).toHaveURL('http://localhost:3000/dashboard/portfolio');
+  await expect(holdings).toHaveAttribute('aria-current', 'page');
   await expect(
     page.getByRole('heading', { name: 'Your holdings', exact: true }),
   ).toBeVisible();
@@ -116,6 +115,7 @@ test('activates the Products workspace with the keyboard', async ({ page }) => {
 
 test('offers touch-sized mobile header actions', async ({ page }) => {
   await page.setViewportSize({ width: 320, height: 900 });
+  await openHoldingsPage(page);
   for (const name of ['Yahoo Product', 'Custom Product']) {
     const action = page.getByRole('button', { name, exact: true });
     await expect(action).toBeVisible();
@@ -130,7 +130,7 @@ test('finds movement editor inputs by their visible labels on mobile', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 900 });
-  await openProductsTab(page);
+  await openHoldingsPage(page);
   await page
     .getByTestId('product-card')
     .getByRole('button', { name: 'Edit product', exact: true })

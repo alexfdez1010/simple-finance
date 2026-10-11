@@ -77,26 +77,20 @@ export function ProductCard({
             {product.name}
           </h3>
           <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            <Chip
-              size="sm"
-              variant="secondary"
-              className="font-mono text-[10px]"
-            >
+            <Chip size="sm" variant="secondary" className="text-xs">
               {isYahoo ? product.yahoo.symbol : product.custom.currency}
             </Chip>
-            <Chip size="sm" variant="tertiary" className="text-[10px]">
+            <Chip size="sm" variant="tertiary" className="text-xs">
               {assetCategoryLabel(product.assetCategory)}
             </Chip>
-            <span className="text-[10px] text-muted-foreground">
-              {dateString}
-            </span>
+            <span className="text-xs text-muted-foreground">{dateString}</span>
           </div>
         </div>
       </Card.Header>
 
       <Card.Content className="flex flex-1 flex-col px-5 pb-5">
         <div className="mb-6">
-          <p className="display-number font-sans text-3xl font-semibold text-foreground">
+          <p className="display-number font-sans text-2xl font-semibold text-foreground">
             {formatCurrency(totalValue)}
           </p>
           <p

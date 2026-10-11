@@ -22,6 +22,7 @@ import {
   ChartTooltipContent,
 } from '@/components/ui/chart';
 import { Button } from '@/components/ui/button';
+import { formatDrawdownTick } from '@/components/dashboard/drawdown-format';
 
 interface DrawdownChartProps {
   data: Array<{ date: string; value: number }>;
@@ -139,7 +140,7 @@ export function DrawdownChart({ data }: DrawdownChartProps) {
               axisLine={false}
               width={50}
               tick={{ fontSize: 11 }}
-              tickFormatter={(v) => `${Number(v).toFixed(0)}%`}
+              tickFormatter={formatDrawdownTick}
               domain={[Math.min(maxDd * 1.1, -1), 0]}
             />
             <ChartTooltip
@@ -157,6 +158,7 @@ export function DrawdownChart({ data }: DrawdownChartProps) {
               }
             />
             <Area
+              isAnimationActive={false}
               dataKey="drawdown"
               type="monotone"
               fill="var(--color-drawdown)"

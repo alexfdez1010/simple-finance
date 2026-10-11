@@ -1,7 +1,7 @@
 /** Daily return heatmap for the latest 52 weeks. */
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   Card,
   CardContent,
@@ -25,11 +25,18 @@ interface DailyHeatmapChartProps {
  * Renders daily return direction and magnitude as a compact calendar grid.
  *
  * @param props - Daily portfolio value series.
- * @returns A HeroUI chart card with an accessible text summary.
+ * @returns A chart card with an accessible summary and focusable history.
+ * @remarks Starts at the latest week when data changes; empty series have no scroller.
  */
 export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
   const model = useMemo(() => buildHeatmapModel(data), [data]);
   const sample = model.up + model.down;
+  const historyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const history = historyRef.current;
+    if (history) history.scrollLeft = history.scrollWidth - history.clientWidth;
+  }, [model]);
 
   if (sample === 0) {
     return (
@@ -64,7 +71,7 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
             worst <span className="text-loss"> {model.worst.toFixed(2)}%</span>
           </span>
         </div>
-        <div aria-label={summary} className="flex gap-2" role="img">
+        <div aria-label={summary} className="flex gap-2" role="group">
           <div className="flex flex-col gap-[3px] pr-1 text-[10px] text-muted">
             {WEEKDAYS.map((day, index) => (
               <span
@@ -76,7 +83,13 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
               </span>
             ))}
           </div>
-          <div className="flex flex-1 gap-[3px] overflow-x-auto pb-1">
+          <div
+            ref={historyRef}
+            role="region"
+            aria-label="Daily return history"
+            tabIndex={0}
+            className="flex min-w-0 flex-1 gap-[3px] overflow-x-auto pb-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          >
             {model.grid.map((column, columnIndex) => (
               <div className="flex flex-col gap-[3px]" key={columnIndex}>
                 {column.map((cell) => {
@@ -103,6 +116,9 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
             ))}
           </div>
         </div>
+        <p className="mt-2 text-xs text-muted">
+          Latest weeks shown. Scroll or use arrow keys to explore earlier weeks.
+        </p>
         <HeatmapLegend />
       </CardContent>
     </Card>

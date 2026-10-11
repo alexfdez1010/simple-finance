@@ -13,7 +13,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
 
   test('should show empty state when no snapshots exist', async ({ page }) => {
     // Navigate to dashboard
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/analytics');
 
     // Wait for page to load
     await page.waitForLoadState('networkidle');
@@ -25,11 +25,11 @@ test.describe('Portfolio Snapshots and Charts', () => {
     const monthlyChart = page.locator('text=Monthly Wealth Evolution').first();
     await expect(monthlyChart).toBeVisible();
 
-    await page.getByRole('button', { name: 'Risk', exact: true }).click();
+    await page.getByRole('link', { name: 'Risk', exact: true }).click();
     const dailyChart = page.locator('text=Daily Changes').first();
     await expect(dailyChart).toBeVisible();
 
-    await page.getByRole('button', { name: 'Overview', exact: true }).click();
+    await page.getByRole('link', { name: 'Overview', exact: true }).click();
     // Check the overview empty state after returning from Risk.
     const emptyMessage = page
       .locator('text=No historical data available yet')
@@ -168,9 +168,9 @@ test.describe('Portfolio Snapshots and Charts', () => {
     expect(totalBox).not.toBeNull();
     expect(investedBox).not.toBeNull();
     expect(projectedBox).not.toBeNull();
-    expect(totalBox!.height).toBeGreaterThan(investedBox!.height * 1.8);
-    expect(projectedBox!.x).toBeGreaterThan(totalBox!.x + totalBox!.width);
-    expect(projectedBox!.width).toBeGreaterThan(investedBox!.width * 3);
+    expect(totalBox!.y).toBeCloseTo(investedBox!.y, 0);
+    expect(projectedBox!.y).toBeGreaterThan(totalBox!.y);
+    expect(projectedBox!.width).toBeGreaterThan(investedBox!.width * 2);
 
     await page.setViewportSize({ width: 390, height: 844 });
     const [mobileTotal, mobileInvested, mobileProjected, hasOverflow] =
@@ -185,8 +185,8 @@ test.describe('Portfolio Snapshots and Charts', () => {
         ),
       ]);
 
-    expect(mobileTotal!.width).toBeGreaterThan(mobileInvested!.width * 1.8);
-    expect(mobileProjected!.width).toBeCloseTo(mobileTotal!.width, 0);
+    expect(mobileTotal!.width).toBeCloseTo(mobileInvested!.width, 0);
+    expect(mobileProjected!.width).toBeGreaterThan(mobileTotal!.width * 1.9);
     expect(hasOverflow).toBe(false);
   });
 });

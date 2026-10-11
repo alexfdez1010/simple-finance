@@ -56,3 +56,12 @@ pgdata
 generated
 .next
 .vscode
+
+# Local design review evidence and decision sessions
+/.impeccable/review/
+/.impeccable/questions/
+/.impeccable/direction-options.json
+/.impeccable/direction.md
+/.impeccable/build/
+/.impeccable/mocks/
+/.impeccable/hook.cache.json

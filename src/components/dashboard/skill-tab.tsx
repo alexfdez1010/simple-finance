@@ -19,7 +19,7 @@ interface SkillTabProps {
 }
 
 /**
- * Renders the skill onboarding panel inside the dashboard tabs.
+ * Renders the skill onboarding panel on its dedicated integration page.
  *
  * @param serverUrl - Public URL of the MCP HTTP endpoint
  * @param token - Bearer token an agent must send (sha256 of PASSWORD)
@@ -37,11 +37,10 @@ export function SkillTab({
   return (
     <section aria-label="Agent skill" className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Card className="border border-border py-0 shadow-none">
+        <Card className="finance-card py-0">
           <Card.Header className="p-5 pb-2">
-            <Card.Description>Step 1</Card.Description>
             <Card.Title className="font-serif text-xl">
-              Download skill
+              1. Download skill
             </Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-1 flex-col gap-5 p-5 pt-2">
@@ -62,11 +61,10 @@ export function SkillTab({
           </Card.Content>
         </Card>
 
-        <Card className="border border-border py-0 shadow-none">
+        <Card className="finance-card py-0">
           <Card.Header className="p-5 pb-2">
-            <Card.Description>Step 2</Card.Description>
             <Card.Title className="font-serif text-xl">
-              Register MCP server
+              2. Register MCP server
             </Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-1 flex-col gap-5 p-5 pt-2">
@@ -91,9 +89,8 @@ export function SkillTab({
         </Card>
       </div>
 
-      <Card className="border border-border py-0 shadow-none">
+      <Card className="finance-card py-0">
         <Card.Header className="p-5 pb-2">
-          <Card.Description>Endpoint</Card.Description>
           <Card.Title className="font-serif text-xl">
             Connection details
           </Card.Title>

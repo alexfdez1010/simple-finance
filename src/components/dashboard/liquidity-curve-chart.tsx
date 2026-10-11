@@ -98,7 +98,7 @@ export function LiquidityCurveChart({ data }: LiquidityCurveChartProps) {
             <YAxis
               tickLine={false}
               axisLine={false}
-              width={60}
+              width={76}
               tickFormatter={(v) => format(Number(v), { compact: true })}
             />
             <ChartTooltip
@@ -112,6 +112,7 @@ export function LiquidityCurveChart({ data }: LiquidityCurveChartProps) {
               }
             />
             <Area
+              isAnimationActive={false}
               dataKey="cash"
               type="stepAfter"
               fill="var(--color-cash)"

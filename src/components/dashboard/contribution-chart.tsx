@@ -142,7 +142,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
                 />
               }
             />
-            <Bar dataKey="returnValue" radius={4}>
+            <Bar isAnimationActive={false} dataKey="returnValue" radius={4}>
               {sorted.map((entry, i) => (
                 <Cell
                   key={`cell-${i}`}

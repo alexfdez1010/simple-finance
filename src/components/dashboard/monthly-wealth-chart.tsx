@@ -129,7 +129,11 @@ export function MonthlyWealthChart({ data }: MonthlyWealthChartProps) {
                 tickFormatter={(v) => format(v, { compact: true })}
               />
               <Tooltip content={<CustomTooltip format={format} />} />
-              <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+              <Bar
+                isAnimationActive={false}
+                dataKey="value"
+                radius={[6, 6, 0, 0]}
+              >
                 {data.map((_, index) => (
                   <Cell
                     key={`cell-${index}`}

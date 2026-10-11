@@ -50,7 +50,7 @@ test('shows monthly gains excluding deposits and withdrawals', async ({
       { date: closing, value: 1350 },
     ],
   });
-  await page.goto('http://localhost:3000/dashboard');
+  await page.goto('http://localhost:3000/dashboard/analytics');
   const card = page.getByLabel('Monthly investment gains', { exact: true });
   await expect(card.getByLabel('Investment gains by month')).toBeVisible();
   await card.getByText('View monthly breakdown', { exact: true }).click();
@@ -74,7 +74,7 @@ test('shows monthly gains excluding deposits and withdrawals', async ({
 
 /** Insufficient history must explain the missing result rather than invent a zero gain. */
 test('explains missing monthly history', async ({ page }) => {
-  await page.goto('http://localhost:3000/dashboard');
+  await page.goto('http://localhost:3000/dashboard/analytics');
   await expect(
     page.getByLabel('Monthly investment gains', { exact: true }),
   ).toContainText('Two consecutive month-end snapshots are required');

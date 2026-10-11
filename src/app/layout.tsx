@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import { Instrument_Serif } from 'next/font/google';
 import { headers } from 'next/headers';
 import { AuthGuard } from '@/components/auth/auth-guard';
 import './globals.css';
@@ -15,12 +14,6 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
-const instrumentSerif = Instrument_Serif({
-  variable: '--font-instrument-serif',
-  weight: '400',
-  subsets: ['latin'],
-});
-
 export const metadata: Metadata = {
   title: 'Simple Finance',
   description: 'A private view of your portfolio and its performance.',
@@ -29,9 +22,10 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#edf2f8',
+  themeColor: '#f5f6f3',
 };
 
+/** Renders the font and authentication boundaries; request paths preserve post-login destinations. */
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -44,7 +38,7 @@ export default async function RootLayout({
   return (
     <html lang="en" data-theme="light">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${instrumentSerif.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}
       >
         {!isAuthPage && (
           <a className="skip-link" href="#main-content">

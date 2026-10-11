@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase, openProductsTab } from './test-helpers';
+import { cleanDatabase, openHoldingsPage } from './test-helpers';
 
 /**
  * Helper to create a custom product via dialog
@@ -29,12 +29,15 @@ async function createCustomProduct(
   await page.getByLabel('Annual Rate (%)').fill(rate);
   await page.locator('#custom-investment').fill(investment);
   await page.locator('#custom-date').fill(date);
-  await page.getByRole('button', { name: 'Add Product' }).click();
+  await page
+    .getByRole('dialog', { name: 'Add Product', exact: true })
+    .getByRole('button', { name: 'Add Product', exact: true })
+    .click();
   await expect(
     page.getByRole('heading', { name: 'Add Product' }),
   ).not.toBeVisible({ timeout: 10000 });
   await page.reload({ waitUntil: 'networkidle' });
-  await openProductsTab(page);
+  await openHoldingsPage(page);
   await expect(page.getByRole('heading', { name })).toBeVisible({
     timeout: 15000,
   });
@@ -69,12 +72,15 @@ async function createYahooProduct(
   await page.getByLabel('Quantity').fill(qty);
   await page.getByLabel('Purchase Price (€)').fill(price);
   await page.getByLabel('Purchase Date').fill(date);
-  await page.getByRole('button', { name: 'Add Product' }).click();
+  await page
+    .getByRole('dialog', { name: 'Add Product', exact: true })
+    .getByRole('button', { name: 'Add Product', exact: true })
+    .click();
   await expect(
     page.getByRole('heading', { name: 'Add Product' }),
   ).not.toBeVisible({ timeout: 10000 });
   await page.reload({ waitUntil: 'networkidle' });
-  await openProductsTab(page);
+  await openHoldingsPage(page);
   await expect(page.getByRole('heading', { name })).toBeVisible({
     timeout: 15000,
   });
@@ -87,7 +93,7 @@ test.describe('Edit Product', () => {
   test.beforeEach(async ({ page }) => {
     await cleanDatabase();
     await authenticateTestUser(page);
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
   });
 
   /**
@@ -147,7 +153,7 @@ test.describe('Edit Product', () => {
 
     // Reload to verify changes persisted
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     const updatedCard = page
       .getByTestId('product-card')
@@ -201,7 +207,7 @@ test.describe('Edit Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     const updatedCard = page
       .getByTestId('product-card')
@@ -238,7 +244,7 @@ test.describe('Edit Product', () => {
     await page.getByRole('button', { name: 'Close' }).click();
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
     const refreshedCard = page
       .getByTestId('product-card')
       .filter({ hasText: productName })
@@ -292,7 +298,7 @@ test.describe('Edit Product', () => {
 
     // Verify original name is still there
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
     const unchangedCard = page
       .getByTestId('product-card')
       .filter({ hasText: originalName })
@@ -334,7 +340,7 @@ test.describe('Edit Product', () => {
 
     // Wait and reload
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     // Verify product is gone
     await expect(
@@ -437,7 +443,7 @@ test.describe('Edit Product', () => {
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     // Verify it's still a Yahoo Finance product
     const updatedCard = page

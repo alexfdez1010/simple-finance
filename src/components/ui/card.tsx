@@ -3,7 +3,7 @@
 import { Card as HeroCard } from '@heroui/react';
 import { cn } from '@/lib/utils';
 
-/** Renders a glass financial surface; accepts card props and children without side effects. */
+/** Renders an opaque financial surface; accepts card props and children without side effects. */
 function Card({ className, ...props }: React.ComponentProps<typeof HeroCard>) {
   return (
     <HeroCard

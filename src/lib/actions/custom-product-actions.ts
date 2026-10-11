@@ -46,7 +46,7 @@ export async function createCustomProductAction(
       daysToLiquidity,
       firstMovement,
     });
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true, productId: product.id };
   } catch (error) {
     console.error('Failed to create custom product:', error);
@@ -78,7 +78,7 @@ export async function updateCustomProductAction(
       assetCategory,
       daysToLiquidity,
     });
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true };
   } catch (error) {
     console.error('Failed to update custom product:', error);

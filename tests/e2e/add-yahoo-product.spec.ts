@@ -5,7 +5,7 @@
 
 import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
-import { cleanDatabase, openProductsTab } from './test-helpers';
+import { cleanDatabase, openHoldingsPage } from './test-helpers';
 
 /**
  * Test suite for Yahoo Finance product creation flow
@@ -23,7 +23,7 @@ test.describe('Add Yahoo Finance Product', () => {
     page,
   }) => {
     // Open add product dialog from dashboard
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Yahoo Product' }).click();
 
     // Verify dialog opened with Yahoo Finance tab active
@@ -58,7 +58,10 @@ test.describe('Add Yahoo Finance Product', () => {
     await page.getByLabel('Quantity').fill('10');
 
     // Submit the form
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     // Wait for dialog to close and page to refresh
     await expect(
@@ -67,7 +70,7 @@ test.describe('Add Yahoo Finance Product', () => {
 
     // Reload the page to ensure fresh data
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     // Verify the product appears in the dashboard
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
@@ -89,7 +92,7 @@ test.describe('Add Yahoo Finance Product', () => {
    * Test: Validate error handling for invalid stock symbol
    */
   test('should show error for invalid stock symbol', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Yahoo Product' }).click();
 
     // Fill in the product name
@@ -110,7 +113,9 @@ test.describe('Add Yahoo Finance Product', () => {
 
     // Verify the submit button is present
     await expect(
-      page.getByRole('button', { name: 'Add Product' }),
+      page
+        .getByRole('dialog', { name: 'Add Product', exact: true })
+        .getByRole('button', { name: 'Add Product', exact: true }),
     ).toBeVisible();
   });
 
@@ -118,11 +123,14 @@ test.describe('Add Yahoo Finance Product', () => {
    * Test: Validate form requires all fields
    */
   test('should require all fields to be filled', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Yahoo Product' }).click();
 
     // Try to submit empty form
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     // Verify dialog is still open (form validation prevented submission)
     await expect(
@@ -134,7 +142,7 @@ test.describe('Add Yahoo Finance Product', () => {
    * Test: Dialog can be closed
    */
   test('should close dialog when close button is clicked', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Yahoo Product' }).click();
 
     // Verify dialog is open
@@ -155,7 +163,7 @@ test.describe('Add Yahoo Finance Product', () => {
    * Test: Symbol is converted to uppercase on submission
    */
   test('should handle lowercase symbol input', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Yahoo Product' }).click();
 
     // Fill in the product name
@@ -178,7 +186,7 @@ test.describe('Add Yahoo Finance Product', () => {
   test('should auto-fill name and purchase price after symbol validation', async ({
     page,
   }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Yahoo Product' }).click();
 
     // Fill in only the stock symbol (leave name empty)

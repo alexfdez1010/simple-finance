@@ -20,7 +20,6 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
       id="main-content"
     >
       <section className="max-w-sm text-center" role="alert">
-        <p className="eyebrow mb-3">Error</p>
         <h1 className="font-serif text-3xl tracking-tight">
           We couldn&apos;t load this view
         </h1>

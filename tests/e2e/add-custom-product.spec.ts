@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
 import { authenticateTestUser } from './auth-helper';
 import {
   cleanDatabase,
-  openProductsTab,
+  openHoldingsPage,
   selectHeroOption,
 } from './test-helpers';
 
@@ -26,7 +26,7 @@ test.describe('Add Custom Product', () => {
   test('should create a custom product and display it in the dashboard', async ({
     page,
   }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
 
     // Verify dialog opened
@@ -57,7 +57,10 @@ test.describe('Add Custom Product', () => {
     await page.locator('#custom-date').fill(dateString);
 
     // Submit the form
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     // Wait for dialog to close
     await expect(
@@ -66,7 +69,7 @@ test.describe('Add Custom Product', () => {
 
     // Reload the page to ensure fresh data
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     // Verify the product appears in the dashboard
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
@@ -90,7 +93,7 @@ test.describe('Add Custom Product', () => {
   test('should create a custom product with high return rate', async ({
     page,
   }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
 
@@ -104,14 +107,17 @@ test.describe('Add Custom Product', () => {
     const dateString = investmentDate.toISOString().split('T')[0];
     await page.locator('#custom-date').fill(dateString);
 
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     await expect(
       page.getByRole('heading', { name: 'Add Product' }),
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
       timeout: 15000,
@@ -129,7 +135,7 @@ test.describe('Add Custom Product', () => {
   test('should create a custom product with a fractional first movement', async ({
     page,
   }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
 
@@ -141,14 +147,17 @@ test.describe('Add Custom Product', () => {
     const today = new Date().toISOString().split('T')[0];
     await page.locator('#custom-date').fill(today);
 
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     await expect(
       page.getByRole('heading', { name: 'Add Product' }),
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
       timeout: 15000,
@@ -159,12 +168,15 @@ test.describe('Add Custom Product', () => {
    * Test: Validate form requires all fields
    */
   test('should require all fields to be filled', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
 
     // Try to submit empty form
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     // Verify dialog is still open
     await expect(
@@ -176,7 +188,7 @@ test.describe('Add Custom Product', () => {
    * Test: Dialog can be closed
    */
   test('should close dialog when close button is clicked', async ({ page }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
 
     await expect(
@@ -196,7 +208,7 @@ test.describe('Add Custom Product', () => {
   test('should display information about compound interest calculation', async ({
     page,
   }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
 
@@ -211,7 +223,7 @@ test.describe('Add Custom Product', () => {
   test('should create a custom product with today as investment date', async ({
     page,
   }) => {
-    await page.goto('http://localhost:3000/dashboard');
+    await page.goto('http://localhost:3000/dashboard/portfolio');
     await page.getByRole('button', { name: 'Custom Product' }).click();
     await page.getByRole('tab', { name: 'Custom Product' }).click();
 
@@ -223,14 +235,17 @@ test.describe('Add Custom Product', () => {
     const today = new Date().toISOString().split('T')[0];
     await page.locator('#custom-date').fill(today);
 
-    await page.getByRole('button', { name: 'Add Product' }).click();
+    await page
+      .getByRole('dialog', { name: 'Add Product', exact: true })
+      .getByRole('button', { name: 'Add Product', exact: true })
+      .click();
 
     await expect(
       page.getByRole('heading', { name: 'Add Product' }),
     ).not.toBeVisible({ timeout: 10000 });
 
     await page.reload({ waitUntil: 'networkidle' });
-    await openProductsTab(page);
+    await openHoldingsPage(page);
 
     await expect(page.getByRole('heading', { name: productName })).toBeVisible({
       timeout: 15000,

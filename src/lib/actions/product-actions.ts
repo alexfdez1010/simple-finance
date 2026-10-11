@@ -62,7 +62,7 @@ export async function createYahooProduct(
 
     const product = await createYahooFinanceProduct(input);
 
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true, productId: product.id };
   } catch (error) {
     console.error('Failed to create Yahoo Finance product:', error);
@@ -95,7 +95,7 @@ export async function updateProductQuantityAction(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await updateProductQuantity({ productId, quantity });
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true };
   } catch (error) {
     console.error('Failed to update product quantity:', error);
@@ -115,7 +115,7 @@ export async function deleteProductAction(
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await deleteProduct(productId);
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true };
   } catch (error) {
     console.error('Failed to delete product:', error);
@@ -166,7 +166,7 @@ export async function updateYahooProductAction(
 
     await updateYahooFinanceProduct(input);
 
-    revalidatePath('/dashboard');
+    revalidatePath('/dashboard', 'layout');
     return { success: true };
   } catch (error) {
     console.error('Failed to update Yahoo Finance product:', error);

@@ -82,7 +82,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   const signedValue = value >= 0 ? `+${absoluteValue}` : `-${absoluteValue}`;
 
   return (
-    <div className="flex h-full flex-col justify-between gap-4">
+    <div className="flex h-full flex-col justify-between gap-2">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-medium text-muted-foreground">
           Estimated {config.label.toLowerCase()} profit
@@ -103,7 +103,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
         aria-atomic="true"
       >
         <p
-          className={`display-number min-w-0 font-sans text-2xl font-semibold ${
+          className={`display-number min-w-0 font-sans text-xl font-semibold ${
             value >= 0 ? 'text-gain' : 'text-loss'
           }`}
         >

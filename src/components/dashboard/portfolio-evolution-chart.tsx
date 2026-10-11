@@ -139,7 +139,7 @@ export function PortfolioEvolutionChart({
             <YAxis
               tickLine={false}
               axisLine={false}
-              width={60}
+              width={76}
               tickFormatter={(v) => format(v, { compact: true })}
               domain={[domainMin, domainMax]}
             />
@@ -158,6 +158,7 @@ export function PortfolioEvolutionChart({
               }
             />
             <Area
+              isAnimationActive={false}
               dataKey="value"
               type="monotone"
               fill="var(--color-value)"

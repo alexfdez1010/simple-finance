@@ -106,6 +106,7 @@ export function PortfolioAllocationChart({
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
+                isAnimationActive={false}
                 data={chartData}
                 cx="50%"
                 cy="50%"
