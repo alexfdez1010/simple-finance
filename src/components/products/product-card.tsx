@@ -14,6 +14,8 @@ import { Eye, PencilSimple, TrashSimple } from '@phosphor-icons/react';
 import { ProductDetails } from '@/components/products/product-details';
 import { useProductDateLabel } from '@/components/products/use-product-date-label';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
+import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
+import { calculateProductProfitRates } from '@/lib/domain/services/profit-rate-calculator';
 import type { FinancialProduct } from '@/lib/domain/models/product.types';
 import { assetCategoryLabel } from '@/lib/domain/models/asset-category';
 
@@ -106,6 +108,18 @@ export function ProductCard({
           expectedAnnualReturn={expectedAnnualReturn}
           formatCurrency={formatCurrency}
         />
+        <div
+          role="group"
+          aria-label={`Estimated profit for ${product.name}`}
+          className="mt-5 border-t border-separator pt-3"
+        >
+          <ProfitRateDisplay
+            profitRates={calculateProductProfitRates({
+              currentValueEur: totalValue,
+              expectedAnnualReturn: expectedAnnualReturn ?? null,
+            })}
+          />
+        </div>
       </Card.Content>
       {(onView || onEdit || onDelete) && (
         <Card.Footer className="mx-5 justify-between border-t border-separator px-0 py-2">

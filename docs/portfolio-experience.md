@@ -36,6 +36,14 @@ The application uses opaque white surfaces on a mist-gray ground, forest-green n
 
 `ProfitRateDisplay` takes prepared `profitRates` within that provider; its period control cycles daily, weekly, monthly and annual estimates and announces the changed amount. The selected global currency applies throughout all workspaces.
 
+Every holding card also shows its own estimated profit amount and percentage. Each selector starts daily and cycles weekly, monthly, annual and back to daily independently. The same display-currency conversion applies to amounts; percentages stay unchanged. Missing estimates show “Return estimate unavailable”, while known zero rates and negative projections remain visible.
+
+`calculateProductProfitRates(product)` in `src/lib/domain/services/profit-rate-calculator.ts` takes only `currentValueEur` (the complete holding value, including quantity) and `expectedAnnualReturn` (decimal). For example, `calculateProductProfitRates({ currentValueEur: 3650, expectedAnnualReturn: 0.365 })` projects €3.65 / 0.10% daily, €25.55 / 0.70% weekly, €109.50 / 3.00% monthly and €1332.25 / 36.50% annually. It delegates to `calculateProfitRatesSync([product])`, preserving the global formula, 7/30/365-day periods and rounding. Null/non-finite rates or non-positive/non-finite valuations return null without I/O. `ProfitRateDisplay` accepts that null result as well as prepared rates.
+
+Maintenance decision — 2026-10-28: compose the existing period display into each `ProductCard`, keeping local selection independent of the portfolio and other holdings. Keep financial rules in the pure service and accept only the valuation/rate pair (single responsibility and interface segregation). Reuse enriched expected returns, including the existing custom yield/FX combination, without additional market requests. The global aggregate's calculations are unchanged.
+
+Validation: lint/format, production build/TypeScript, all 168 unit tests and all 67 Chromium E2E cases passed. Product estimates are covered for both product types, all periods, unknown/zero/negative rates, total EUR valuation and display-currency changes. Desktop (1440px) and mobile (320px) captures showed no document overflow or JavaScript page errors; keyboard activation and 44px period buttons were checked. Existing workspace-root and Prisma/Turbopack tracing warnings remain.
+
 - Largest position: largest positive holding value divided by total positive holding value. It measures concentration by product, not underlying issuer or fund overlap.
 - Available within 7 days: positive values with configured liquidity horizons from zero through seven days. This describes potential proceeds at current valuations, not guaranteed sale prices.
 - Profitable holdings: holdings above a finite, positive invested basis. Break-even holdings are not counted as profitable; zero or negative cost bases are not comparable.

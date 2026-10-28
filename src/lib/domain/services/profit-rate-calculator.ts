@@ -32,7 +32,13 @@ export interface ProfitRates {
   annualPct: number;
 }
 
-function dailyProfitFor(product: ProductWithValue): {
+type ProfitRateInput = Pick<
+  ProductWithValue,
+  'currentValueEur' | 'expectedAnnualReturn'
+>;
+
+/** Returns the daily EUR projection and its base; unknown rates have no base. */
+function dailyProfitFor(product: ProfitRateInput): {
   profit: number;
   base: number;
 } {
@@ -56,7 +62,7 @@ function dailyProfitFor(product: ProductWithValue): {
  * @returns Daily / weekly / monthly / annual EUR projections plus matching %
  */
 export function calculateProfitRatesSync(
-  products: ProductWithValue[],
+  products: readonly ProfitRateInput[],
 ): ProfitRates {
   let totalDailyProfit = 0;
   let totalBase = 0;
@@ -85,4 +91,25 @@ export function calculateProfitRatesSync(
     monthlyPct: pct(monthly),
     annualPct: pct(annual),
   };
+}
+
+/**
+ * Projects a single holding using the portfolio's formula and rounding.
+ * @param product - Current total EUR valuation and expected annual decimal rate.
+ * @returns Period amounts and percentages, or null for unavailable/non-finite
+ * inputs or a non-positive valuation. A known zero rate remains a valid estimate.
+ * Pure calculation; no reads, mutations, or additional market requests.
+ */
+export function calculateProductProfitRates(
+  product: ProfitRateInput,
+): ProfitRates | null {
+  if (
+    product.expectedAnnualReturn == null ||
+    !Number.isFinite(product.expectedAnnualReturn) ||
+    !Number.isFinite(product.currentValueEur) ||
+    product.currentValueEur <= 0
+  ) {
+    return null;
+  }
+  return calculateProfitRatesSync([product]);
 }

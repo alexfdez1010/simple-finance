@@ -53,15 +53,16 @@ const PERIOD_CONFIG: Record<
 const PERIOD_ORDER: ProfitPeriod[] = ['daily', 'weekly', 'monthly', 'annual'];
 
 interface ProfitRateDisplayProps {
-  profitRates: ProfitRates;
+  profitRates: ProfitRates | null;
 }
 
 /**
  * Profit rate display component
  * Cycles through daily/weekly/monthly/annual on button click
  *
- * @param props - Component props
- * @returns Profit rate display element
+ * @param props - Prepared EUR projections, or null when no estimate is available.
+ * @returns Currency-aware amount and percentage, or an explicit missing state.
+ * Only the local period changes; zero and negative projections remain visible.
  */
 export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   const { format } = useDisplayCurrency();
@@ -75,15 +76,15 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   };
 
   const config = PERIOD_CONFIG[currentPeriod];
-  const value = profitRates[config.valueKey];
-  const pct = profitRates[config.pctKey];
+  const value = profitRates?.[config.valueKey] ?? 0;
+  const pct = profitRates?.[config.pctKey] ?? 0;
   const sign = value >= 0 ? '+' : '';
   const absoluteValue = format(value, { absolute: true });
   const signedValue = value >= 0 ? `+${absoluteValue}` : `-${absoluteValue}`;
 
   return (
     <div className="flex h-full flex-col justify-between gap-2">
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-x-3">
         <p className="text-xs font-medium text-muted-foreground">
           Estimated {config.label.toLowerCase()} profit
         </p>
@@ -91,6 +92,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
           onPress={handleCycle}
           size="sm"
           variant="ghost"
+          className="min-h-11 shrink-0"
           aria-label={`Show ${config.next.toLowerCase()} profit`}
         >
           {config.next}
@@ -102,21 +104,29 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
         aria-live="polite"
         aria-atomic="true"
       >
-        <p
-          className={`display-number min-w-0 font-sans text-xl font-semibold ${
-            value >= 0 ? 'text-gain' : 'text-loss'
-          }`}
-        >
-          {signedValue}
-        </p>
-        <span
-          className={`text-xs sm:text-sm font-semibold tabular-nums ${
-            value >= 0 ? 'text-gain' : 'text-loss'
-          }`}
-        >
-          {sign}
-          {pct.toFixed(2)}%
-        </span>
+        {profitRates ? (
+          <>
+            <p
+              className={`display-number min-w-0 font-sans text-xl font-semibold ${
+                value >= 0 ? 'text-gain' : 'text-loss'
+              }`}
+            >
+              {signedValue}
+            </p>
+            <span
+              className={`text-xs sm:text-sm font-semibold tabular-nums ${
+                value >= 0 ? 'text-gain' : 'text-loss'
+              }`}
+            >
+              {sign}
+              {pct.toFixed(2)}%
+            </span>
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            — Return estimate unavailable
+          </p>
+        )}
       </div>
     </div>
   );
