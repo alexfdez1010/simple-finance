@@ -12,6 +12,7 @@ import { useId } from 'react';
 import { Button, Card, Chip } from '@heroui/react';
 import { Eye, PencilSimple, TrashSimple } from '@phosphor-icons/react';
 import { ProductDetails } from '@/components/products/product-details';
+import { HoldingIdentity } from '@/components/products/holding-identity';
 import { useProductDateLabel } from '@/components/products/use-product-date-label';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import { ProfitRateDisplay } from '@/components/dashboard/profit-rate-display';
@@ -33,16 +34,20 @@ interface ProductCardProps {
   onView?: (product: FinancialProduct) => void;
 }
 
-/** Formats percentage value with sign */
+/**
+ * Formats a return percentage without changing its financial value.
+ * @param value - Percentage points; zero retains an explicit positive sign.
+ * @returns A signed, two-decimal percentage string without side effects.
+ */
 function formatPercentage(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
 }
 
 /**
- * Product card with enhanced visual design and dialog-based actions.
- *
- * @param props - Component props
- * @returns Product card element
+ * Presents one holding with a comparable value, return, details, and focused actions.
+ * @param props - Holding, prepared EUR valuation, return assumption, and action callbacks.
+ * @returns A currency-aware card; missing estimates stay unavailable.
+ * Actions delegate mutations to the workspace; presentation never changes a holding.
  */
 export function ProductCard({
   product,
@@ -55,7 +60,7 @@ export function ProductCard({
   onView,
 }: ProductCardProps) {
   const nameId = useId();
-  const { format: formatCurrency } = useDisplayCurrency();
+  const { currency, format: formatCurrency } = useDisplayCurrency();
   const isYahoo = product.type === 'YAHOO_FINANCE';
   const totalValue = currentValueEur ?? currentValue * product.quantity;
   const dateString = useProductDateLabel(product);
@@ -69,34 +74,47 @@ export function ProductCard({
   const isPositive = returnValue >= 0;
 
   return (
-    <Card className="finance-card h-full py-0" data-testid="product-card">
-      <Card.Header className="p-5 pb-3">
-        <div className="min-w-0">
-          <h3
-            id={nameId}
-            className="text-base font-semibold text-foreground [overflow-wrap:anywhere]"
-          >
-            {product.name}
-          </h3>
-          <div className="flex flex-wrap items-center gap-1.5 mt-1">
-            <Chip size="sm" variant="secondary" className="text-xs">
-              {isYahoo ? product.yahoo.symbol : product.custom.currency}
-            </Chip>
-            <Chip size="sm" variant="tertiary" className="text-xs">
-              {assetCategoryLabel(product.assetCategory)}
-            </Chip>
-            <span className="text-xs text-muted-foreground">{dateString}</span>
+    <Card
+      className="finance-card holding-card h-full py-0"
+      data-testid="product-card"
+    >
+      <Card.Header className="p-6 pb-5">
+        <div className="flex min-w-0 items-start gap-3">
+          <HoldingIdentity category={product.assetCategory} />
+          <div className="min-w-0 flex-1">
+            <h3
+              id={nameId}
+              className="text-base font-semibold leading-6 tracking-tight text-foreground [overflow-wrap:anywhere]"
+            >
+              {product.name}
+            </h3>
+            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <Chip
+                size="sm"
+                variant="secondary"
+                className="text-[10px] font-medium"
+              >
+                {isYahoo ? product.yahoo.symbol : product.custom.currency}
+              </Chip>
+              <span className="text-xs text-muted-foreground">
+                {assetCategoryLabel(product.assetCategory)}
+              </span>
+            </div>
           </div>
         </div>
       </Card.Header>
 
-      <Card.Content className="flex flex-1 flex-col px-5 pb-5">
-        <div className="mb-6">
-          <p className="display-number font-sans text-2xl font-semibold text-foreground">
+      <Card.Content className="flex flex-1 flex-col px-6 pb-5">
+        <div className="mb-6 border-b border-separator pb-6">
+          <p className="mb-2 text-xs text-muted-foreground">Current value</p>
+          <p
+            key={currency}
+            className="display-number value-change font-sans text-[1.75rem] font-semibold leading-tight text-foreground"
+          >
             {formatCurrency(totalValue)}
           </p>
           <p
-            className={`display-number mt-1 text-sm font-semibold tracking-normal ${isPositive ? 'text-gain' : 'text-loss'}`}
+            className={`display-number mt-2 text-sm font-medium tracking-normal ${isPositive ? 'text-gain' : 'text-loss'}`}
           >
             {formatCurrency(returnValue)} ({formatPercentage(returnPct)})
           </p>
@@ -111,7 +129,7 @@ export function ProductCard({
         <div
           role="group"
           aria-label={`Estimated profit for ${product.name}`}
-          className="mt-5 border-t border-separator pt-3"
+          className="mt-6 rounded-xl bg-surface-secondary p-3.5"
         >
           <ProfitRateDisplay
             profitRates={calculateProductProfitRates({
@@ -122,9 +140,9 @@ export function ProductCard({
         </div>
       </Card.Content>
       {(onView || onEdit || onDelete) && (
-        <Card.Footer className="mx-5 justify-between border-t border-separator px-0 py-2">
+        <Card.Footer className="mx-6 border-t border-separator px-0 py-2.5">
           <div
-            className="flex gap-1"
+            className="flex w-full flex-wrap items-center gap-1"
             role="group"
             aria-label={`Actions for ${product.name}`}
           >
@@ -135,7 +153,7 @@ export function ProductCard({
                 onPress={() => onView(product)}
                 aria-label="View product history"
                 aria-describedby={nameId}
-                className="min-h-11 gap-2"
+                className="mr-auto min-h-11 gap-2 rounded-xl text-xs font-medium"
               >
                 <Eye aria-hidden size={16} />
                 History
@@ -149,7 +167,7 @@ export function ProductCard({
                 onPress={() => onEdit(product)}
                 aria-label="Edit product"
                 aria-describedby={nameId}
-                className="min-h-11 min-w-11"
+                className="min-h-11 min-w-11 rounded-xl"
               >
                 <PencilSimple aria-hidden size={16} />
               </Button>
@@ -162,7 +180,7 @@ export function ProductCard({
                 onPress={() => onDelete(product)}
                 aria-label="Delete product"
                 aria-describedby={nameId}
-                className="min-h-11 min-w-11 text-loss"
+                className="min-h-11 min-w-11 rounded-xl text-muted-foreground hover:text-loss"
               >
                 <TrashSimple aria-hidden size={16} />
               </Button>
@@ -170,6 +188,9 @@ export function ProductCard({
           </div>
         </Card.Footer>
       )}
+      <p className="px-6 pb-4 text-[10px] text-muted-foreground">
+        {dateString}
+      </p>
     </Card>
   );
 }

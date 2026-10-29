@@ -45,7 +45,7 @@ export function AddProductDialog({
                 Add Product
               </Modal.Heading>
               <p className="max-w-md text-sm text-muted-foreground">
-                Choose a market asset or a fixed-rate investment.
+                Choose a market asset or a fixed-rate investment
               </p>
             </Modal.Header>
             <Modal.Body className="pt-2">

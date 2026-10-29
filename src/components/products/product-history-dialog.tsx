@@ -109,7 +109,7 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
                 </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
-                Daily value in your display currency.
+                Daily value in your display currency
               </p>
             </Modal.Header>
             <Modal.Body className="pt-3">

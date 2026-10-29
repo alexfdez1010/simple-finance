@@ -1,14 +1,8 @@
-/**
- * Allocation by asset category: portfolio split by high-level asset class
- * (stocks, bonds & loans, commodities, real estate, cash). Complements the
- * per-product and per-currency views.
- * @module components/dashboard/allocation-by-category-chart
- */
-
 'use client';
 
 import { useMemo } from 'react';
-import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from 'recharts';
+import { ChartDonut } from '@phosphor-icons/react';
+import { Cell, Pie, PieChart } from 'recharts';
 import {
   Card,
   CardContent,
@@ -17,12 +11,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
-  ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  type ChartConfig,
 } from '@/components/ui/chart';
-import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
+import { useDisplayCurrency } from './display-currency-context';
 import {
   assetCategoryLabel,
   type AssetCategory,
@@ -33,122 +27,150 @@ interface CategoryAllocationItem {
   value: number;
 }
 
-interface AllocationByCategoryChartProps {
-  data: CategoryAllocationItem[];
-}
-
 const chartConfig = {
   value: { label: 'Value', color: 'var(--chart-1)' },
 } satisfies ChartConfig;
-
 const CATEGORY_COLORS: Record<AssetCategory, string> = {
-  STOCKS: 'oklch(0.6 0.15 250)',
-  BONDS_LOANS: 'oklch(0.6 0.13 145)',
-  COMMODITIES: 'oklch(0.7 0.16 60)',
-  REAL_ESTATE: 'oklch(0.55 0.12 30)',
-  CASH: 'oklch(0.65 0.05 200)',
+  STOCKS: 'var(--chart-1)',
+  BONDS_LOANS: 'var(--chart-2)',
+  COMMODITIES: 'var(--chart-3)',
+  REAL_ESTATE: 'var(--chart-4)',
+  CASH: 'var(--chart-5)',
 };
 
 /**
- * Horizontal bar chart of holdings grouped by asset category.
- *
- * @param props - Component props with grouped values
- * @returns Chart element
+ * Shows category composition with a proportional ring and a complete value ledger.
+ * @param props - EUR valuations grouped by persisted asset category.
+ * @returns Accessible amounts and shares; signed or zero totals omit the ring.
+ * Formatting follows the display preference; supplied values are never changed.
  */
 export function AllocationByCategoryChart({
   data,
-}: AllocationByCategoryChartProps) {
+}: {
+  data: CategoryAllocationItem[];
+}) {
   const { format } = useDisplayCurrency();
-
-  const enriched = useMemo(() => {
-    const total = data.reduce((s, d) => s + d.value, 0);
-    return data.map((d) => ({
-      ...d,
-      label: assetCategoryLabel(d.category),
-      pct: total > 0 ? (d.value / total) * 100 : 0,
-    }));
-  }, [data]);
-
-  if (enriched.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-serif text-lg">
-            Allocation by Category
-          </CardTitle>
-          <CardDescription>
-            Add a product to see your asset-class split.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
-
-  const dominant = enriched[0];
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const canChart = total > 0 && data.every((item) => item.value >= 0);
+  const enriched = useMemo(
+    () =>
+      data.map((item) => ({
+        ...item,
+        label: assetCategoryLabel(item.category),
+        pct: canChart ? (item.value / total) * 100 : null,
+      })),
+    [data, total, canChart],
+  );
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="font-serif text-lg">
-          Allocation by Category
-        </CardTitle>
+    <Card className="h-full">
+      <CardHeader>
+        <CardTitle>Allocation by Category</CardTitle>
         <CardDescription>Asset-class split of your holdings</CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <p className="text-xl sm:text-2xl font-bold tabular-nums">
-            {dominant.label}{' '}
-            <span className="text-muted-foreground text-sm font-medium">
-              {dominant.pct.toFixed(0)}%
+        {enriched.length === 0 ? (
+          <div className="flex min-h-72 flex-col items-center justify-center gap-4 text-center">
+            <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/8 text-primary">
+              <ChartDonut aria-hidden size={28} weight="light" />
             </span>
-          </p>
-          <span className="text-xs font-medium text-muted-foreground tabular-nums">
-            {enriched.length} categories · top {format(dominant.value)}
-          </span>
-        </div>
-        <ChartContainer config={chartConfig} className="h-[220px] w-full">
-          <BarChart
-            data={enriched}
-            layout="vertical"
-            margin={{ left: 4, right: 12, top: 4, bottom: 4 }}
-          >
-            <CartesianGrid horizontal={false} strokeOpacity={0.3} />
-            <XAxis
-              type="number"
-              tickLine={false}
-              axisLine={false}
-              tickFormatter={(v) => format(Number(v), { compact: true })}
-              tick={{ fontSize: 11 }}
-            />
-            <YAxis
-              type="category"
-              dataKey="label"
-              tickLine={false}
-              axisLine={false}
-              width={110}
-              tick={{ fontSize: 11, fontWeight: 600 }}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  formatter={(v, _n, item) => {
-                    const pct = (item?.payload as { pct: number } | undefined)
-                      ?.pct;
-                    return [
-                      `${format(Number(v))} · ${pct?.toFixed(1) ?? '0'}%`,
-                      'Value',
-                    ];
-                  }}
-                />
-              }
-            />
-            <Bar isAnimationActive={false} dataKey="value" radius={4}>
-              {enriched.map((d, i) => (
-                <Cell key={`c-${i}`} fill={CATEGORY_COLORS[d.category]} />
+            <p className="text-sm font-medium">
+              Make room for your first investment
+            </p>
+            <p className="max-w-64 text-xs leading-relaxed text-muted-foreground">
+              Add a product to see your asset-class split.
+            </p>
+          </div>
+        ) : (
+          <>
+            {canChart ? (
+              <div className="relative mx-auto my-1 h-48 w-48">
+                <ChartContainer
+                  config={chartConfig}
+                  className="chart-reveal h-full w-full"
+                  aria-label="Allocation by asset category"
+                >
+                  <PieChart>
+                    <ChartTooltip
+                      content={
+                        <ChartTooltipContent
+                          nameKey="label"
+                          hideLabel
+                          formatter={(value, _name, item) => [
+                            format(Number(value)),
+                            item.payload.label,
+                          ]}
+                        />
+                      }
+                    />
+                    <Pie
+                      data={enriched}
+                      dataKey="value"
+                      nameKey="label"
+                      innerRadius={65}
+                      outerRadius={86}
+                      paddingAngle={
+                        enriched.filter((item) => item.value > 0).length > 1
+                          ? 4
+                          : 0
+                      }
+                      cornerRadius={5}
+                      stroke="none"
+                      isAnimationActive={false}
+                      startAngle={90}
+                      endAngle={-270}
+                    >
+                      {enriched.map((item) => (
+                        <Cell
+                          key={item.category}
+                          fill={CATEGORY_COLORS[item.category]}
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
+                >
+                  <p className="display-number text-3xl font-semibold">
+                    {enriched.length}
+                  </p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    asset {enriched.length === 1 ? 'class' : 'classes'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="my-6 text-xs leading-relaxed text-muted-foreground">
+                Percentage breakdown unavailable for zero or signed valuations.
+              </p>
+            )}
+            <ul className="mt-3 space-y-3" aria-label="Category values">
+              {enriched.map((item) => (
+                <li
+                  key={item.category}
+                  className="flex min-w-0 items-center gap-2.5 text-xs"
+                >
+                  <span
+                    aria-hidden
+                    className="size-2 shrink-0 rounded-full"
+                    style={{ backgroundColor: CATEGORY_COLORS[item.category] }}
+                  />
+                  <span className="min-w-0 flex-1 text-muted-foreground [overflow-wrap:anywhere]">
+                    {item.label}
+                  </span>
+                  <span className="font-medium tabular-nums [overflow-wrap:anywhere]">
+                    {format(item.value, { compact: true })}
+                  </span>
+                  <span className="w-12 shrink-0 text-right tabular-nums text-muted-foreground">
+                    {item.pct === null ? '—' : `${item.pct.toFixed(1)}%`}
+                  </span>
+                </li>
               ))}
-            </Bar>
-          </BarChart>
-        </ChartContainer>
+            </ul>
+          </>
+        )}
       </CardContent>
     </Card>
   );

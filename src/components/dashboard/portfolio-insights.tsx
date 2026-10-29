@@ -65,7 +65,7 @@ export function PortfolioInsights({
       <CardHeader className="gap-1 pb-5">
         <CardTitle>Beyond the balance</CardTitle>
         <CardDescription>
-          A closer look at how your portfolio is positioned.
+          A closer look at how your portfolio is positioned
         </CardDescription>
       </CardHeader>
       <CardContent>

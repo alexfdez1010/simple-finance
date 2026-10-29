@@ -21,6 +21,12 @@ interface Props {
   onChange: (field: 'amount' | 'date' | 'note', value: string) => void;
 }
 
+/**
+ * Groups the initial contribution's controlled inputs in its native currency.
+ * @param props - Current field values, allowed date boundary, and change callback.
+ * @returns Labelled fields; edits notify the parent without persisting a movement.
+ * The optional note may be empty; native amount/date validation stays intact.
+ */
 export function FirstMovementFields({
   currency,
   symbol,
@@ -31,9 +37,9 @@ export function FirstMovementFields({
   onChange,
 }: Props) {
   return (
-    <fieldset className="rounded-md bg-muted/35 p-3">
+    <fieldset className="rounded-md bg-surface-secondary p-3">
       <legend className="px-1 text-xs font-semibold text-foreground">
-        First movement · {currency}
+        First movement ({currency})
       </legend>
       <div className="mt-2 grid grid-cols-1 gap-3 sm:grid-cols-2">
         <Field>

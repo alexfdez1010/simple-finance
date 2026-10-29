@@ -89,8 +89,8 @@ export function MonthlyContributionsChart({
             Monthly Contributions
           </CardTitle>
           <CardDescription>
-            No contributions yet. Add deposits or withdrawals to a custom
-            product.
+            No contributions yet, add deposits or withdrawals to a custom
+            product
           </CardDescription>
         </CardHeader>
       </Card>

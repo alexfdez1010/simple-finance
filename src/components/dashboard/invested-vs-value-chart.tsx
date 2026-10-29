@@ -79,7 +79,7 @@ export function InvestedVsValueChart({
             Invested vs Value
           </CardTitle>
           <CardDescription>
-            No data yet. Data appears after the first daily snapshot.
+            No data yet, data appears after the first daily snapshot
           </CardDescription>
         </CardHeader>
       </Card>

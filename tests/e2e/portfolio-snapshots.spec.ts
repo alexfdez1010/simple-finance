@@ -158,6 +158,7 @@ test.describe('Portfolio Snapshots and Charts', () => {
     const summary = page.getByRole('region', { name: 'Portfolio summary' });
     const total = summary.getByRole('group', { name: 'Total Value' });
     const invested = summary.getByRole('group', { name: 'Invested' });
+    const latest = summary.getByRole('group', { name: 'Latest change' });
     const projected = summary.getByRole('group', { name: 'Projected profit' });
     const [totalBox, investedBox, projectedBox] = await Promise.all([
       total.boundingBox(),
@@ -168,25 +169,43 @@ test.describe('Portfolio Snapshots and Charts', () => {
     expect(totalBox).not.toBeNull();
     expect(investedBox).not.toBeNull();
     expect(projectedBox).not.toBeNull();
-    expect(totalBox!.y).toBeCloseTo(investedBox!.y, 0);
-    expect(projectedBox!.y).toBeGreaterThan(totalBox!.y);
+    expect(totalBox!.x + totalBox!.width).toBeLessThan(investedBox!.x);
+    expect(investedBox!.y).toBeGreaterThanOrEqual(totalBox!.y);
+    expect(projectedBox!.y).toBeGreaterThan(
+      investedBox!.y + investedBox!.height,
+    );
+    expect(projectedBox!.x).toBeCloseTo(investedBox!.x, 0);
     expect(projectedBox!.width).toBeGreaterThan(investedBox!.width * 2);
 
     await page.setViewportSize({ width: 390, height: 844 });
-    const [mobileTotal, mobileInvested, mobileProjected, hasOverflow] =
-      await Promise.all([
-        total.boundingBox(),
-        invested.boundingBox(),
-        projected.boundingBox(),
-        page.evaluate(
-          () =>
-            document.documentElement.scrollWidth >
-            document.documentElement.clientWidth,
-        ),
-      ]);
+    const [
+      mobileTotal,
+      mobileInvested,
+      mobileLatest,
+      mobileProjected,
+      hasOverflow,
+    ] = await Promise.all([
+      total.boundingBox(),
+      invested.boundingBox(),
+      latest.boundingBox(),
+      projected.boundingBox(),
+      page.evaluate(
+        () =>
+          document.documentElement.scrollWidth >
+          document.documentElement.clientWidth,
+      ),
+    ]);
 
-    expect(mobileTotal!.width).toBeCloseTo(mobileInvested!.width, 0);
-    expect(mobileProjected!.width).toBeGreaterThan(mobileTotal!.width * 1.9);
+    expect(mobileInvested!.y).toBeGreaterThan(
+      mobileTotal!.y + mobileTotal!.height,
+    );
+    expect(mobileProjected!.y).toBeGreaterThan(
+      mobileInvested!.y + mobileInvested!.height,
+    );
+    expect(mobileProjected!.x).toBeCloseTo(mobileInvested!.x, 0);
+    expect(mobileProjected!.width).toBeGreaterThan(mobileInvested!.width * 1.9);
+    expect(mobileLatest!.y).toBeGreaterThan(mobileInvested!.y);
+    expect(mobileLatest!.width).toBeCloseTo(mobileProjected!.width, 0);
     expect(hasOverflow).toBe(false);
   });
 });

@@ -1,172 +1,552 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-11T15:25:19.925870+00:00",
+  "generatedAt": "2026-10-29T18:13:22.142724+00:00",
   "title": "Design System: Simple Finance",
   "extensions": {
-    "colorMeta": {},
+    "colorMeta": {
+      "perspective-blue": {
+        "role": "primary",
+        "displayName": "Perspective Blue",
+        "tonalRamp": [
+          "oklch(15% 0.2088 258.89)",
+          "oklch(26% 0.2088 258.89)",
+          "oklch(37% 0.2088 258.89)",
+          "oklch(48% 0.2088 258.89)",
+          "oklch(59% 0.2088 258.89)",
+          "oklch(70% 0.2088 258.89)",
+          "oklch(82% 0.2088 258.89)",
+          "oklch(95% 0.2088 258.89)"
+        ]
+      },
+      "gain": {
+        "role": "secondary",
+        "displayName": "Gain",
+        "tonalRamp": [
+          "oklch(15% 0.1206 154.70)",
+          "oklch(26% 0.1206 154.70)",
+          "oklch(37% 0.1206 154.70)",
+          "oklch(48% 0.1206 154.70)",
+          "oklch(59% 0.1206 154.70)",
+          "oklch(70% 0.1206 154.70)",
+          "oklch(82% 0.1206 154.70)",
+          "oklch(95% 0.1206 154.70)"
+        ]
+      },
+      "loss": {
+        "role": "secondary",
+        "displayName": "Loss",
+        "tonalRamp": [
+          "oklch(15% 0.1838 20.13)",
+          "oklch(26% 0.1838 20.13)",
+          "oklch(37% 0.1838 20.13)",
+          "oklch(48% 0.1838 20.13)",
+          "oklch(59% 0.1838 20.13)",
+          "oklch(70% 0.1838 20.13)",
+          "oklch(82% 0.1838 20.13)",
+          "oklch(95% 0.1838 20.13)"
+        ]
+      },
+      "aluminum": {
+        "role": "neutral",
+        "displayName": "Aluminum",
+        "tonalRamp": [
+          "oklch(15% 0.0027 286.35)",
+          "oklch(26% 0.0027 286.35)",
+          "oklch(37% 0.0027 286.35)",
+          "oklch(48% 0.0027 286.35)",
+          "oklch(59% 0.0027 286.35)",
+          "oklch(70% 0.0027 286.35)",
+          "oklch(82% 0.0027 286.35)",
+          "oklch(95% 0.0027 286.35)"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "tonalRamp": [
+          "oklch(15% 0.0000 0.00)",
+          "oklch(26% 0.0000 0.00)",
+          "oklch(37% 0.0000 0.00)",
+          "oklch(48% 0.0000 0.00)",
+          "oklch(59% 0.0000 0.00)",
+          "oklch(70% 0.0000 0.00)",
+          "oklch(82% 0.0000 0.00)",
+          "oklch(95% 0.0000 0.00)"
+        ]
+      },
+      "graphite": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "tonalRamp": [
+          "oklch(15% 0.0038 286.10)",
+          "oklch(26% 0.0038 286.10)",
+          "oklch(37% 0.0038 286.10)",
+          "oklch(48% 0.0038 286.10)",
+          "oklch(59% 0.0038 286.10)",
+          "oklch(70% 0.0038 286.10)",
+          "oklch(82% 0.0038 286.10)",
+          "oklch(95% 0.0038 286.10)"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "tonalRamp": [
+          "oklch(15% 0.0183 266.16)",
+          "oklch(26% 0.0183 266.16)",
+          "oklch(37% 0.0183 266.16)",
+          "oklch(48% 0.0183 266.16)",
+          "oklch(59% 0.0183 266.16)",
+          "oklch(70% 0.0183 266.16)",
+          "oklch(82% 0.0183 266.16)",
+          "oklch(95% 0.0183 266.16)"
+        ]
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "Secondary Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0054 274.96)",
+          "oklch(26% 0.0054 274.96)",
+          "oklch(37% 0.0054 274.96)",
+          "oklch(48% 0.0054 274.96)",
+          "oklch(59% 0.0054 274.96)",
+          "oklch(70% 0.0054 274.96)",
+          "oklch(82% 0.0054 274.96)",
+          "oklch(95% 0.0054 274.96)"
+        ]
+      },
+      "tertiary": {
+        "role": "neutral",
+        "displayName": "Tertiary Surface",
+        "tonalRamp": [
+          "oklch(15% 0.0087 264.52)",
+          "oklch(26% 0.0087 264.52)",
+          "oklch(37% 0.0087 264.52)",
+          "oklch(48% 0.0087 264.52)",
+          "oklch(59% 0.0087 264.52)",
+          "oklch(70% 0.0087 264.52)",
+          "oklch(82% 0.0087 264.52)",
+          "oklch(95% 0.0087 264.52)"
+        ]
+      },
+      "default": {
+        "role": "neutral",
+        "displayName": "Control Fill",
+        "tonalRamp": [
+          "oklch(15% 0.0055 274.96)",
+          "oklch(26% 0.0055 274.96)",
+          "oklch(37% 0.0055 274.96)",
+          "oklch(48% 0.0055 274.96)",
+          "oklch(59% 0.0055 274.96)",
+          "oklch(70% 0.0055 274.96)",
+          "oklch(82% 0.0055 274.96)",
+          "oklch(95% 0.0055 274.96)"
+        ]
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Separator",
+        "tonalRamp": [
+          "oklch(15% 0.0071 268.55)",
+          "oklch(26% 0.0071 268.55)",
+          "oklch(37% 0.0071 268.55)",
+          "oklch(48% 0.0071 268.55)",
+          "oklch(59% 0.0071 268.55)",
+          "oklch(70% 0.0071 268.55)",
+          "oklch(82% 0.0071 268.55)",
+          "oklch(95% 0.0071 268.55)"
+        ]
+      },
+      "field-border": {
+        "role": "neutral",
+        "displayName": "Field Border",
+        "tonalRamp": [
+          "oklch(15% 0.0114 269.54)",
+          "oklch(26% 0.0114 269.54)",
+          "oklch(37% 0.0114 269.54)",
+          "oklch(48% 0.0114 269.54)",
+          "oklch(59% 0.0114 269.54)",
+          "oklch(70% 0.0114 269.54)",
+          "oklch(82% 0.0114 269.54)",
+          "oklch(95% 0.0114 269.54)"
+        ]
+      },
+      "field-placeholder": {
+        "role": "neutral",
+        "displayName": "Field Placeholder",
+        "tonalRamp": [
+          "oklch(15% 0.0183 266.16)",
+          "oklch(26% 0.0183 266.16)",
+          "oklch(37% 0.0183 266.16)",
+          "oklch(48% 0.0183 266.16)",
+          "oklch(59% 0.0183 266.16)",
+          "oklch(70% 0.0183 266.16)",
+          "oklch(82% 0.0183 266.16)",
+          "oklch(95% 0.0183 266.16)"
+        ]
+      },
+      "selection": {
+        "role": "neutral",
+        "displayName": "Text Selection",
+        "tonalRamp": [
+          "oklch(15% 0.0393 256.59)",
+          "oklch(26% 0.0393 256.59)",
+          "oklch(37% 0.0393 256.59)",
+          "oklch(48% 0.0393 256.59)",
+          "oklch(59% 0.0393 256.59)",
+          "oklch(70% 0.0393 256.59)",
+          "oklch(82% 0.0393 256.59)",
+          "oklch(95% 0.0393 256.59)"
+        ]
+      },
+      "balance": {
+        "role": "neutral",
+        "displayName": "Balance Graphite",
+        "tonalRamp": [
+          "oklch(15% 0.0179 266.28)",
+          "oklch(26% 0.0179 266.28)",
+          "oklch(37% 0.0179 266.28)",
+          "oklch(48% 0.0179 266.28)",
+          "oklch(59% 0.0179 266.28)",
+          "oklch(70% 0.0179 266.28)",
+          "oklch(82% 0.0179 266.28)",
+          "oklch(95% 0.0179 266.28)"
+        ]
+      },
+      "balance-light": {
+        "role": "neutral",
+        "displayName": "Balance Light",
+        "tonalRamp": [
+          "oklch(15% 0.0557 261.41)",
+          "oklch(26% 0.0557 261.41)",
+          "oklch(37% 0.0557 261.41)",
+          "oklch(48% 0.0557 261.41)",
+          "oklch(59% 0.0557 261.41)",
+          "oklch(70% 0.0557 261.41)",
+          "oklch(82% 0.0557 261.41)",
+          "oklch(95% 0.0557 261.41)"
+        ]
+      },
+      "chart-1": {
+        "role": "secondary",
+        "displayName": "Series Blue",
+        "tonalRamp": [
+          "oklch(15% 0.1983 258.97)",
+          "oklch(26% 0.1983 258.97)",
+          "oklch(37% 0.1983 258.97)",
+          "oklch(48% 0.1983 258.97)",
+          "oklch(59% 0.1983 258.97)",
+          "oklch(70% 0.1983 258.97)",
+          "oklch(82% 0.1983 258.97)",
+          "oklch(95% 0.1983 258.97)"
+        ]
+      },
+      "chart-2": {
+        "role": "secondary",
+        "displayName": "Series Periwinkle",
+        "tonalRamp": [
+          "oklch(15% 0.1413 272.18)",
+          "oklch(26% 0.1413 272.18)",
+          "oklch(37% 0.1413 272.18)",
+          "oklch(48% 0.1413 272.18)",
+          "oklch(59% 0.1413 272.18)",
+          "oklch(70% 0.1413 272.18)",
+          "oklch(82% 0.1413 272.18)",
+          "oklch(95% 0.1413 272.18)"
+        ]
+      },
+      "chart-3": {
+        "role": "secondary",
+        "displayName": "Series Gold",
+        "tonalRamp": [
+          "oklch(15% 0.1193 80.22)",
+          "oklch(26% 0.1193 80.22)",
+          "oklch(37% 0.1193 80.22)",
+          "oklch(48% 0.1193 80.22)",
+          "oklch(59% 0.1193 80.22)",
+          "oklch(70% 0.1193 80.22)",
+          "oklch(82% 0.1193 80.22)",
+          "oklch(95% 0.1193 80.22)"
+        ]
+      },
+      "chart-4": {
+        "role": "secondary",
+        "displayName": "Series Teal",
+        "tonalRamp": [
+          "oklch(15% 0.0938 184.32)",
+          "oklch(26% 0.0938 184.32)",
+          "oklch(37% 0.0938 184.32)",
+          "oklch(48% 0.0938 184.32)",
+          "oklch(59% 0.0938 184.32)",
+          "oklch(70% 0.0938 184.32)",
+          "oklch(82% 0.0938 184.32)",
+          "oklch(95% 0.0938 184.32)"
+        ]
+      },
+      "chart-5": {
+        "role": "secondary",
+        "displayName": "Series Cool Gray",
+        "tonalRamp": [
+          "oklch(15% 0.0270 268.76)",
+          "oklch(26% 0.0270 268.76)",
+          "oklch(37% 0.0270 268.76)",
+          "oklch(48% 0.0270 268.76)",
+          "oklch(59% 0.0270 268.76)",
+          "oklch(70% 0.0270 268.76)",
+          "oklch(82% 0.0270 268.76)",
+          "oklch(95% 0.0270 268.76)"
+        ]
+      }
+    },
     "typographyMeta": {
+      "display": {
+        "displayName": "Portfolio Balance",
+        "purpose": "Principal current valuation only."
+      },
       "headline": {
         "displayName": "Workspace Headline",
         "purpose": "Compact page titles."
       },
       "headline-wide": {
         "displayName": "Wide Workspace Headline",
-        "purpose": "Page titles from the small breakpoint."
+        "purpose": "Page titles from 640px."
       },
       "title": {
         "displayName": "Container Title",
-        "purpose": "Card headings and identity."
+        "purpose": "Card headings and section identity."
       },
-      "body": { "displayName": "Body", "purpose": "Workspace explanations." },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Explanations and form content."
+      },
       "label": {
         "displayName": "Label",
-        "purpose": "Comparable figures and compact context."
+        "purpose": "Comparable figures and supporting context."
       },
       "metadata": {
         "displayName": "Monospace Metadata",
-        "purpose": "Incumbent compact badges; monospace also appears on contributions, shared tooltip values, and technical material."
+        "purpose": "Existing compact badges, contribution amounts, tooltip values, and technical material."
       }
     },
     "shadows": [
       {
+        "name": "surface",
+        "value": "0 4px 24px rgb(25 36 60 / 0.035)",
+        "purpose": "Resting white content surfaces."
+      },
+      {
+        "name": "hover",
+        "value": "0 12px 36px rgb(25 36 60 / 0.08)",
+        "purpose": "Interactive card lift on hover-capable pointers."
+      },
+      {
+        "name": "dock",
+        "value": "0 8px 40px rgb(25 36 60 / 0.12)",
+        "purpose": "Floating mobile navigation."
+      },
+      {
         "name": "overlay",
-        "value": "0 18px 50px rgb(48 42 35 / 0.1)",
-        "purpose": "Floating overlay elevation; ordinary surfaces have no shadow."
+        "value": "0 24px 80px rgb(21 30 50 / 0.18)",
+        "purpose": "Modal content above the workspace."
       }
     ],
     "motion": [
       {
-        "name": "quiet-enter",
-        "value": "480ms cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Existing quiet entrance utility; reduced-motion overrides suppress it."
+        "name": "ease-settle",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Shared entry, lift, and press easing."
       },
       {
-        "name": "skip-link",
-        "value": "transform 160ms ease",
-        "purpose": "Reveal the keyboard skip link when focused."
+        "name": "workspace-heading",
+        "value": "420ms",
+        "purpose": "12px vertical entry, opacity from .5 to 1."
+      },
+      {
+        "name": "workspace-content",
+        "value": "560ms; delays 45ms, 85ms, 120ms",
+        "purpose": "Bounded route-content sequence."
+      },
+      {
+        "name": "list-entry",
+        "value": "480ms; delays 0ms, 35ms, 70ms, 105ms",
+        "purpose": "Bounded holding-list sequence."
+      },
+      {
+        "name": "balance-light",
+        "value": "1100ms",
+        "purpose": "One restrained light sweep in the balance panel."
+      },
+      {
+        "name": "chart-unfold",
+        "value": "750ms",
+        "purpose": "Container clip reveal; Recharts mark animation stays disabled."
+      },
+      {
+        "name": "value-settle",
+        "value": "260ms",
+        "purpose": "Currency value opacity, 3px settle, and brief 3px blur."
+      },
+      {
+        "name": "icon-settle",
+        "value": "340ms",
+        "purpose": "Selected navigation icon settles from .85 to 1 scale."
+      },
+      {
+        "name": "auth-orbit",
+        "value": "900ms",
+        "purpose": "Decorative authentication geometry settles once."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "0.01ms; iteration count 1; chart clip none",
+        "purpose": "Suppress movement and transitions, reveal marks, and remove hover lift."
       }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" },
-      { "name": "xl", "value": "1280px" }
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
     ]
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
-      "description": "Shared HeroUI adapter variant; project tokens supply interaction colors.",
+      "description": "Existing HeroUI adapter with the shared control radius, press feedback, and visible focus.",
       "html": "<button class=\"ds-button-primary\">Manage holdings</button>",
-      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:18px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:transform 250ms ease,background-color 100ms ease-out;background:var(--accent,#245c48);color:var(--accent-foreground,#fff);}.ds-button-primary:hover{background:var(--accent-hover,#245c48);}.ds-button-primary:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}.ds-button-primary:active{transform:scale(.98);}.ds-button-primary:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-primary{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none;}}",
+      "css": ".ds-button-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:12px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:var(--accent,#0066e5);color:var(--accent-foreground,#fff);transition:background-color 160ms ease,transform 220ms cubic-bezier(.16,1,.3,1);}.ds-button-primary:hover{background:var(--accent-hover,color-mix(in oklab,var(--accent,#0066e5) 90%,#fff 10%));}.ds-button-primary:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-button-primary:active{transform:scale(.98);}.ds-button-primary:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-primary{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-primary{transition:none;}}",
       "refersTo": "button-primary"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
-      "description": "Shared HeroUI adapter variant; project tokens supply interaction colors.",
+      "description": "Existing HeroUI adapter with the shared control radius, press feedback, and visible focus.",
       "html": "<button class=\"ds-button-secondary\">Manage holdings</button>",
-      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:18px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:transform 250ms ease,background-color 100ms ease-out;background:var(--default,#e4e9e1);color:var(--accent-soft-foreground,#202b28);}.ds-button-secondary:hover{background:var(--default-hover,#e4e9e1);}.ds-button-secondary:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}.ds-button-secondary:active{transform:scale(.98);}.ds-button-secondary:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-secondary{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none;}}"
+      "css": ".ds-button-secondary{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:12px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:var(--default,#edeef2);color:var(--foreground,#1d1d1f);transition:background-color 160ms ease,transform 220ms cubic-bezier(.16,1,.3,1);}.ds-button-secondary:hover{background:var(--default-hover,color-mix(in oklab,var(--default,#edeef2) 96%,#1d1d1f 4%));}.ds-button-secondary:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-button-secondary:active{transform:scale(.98);}.ds-button-secondary:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-secondary{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-secondary{transition:none;}}"
     },
     {
       "name": "Outline Button",
       "kind": "button",
-      "description": "Shared HeroUI adapter variant; project tokens supply interaction colors.",
+      "description": "Existing HeroUI adapter with the shared control radius, press feedback, and visible focus.",
       "html": "<button class=\"ds-button-outline\">Manage holdings</button>",
-      "css": ".ds-button-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:18px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:transform 250ms ease,background-color 100ms ease-out;background:transparent;color:var(--default-foreground,#202b28);border:1px solid var(--border,#dce2d8);}.ds-button-outline:hover{background:color-mix(in srgb,var(--default,#e4e9e1) 60%,transparent);}.ds-button-outline:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}.ds-button-outline:active{transform:scale(.98);}.ds-button-outline:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-outline{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-outline{transition:none;}}",
+      "css": ".ds-button-outline{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:1px solid var(--border,#e6e8ed);border-radius:12px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--foreground,#1d1d1f);transition:background-color 160ms ease,transform 220ms cubic-bezier(.16,1,.3,1);}.ds-button-outline:hover{background:var(--default,#edeef2);}.ds-button-outline:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-button-outline:active{transform:scale(.98);}.ds-button-outline:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-outline{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-outline{transition:none;}}",
       "refersTo": "button-outline"
     },
     {
       "name": "Ghost Button",
       "kind": "button",
-      "description": "Shared HeroUI adapter variant; project tokens supply interaction colors.",
+      "description": "Existing HeroUI adapter with the shared control radius, press feedback, and visible focus.",
       "html": "<button class=\"ds-button-ghost\">Manage holdings</button>",
-      "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:18px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:transform 250ms ease,background-color 100ms ease-out;background:transparent;color:var(--default-foreground,#202b28);}.ds-button-ghost:hover{background:var(--default,#e4e9e1);}.ds-button-ghost:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}.ds-button-ghost:active{transform:scale(.98);}.ds-button-ghost:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-ghost{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-ghost{transition:none;}}"
+      "css": ".ds-button-ghost{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:12px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:transparent;color:var(--foreground,#1d1d1f);transition:background-color 160ms ease,transform 220ms cubic-bezier(.16,1,.3,1);}.ds-button-ghost:hover{background:var(--default,#edeef2);}.ds-button-ghost:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-button-ghost:active{transform:scale(.98);}.ds-button-ghost:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-ghost{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-ghost{transition:none;}}"
     },
     {
       "name": "Destructive Button",
       "kind": "button",
-      "description": "Shared HeroUI adapter variant; project tokens supply interaction colors.",
+      "description": "Existing HeroUI adapter with the shared control radius, press feedback, and visible focus.",
       "html": "<button class=\"ds-button-destructive\">Delete position</button>",
-      "css": ".ds-button-destructive{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:18px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:transform 250ms ease,background-color 100ms ease-out;background:var(--danger,#b33d43);color:var(--danger-foreground,#fff);}.ds-button-destructive:hover{background:var(--danger-hover,#b33d43);}.ds-button-destructive:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}.ds-button-destructive:active{transform:scale(.98);}.ds-button-destructive:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-destructive{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-destructive{transition:none;}}"
+      "css": ".ds-button-destructive{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border:0;border-radius:12px;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:var(--danger,#ca3645);color:var(--danger-foreground,#fff);transition:background-color 160ms ease,transform 220ms cubic-bezier(.16,1,.3,1);}.ds-button-destructive:hover{background:var(--danger-hover,color-mix(in oklab,var(--danger,#ca3645) 90%,#fff 10%));}.ds-button-destructive:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-button-destructive:active{transform:scale(.98);}.ds-button-destructive:disabled{opacity:.5;cursor:default;}@media(min-width:768px){.ds-button-destructive{height:36px;}}@media(prefers-reduced-motion:reduce){.ds-button-destructive{transition:none;}}"
     },
     {
       "name": "Portfolio Field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Secondary form input with tabular numbers and explicit label.",
+      "description": "Secondary adapted input with tabular numerals and an explicit label.",
       "html": "<label class=\"ds-field-label\">Amount<input class=\"ds-field\" type=\"text\" placeholder=\"0.00\"></label>",
-      "css": ".ds-field-label{display:block;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:12px;color:var(--foreground,#202b28);}.ds-field{display:block;width:100%;height:40px;padding:8px 12px;border:1px solid var(--field-border,#cbd3c8);border-radius:9px;background:var(--default,#e4e9e1);color:var(--foreground,#202b28);font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-variant-numeric:tabular-nums;transition:background-color 150ms ease,border-color 150ms ease;}.ds-field::placeholder{color:var(--field-placeholder,#647168);}.ds-field:hover{background:var(--default-hover,#e4e9e1);border-color:var(--field-border-hover,#cbd3c8);}.ds-field:focus{border-color:var(--field-border-focus,#245c48);}.ds-field:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}.ds-field:disabled{opacity:.5;}.ds-field[aria-invalid=\"true\"]{border-color:var(--danger,#b33d43);}@media(prefers-reduced-motion:reduce){.ds-field{transition:none;}}"
+      "css": ".ds-field-label{display:block;font-family:var(--font-geist-sans,Geist),sans-serif;font-size:12px;color:var(--foreground,#1d1d1f);}.ds-field{display:block;width:100%;height:40px;padding:8px 12px;border:1px solid var(--field-border,#d8dbe3);border-radius:12px;background:var(--default,#edeef2);color:var(--foreground,#1d1d1f);font-family:var(--font-geist-sans,Geist),sans-serif;font-size:14px;font-variant-numeric:tabular-nums;transition:background-color 150ms ease,border-color 150ms ease;}.ds-field::placeholder{color:var(--field-placeholder,#666b76);}.ds-field:hover{background:var(--default-hover,#e7e8ed);}.ds-field:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-field:disabled{opacity:.5;}.ds-field[aria-invalid=\"true\"]{border-color:var(--danger,#ca3645);}@media(prefers-reduced-motion:reduce){.ds-field{transition:none;}}"
     },
     {
       "name": "Workspace Navigation",
       "kind": "nav",
       "refersTo": "navigation-active",
-      "description": "Persistent route selection with an accessible current-page state.",
+      "description": "Real destinations with current-page state; the live mobile dock reserves safe-area space.",
       "html": "<nav class=\"ds-nav\" aria-label=\"Workspaces\"><a class=\"ds-nav-link\" aria-current=\"page\" href=\"#home\">Home</a><a class=\"ds-nav-link\" href=\"#holdings\">Holdings</a><a class=\"ds-nav-link\" href=\"#analytics\">Analytics</a><a class=\"ds-nav-link\" href=\"#agent\">Agent setup</a></nav>",
-      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:12px;background:var(--surface-secondary,#edf0eb);}.ds-nav-link{display:flex;align-items:center;justify-content:center;min-height:48px;padding:8px 4px;border-radius:12px;color:var(--muted,#59665e);font-family:var(--font-geist-sans,Geist),sans-serif;font-size:11px;font-weight:500;text-decoration:none;transition:background-color 150ms,color 150ms;}.ds-nav-link[aria-current=\"page\"]{background:color-mix(in srgb,var(--accent,#245c48) 10%,transparent);color:var(--accent,#245c48);}.ds-nav-link:hover{background:var(--default,#e4e9e1);color:var(--foreground,#202b28);}.ds-nav-link:focus-visible{outline:2px solid var(--focus,#245c48);outline-offset:3px;}@media(min-width:1024px){.ds-nav{grid-template-columns:1fr;gap:8px;}.ds-nav-link{justify-content:flex-start;padding:8px 12px;font-size:14px;}}@media(prefers-reduced-motion:reduce){.ds-nav-link{transition:none;}}"
+      "css": ".ds-nav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:8px;border:1px solid rgb(255 255 255/.7);border-radius:16px;background:var(--surface,#fff);box-shadow:0 8px 40px rgb(25 36 60/.12);}.ds-nav-link{display:flex;align-items:center;justify-content:center;min-height:48px;padding:8px 4px;border-radius:12px;color:var(--muted,#666b76);font-family:var(--font-geist-sans,Geist),sans-serif;font-size:10px;font-weight:500;text-decoration:none;transition:background-color 180ms ease,color 180ms ease,transform 250ms cubic-bezier(.16,1,.3,1);}.ds-nav-link[aria-current=\"page\"]{background:color-mix(in srgb,var(--accent,#0066e5) 8%,transparent);color:var(--accent,#0066e5);}.ds-nav-link:hover{background:var(--default,#edeef2);color:var(--foreground,#1d1d1f);}.ds-nav-link:focus-visible{outline:2px solid var(--focus,#0066e5);outline-offset:3px;}.ds-nav-link:active{transform:scale(.97);}@media(min-width:1024px){.ds-nav{grid-template-columns:1fr;gap:6px;padding:0;border:0;border-radius:0;box-shadow:none;}.ds-nav-link{justify-content:flex-start;padding:8px 16px;font-size:13px;}}@media(prefers-reduced-motion:reduce){.ds-nav-link{transition:none;}}"
     },
     {
       "name": "Metadata Chip",
       "kind": "chip",
       "refersTo": "metadata-chip",
-      "description": "Incumbent compact monospace metadata badge.",
+      "description": "Existing compact monospace metadata badge.",
       "html": "<span class=\"ds-chip\">CUSTOM</span>",
-      "css": ".ds-chip{display:inline-flex;width:fit-content;padding:0 4px;border-radius:24px;background:var(--default,#e4e9e1);color:var(--default-foreground,#202b28);font-family:var(--font-geist-mono,\"Geist Mono\"),monospace;font-size:10px;font-weight:500;line-height:20px;letter-spacing:.025em;}"
+      "css": ".ds-chip{display:inline-flex;width:fit-content;padding:0 4px;border-radius:16px;background:var(--default,#edeef2);color:var(--foreground,#1d1d1f);font-family:var(--font-geist-mono,\"Geist Mono\"),monospace;font-size:10px;font-weight:500;line-height:20px;letter-spacing:.025em;}"
     },
     {
       "name": "Financial Card",
       "kind": "card",
       "refersTo": "card",
-      "description": "Opaque flat workspace container; headers and content share a 20px inset.",
-      "html": "<section class=\"ds-card\"><header class=\"ds-card-header\"><h2 class=\"ds-card-title\">Portfolio evolution</h2><p class=\"ds-card-description\">Balance and invested capital over time.</p></header><div class=\"ds-card-body\">Chart content</div></section>",
-      "css": ".ds-card{min-width:0;border:1px solid var(--border,#dce2d8);border-radius:12px;background:var(--surface,#fff);color:var(--foreground,#202b28);font-family:var(--font-geist-sans,Geist),sans-serif;box-shadow:none;}.ds-card-header{padding:20px 20px 12px;}.ds-card-title{margin:0;font-size:16px;font-weight:600;line-height:24px;}.ds-card-description{margin:4px 0 0;font-size:12px;line-height:16px;color:var(--muted,#59665e);}.ds-card-body{padding:0 20px 20px;font-size:14px;}"
+      "description": "Softly elevated opaque container with responsive insets and no default border.",
+      "html": "<section class=\"ds-card\"><header class=\"ds-card-header\"><h2 class=\"ds-card-title\">Portfolio Evolution</h2><p class=\"ds-card-description\">Latest snapshots, including cash flows</p></header><div class=\"ds-card-body\">No data yet, data appears after the first daily snapshot</div></section>",
+      "css": ".ds-card{min-width:0;border:0;border-radius:16px;background:var(--surface,#fff);color:var(--foreground,#1d1d1f);font-family:var(--font-geist-sans,Geist),sans-serif;box-shadow:var(--surface-shadow,0 4px 24px rgb(25 36 60/.035));}.ds-card-header{padding:20px 20px 12px;}.ds-card-title{margin:0;font-size:15px;font-weight:600;letter-spacing:-.02em;}.ds-card-description{margin:6px 0 0;font-size:12px;line-height:16px;color:var(--muted,#666b76);}.ds-card-body{padding:0 20px 20px;font-size:14px;}@media(min-width:640px){.ds-card-header{padding:24px 24px 12px;}.ds-card-body{padding:0 24px 24px;}}"
     },
     {
-      "name": "Ledger Figure",
+      "name": "Balance Panel",
       "kind": "custom",
-      "description": "Comparable summary value with a label and explicit secondary explanation. Example text contains no synthetic balance.",
-      "html": "<div class=\"ds-ledger\"><p class=\"ds-ledger-label\">Latest change</p><p class=\"ds-ledger-value\">—</p><p class=\"ds-ledger-detail\">Awaiting snapshots</p></div>",
-      "css": ".ds-ledger{min-width:0;padding:20px;background:var(--surface,#fff);font-family:var(--font-geist-sans,Geist),sans-serif;}.ds-ledger-label{margin:0;color:var(--muted,#59665e);font-size:12px;font-weight:500;line-height:16px;}.ds-ledger-value{margin:12px 0 0;color:var(--foreground,#202b28);font-size:20px;line-height:28px;font-weight:600;letter-spacing:-.035em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}.ds-ledger-detail{margin:8px 0 0;color:var(--muted,#59665e);font-size:12px;line-height:1.625;}@media(min-width:640px){.ds-ledger{padding:24px;}.ds-ledger-value{font-size:24px;line-height:32px;}}"
+      "refersTo": "balance-panel",
+      "description": "Signature dark valuation surface; this preview uses an unavailable value rather than a fabricated balance.",
+      "html": "<section class=\"ds-balance\" aria-label=\"Total Value\"><p class=\"ds-balance-label\">Total Value</p><p class=\"ds-balance-value\">\u2014</p><p class=\"ds-balance-detail\">Current portfolio valuation</p></section>",
+      "css": ".ds-balance{position:relative;isolation:isolate;overflow:hidden;min-width:0;padding:24px;border-radius:16px;background:#20242d;color:#fff;font-family:var(--font-geist-sans,Geist),sans-serif;}.ds-balance::before{content:\"\";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 100% 0%,#354664 0%,transparent 65%);}.ds-balance-label{margin:0;font-size:14px;font-weight:500;color:rgb(255 255 255/.75);}.ds-balance-value{margin:32px 0;font-size:clamp(2rem,3.5vw,3.25rem);line-height:1.25;font-weight:500;letter-spacing:-.035em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}.ds-balance-detail{margin:0;font-size:12px;color:rgb(255 255 255/.65);}@media(min-width:640px){.ds-balance{padding:32px;}}"
     }
   ],
   "narrative": {
-    "northStar": "The Investor Research Notebook",
-    "overview": "The interface organizes a private portfolio with calm surfaces, comparable figures, and persistent wayfinding. Mist ground and white containers keep dense financial information legible; forest identifies actions and selection while graphite carries the reading hierarchy.\n\nThe user confirmed a personal tool and its four workspaces, then requested code-led implementation and review. The notebook metaphor was inferred during that redesign rather than selected through a visual workshop. The notebook means disciplined alignment and focused workspaces, without stationery textures. These rules describe the implemented system; individual page compositions remain in the surface brief.",
+    "northStar": "Precision, in perspective",
+    "overview": "The interface gives a personal portfolio a clear center of gravity. Aluminum ground, white surfaces, graphite type, and precise blue controls frame the information; the dark balance panel makes the present valuation immediately recognizable. Generous spacing and a deliberate type hierarchy give financial detail room to be read.\n\nThe user authorized a complete visual and interaction redesign using the agent's judgment, with polished motion and review of the running application. This direction replaces the earlier forest notebook system. Existing financial meanings, English copy, portfolio capabilities, and independently loaded workspaces remain product constraints. The implementation uses CSS and the existing component adapters without adding dependencies or decorative raster assets.",
     "keyCharacteristics": [
-      "Opaque surfaces and quiet borders.",
-      "One sans family for the main hierarchy and tabular financial figures.",
-      "Focused routes with persistent desktop navigation and an unobscured mobile strip.",
-      "Explicit data states and a separate visual language for gains and losses."
+      "A prominent balance, then comparable supporting figures and detailed evidence.",
+      "Softly elevated white surfaces on an aluminum ground.",
+      "Geist typography, tabular financial figures, and explicit units.",
+      "Persistent desktop wayfinding and a safe-area-aware mobile dock.",
+      "Short, bounded motion with complete reduced-motion behavior."
     ],
     "rules": [
       {
         "name": "The Meaningful Color Rule",
-        "body": "Reserve gain and loss for financial meaning; chart series and selected navigation have their own roles.",
+        "body": "Keep interaction, series identity, and financial outcome separate; never use color as the only explanation of a value.",
         "section": "colors"
       },
       {
-        "name": "The Comparable Figures Rule",
-        "body": "Financial values use tabular numerals. Summary values share one baseline and use a compact responsive size rather than oversized display typography.",
+        "name": "The Clear Titles Rule",
+        "body": "Titles and subtitles have no final full stops or decorative dot separators, and brand compositions have no decorative dots. Keep functional chart/category markers and original user-supplied instrument names and symbols intact.",
         "section": "typography"
       },
       {
-        "name": "The Flat Surface Rule",
-        "body": "Use tonal separation and borders for workspace containers; reserve elevation for floating content.",
+        "name": "The Comparable Figures Rule",
+        "body": "Use tabular numerals, explicit currency units, and stable alignment. Large values may wrap; mobile preview amounts may use compact notation.",
+        "section": "typography"
+      },
+      {
+        "name": "The Earned Depth Rule",
+        "body": "Apply depth to communicate a container or interaction level, with stronger elevation reserved for floating navigation and overlays.",
         "section": "elevation"
       }
     ],
     "dos": [
-      "**Do** use opaque white surfaces, quiet borders, and the shared corner scale.",
-      "**Do** preserve tabular figures, explicit units, and meaningful gain/loss signs.",
-      "**Do** keep navigation visible and allow controls and long values to wrap on small screens.",
-      "**Do** retain visible keyboard focus and respect reduced-motion preferences."
+      "**Do** use the shared aluminum, white, graphite, and blue hierarchy.",
+      "**Do** preserve real financial values, explicit units, signs, and unavailable-data states.",
+      "**Do** keep route navigation visible and reserve space for the mobile dock.",
+      "**Do** keep titles and subtitles free of final full stops and decorative dot separators, and omit decorative dots from brands.",
+      "**Do** retain visible focus, focus restoration, and reduced-motion and reduced-transparency behavior.",
+      "**Do** keep animations short, bounded, and independent of chart mark rendering."
     ],
     "donts": [
-      "**Don't** substitute decorative transparency or ambient card shadows for the established flat surfaces.",
-      "**Don't** use color alone to explain a financial state.",
-      "**Don't** promote page-specific chart arrangements into a universal layout requirement."
+      "**Don't** add fabricated portfolio values or illustrative chart histories to production.",
+      "**Don't** use color alone to communicate financial outcomes or chart categories.",
+      "**Don't** apply dock translucency to ordinary financial cards.",
+      "**Don't** let motion delay interaction or conceal chart marks after hydration.",
+      "**Don't** promote the home chart arrangement into a rule for every workspace."
     ]
   }
 }

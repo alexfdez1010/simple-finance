@@ -56,7 +56,7 @@ export function ReturnsDistributionChart({
             Returns Distribution
           </CardTitle>
           <CardDescription>
-            Needs at least 5 daily snapshots to build a distribution.
+            Needs at least 5 daily snapshots to build a distribution
           </CardDescription>
         </CardHeader>
       </Card>
@@ -70,7 +70,7 @@ export function ReturnsDistributionChart({
           Returns Distribution
         </CardTitle>
         <CardDescription>
-          Shape of daily % returns · symlog scale
+          Shape of daily % returns on a symlog scale
         </CardDescription>
       </CardHeader>
       <CardContent>

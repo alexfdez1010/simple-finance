@@ -44,7 +44,7 @@ export function DailyHeatmapChart({ data }: DailyHeatmapChartProps) {
         <CardHeader>
           <CardTitle className="font-serif text-lg">Daily Heatmap</CardTitle>
           <CardDescription>
-            No daily snapshots yet. Heatmap fills in as history accrues.
+            No daily snapshots yet, the heatmap fills in as history accrues
           </CardDescription>
         </CardHeader>
       </Card>

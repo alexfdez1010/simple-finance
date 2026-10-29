@@ -73,7 +73,7 @@ export function ContributionChart({ data }: ContributionChartProps) {
             Contribution to Return
           </CardTitle>
           <CardDescription>
-            No gains or losses yet. Add products with returns.
+            No gains or losses yet, add products with returns
           </CardDescription>
         </CardHeader>
       </Card>

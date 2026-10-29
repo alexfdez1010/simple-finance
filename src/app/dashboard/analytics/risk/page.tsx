@@ -17,7 +17,7 @@ export default async function RiskPage() {
     <CurrencyWorkspace
       rates={data.rates}
       title="Risk & daily changes"
-      description="Inspect changes in recorded portfolio values and how they vary over time."
+      description="Inspect changes in recorded portfolio values and how they vary over time"
     >
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <DailyChangesChart data={data.dailyChanges} />

@@ -27,7 +27,7 @@ export function CurrencyWorkspace({
 }) {
   return (
     <DisplayCurrencyProvider rates={rates}>
-      <div className="space-y-7">
+      <div key={title} className="workspace-content space-y-6 sm:space-y-8">
         <PageHeading
           title={title}
           description={description}

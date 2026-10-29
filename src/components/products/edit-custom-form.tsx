@@ -127,7 +127,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               value={`${currency} (${symbol})`}
               readOnly
               aria-readonly
-              className="cursor-not-allowed bg-muted/40"
+              className="cursor-not-allowed bg-surface-secondary"
             />
             <p className="text-[11px] text-muted-foreground">
               Currency is fixed at creation so existing movements cannot be

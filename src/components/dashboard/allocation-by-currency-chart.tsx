@@ -73,7 +73,7 @@ export function AllocationByCurrencyChart({
             Allocation by Currency
           </CardTitle>
           <CardDescription>
-            Add a product to see your currency exposure.
+            Add a product to see your currency exposure
           </CardDescription>
         </CardHeader>
       </Card>

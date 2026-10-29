@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { Button, Card } from '@heroui/react';
-import { Plus, MagnifyingGlass } from '@phosphor-icons/react';
+import { Plus, MagnifyingGlass, Wallet } from '@phosphor-icons/react';
 import { ProductCard } from '@/components/products/product-card';
 import { HoldingsToolbar } from './holdings-toolbar';
 import { queryHoldings, type HoldingsSort } from './holdings-query';
@@ -40,7 +40,7 @@ export function ProductsPanel({
   const filtered = queryHoldings(products, query, sort);
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {showHeading && (
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
@@ -48,7 +48,7 @@ export function ProductsPanel({
               Your holdings
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Manage your positions and explore their history.
+              Manage your positions and explore their history
             </p>
           </div>
           {products.length > 0 && (
@@ -66,14 +66,19 @@ export function ProductsPanel({
       )}
       {products.length === 0 ? (
         <Card className="finance-card py-0">
-          <Card.Content className="flex min-h-52 flex-col items-center justify-center gap-4 p-6 text-center">
-            <h3 className="text-lg font-semibold">Build your portfolio</h3>
+          <Card.Content className="flex min-h-96 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+            <span className="mb-2 flex size-16 items-center justify-center rounded-2xl bg-primary/8 text-primary">
+              <Wallet aria-hidden size={30} weight="duotone" />
+            </span>
+            <h3 className="text-2xl font-semibold tracking-tight">
+              Build your portfolio
+            </h3>
             <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
-              Your portfolio starts here. Add your first holding to unlock
-              allocation and performance insights.
+              Add your first holding to unlock allocation and performance
+              insights
             </p>
             <Button
-              className="min-h-11"
+              className="mt-2 min-h-11 rounded-xl px-5"
               onPress={onAddProduct}
               size="sm"
               variant="primary"
@@ -81,6 +86,9 @@ export function ProductsPanel({
               <Plus aria-hidden size={16} weight="bold" />
               Add Product
             </Button>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Market assets and custom investments, in one place
+            </p>
           </Card.Content>
         </Card>
       ) : (
@@ -94,20 +102,20 @@ export function ProductsPanel({
           <p
             role="status"
             aria-atomic="true"
-            className="text-xs text-muted-foreground"
+            className="flex items-center gap-2 text-xs font-medium text-muted-foreground"
           >
             {filtered.length} of {products.length} holdings
             {filtered.length === 0 ? ' · No matching holdings' : ''}
           </p>
           {filtered.length === 0 ? (
             <Card className="finance-card py-0">
-              <Card.Content className="flex min-h-52 flex-col items-center justify-center gap-3 p-6 text-center">
-                <MagnifyingGlass
-                  aria-hidden
-                  size={28}
-                  className="text-muted-foreground"
-                />
-                <h3 className="text-lg font-semibold">No matching holdings</h3>
+              <Card.Content className="flex min-h-72 flex-col items-center justify-center gap-4 p-8 text-center">
+                <span className="mb-1 flex size-14 items-center justify-center rounded-2xl bg-surface-secondary text-muted-foreground">
+                  <MagnifyingGlass aria-hidden size={25} />
+                </span>
+                <h3 className="text-xl font-semibold tracking-tight">
+                  No matching holdings
+                </h3>
                 <p className="max-w-sm text-sm leading-relaxed text-muted-foreground">
                   Try a different name, symbol, or currency to find your
                   position.
@@ -124,7 +132,7 @@ export function ProductsPanel({
           ) : (
             <section
               aria-label="Products"
-              className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3"
+              className="list-enter grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3"
             >
               {filtered.map((product) => (
                 <ProductCard

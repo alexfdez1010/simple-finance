@@ -5,6 +5,8 @@
 
   html {
     scroll-behavior: auto;
+    scrollbar-color: #c5c9d2 var(--background);
+    scrollbar-width: thin;
   }
 
   body {
@@ -14,10 +16,11 @@
     font-feature-settings: 'ss01', 'cv11', 'cv02';
     text-rendering: optimizeLegibility;
     caret-color: var(--accent);
+    -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
-    background: var(--surface-tertiary);
+    background: #d4e6ff;
     color: var(--foreground);
   }
 
@@ -40,6 +43,11 @@
   .tabular-nums,
   [class*='font-mono'] {
     font-variant-numeric: tabular-nums;
+  }
+
+  button:not(:disabled),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
   }
 }
 

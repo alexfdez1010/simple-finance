@@ -19,7 +19,7 @@ export default async function GrowthPage() {
     <CurrencyWorkspace
       rates={data.rates}
       title="Portfolio analytics"
-      description="Follow your growth and distinguish investment gains from contributed capital."
+      description="Follow your growth and distinguish investment gains from contributed capital"
     >
       <PortfolioEvolutionChart data={data.evolutionData} />
       <MonthlyInvestmentGainsChart data={data.monthlyInvestmentGains} />

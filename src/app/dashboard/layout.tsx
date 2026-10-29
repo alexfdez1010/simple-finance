@@ -11,8 +11,12 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-dvh bg-background">
       <WorkspaceNavigation />
-      <main id="main-content" tabIndex={-1} className="min-w-0 lg:ml-56">
-        <div className="mx-auto max-w-[1440px] px-4 py-7 sm:px-7 sm:py-9 xl:px-10">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="min-w-0 pb-[calc(6.5rem+env(safe-area-inset-bottom))] focus:outline-none lg:ml-60 lg:pb-0"
+      >
+        <div className="mx-auto max-w-[1480px] px-4 py-7 sm:px-8 sm:py-10 xl:px-12 xl:py-12">
           {children}
         </div>
       </main>

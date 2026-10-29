@@ -75,7 +75,7 @@ export function RollingReturnChart({ data }: RollingReturnChartProps) {
         <CardHeader>
           <CardTitle className="font-serif text-lg">Rolling Return</CardTitle>
           <CardDescription>
-            Needs more daily snapshots than the selected window.
+            Needs more daily snapshots than the selected window
           </CardDescription>
         </CardHeader>
       </Card>

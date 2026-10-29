@@ -22,11 +22,13 @@ The project uses Next.js App Router, React, TypeScript, Tailwind CSS 4, Prisma, 
 
 ## Operating Context
 
-Repeated private portfolio review; desktop/mobile usage is inferred from the existing responsive app. The user explicitly requested a full layout redesign, dedicated pages, lighter route-specific loads, and a verified push to main.
+Repeated private portfolio review; desktop/mobile usage is inferred from the existing responsive app. The user explicitly requested a full layout redesign, dedicated pages, lighter route-specific loads, and a verified push to main. On 2026-10-29, the user authorized a complete visual and interaction redesign using the agent's design judgment, with polished animation and review of the running application before the push.
 
 ## Brand Commitments
 
-Existing product name: Simple Finance. Existing interface language: English. No new language or identity commitment was supplied.
+Existing product name: Simple Finance. Existing interface language: English.
+
+Permanent user commitment: titles and subtitles have no final full stops or decorative dot separators, and brand compositions have no decorative dots. This applies across the interface, including authentication, navigation, headings, and card descriptions. Functional chart/category markers remain meaningful data symbols; user-supplied instrument names and symbols retain their original text.
 
 ## Evidence on Hand
 
@@ -41,4 +43,4 @@ Working implementation, README.md, docs/portfolio-experience.md, domain services
 
 ## Open Decisions
 
-The user confirmed the organization into Home, Holdings, Analytics, and Agent integration and requested implementation in code followed by review of the running app. English copy is retained; broader audiences and a standing workflow preference remain undecided.
+The user confirmed the organization into Home, Holdings, Analytics, and Agent integration and requested implementation in code followed by review of the running app. English copy is retained. The current redesign delegates visual decisions to the agent without a design interview; this task-specific authorization does not establish a standing workflow preference. Broader audiences remain undecided.

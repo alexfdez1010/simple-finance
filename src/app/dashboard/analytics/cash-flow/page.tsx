@@ -14,7 +14,7 @@ export default async function CashFlowPage() {
     <CurrencyWorkspace
       rates={data.rates}
       title="Cash flow & liquidity"
-      description="Review your deposits and withdrawals, and when your investments can become cash."
+      description="Review your deposits and withdrawals, and when your investments can become cash"
     >
       <MonthlyContributionsChart data={data.monthlyContributions} />
       <LiquidityCurveChart data={data.liquidityCurve} />

@@ -47,7 +47,7 @@ export function DailyChangesChart({ data }: DailyChangesChartProps) {
         <CardHeader>
           <CardTitle className="font-serif text-lg">Daily Changes</CardTitle>
           <CardDescription>
-            No data yet. Needs at least 2 daily snapshots.
+            No data yet, at least 2 daily snapshots are needed
           </CardDescription>
         </CardHeader>
       </Card>

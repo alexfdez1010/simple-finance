@@ -72,7 +72,7 @@ export function DrawdownChart({ data }: DrawdownChartProps) {
         <CardHeader>
           <CardTitle className="font-serif text-lg">Drawdown</CardTitle>
           <CardDescription>
-            No data yet. Data appears after the first daily snapshot.
+            No data yet, data appears after the first daily snapshot
           </CardDescription>
         </CardHeader>
       </Card>

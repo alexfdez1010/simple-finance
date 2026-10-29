@@ -12,7 +12,7 @@ import { cn } from '@/lib/utils';
 function Input({ className, ...props }: InputProps) {
   return (
     <HeroInput
-      className={cn('h-10 w-full rounded-md tabular-nums', className)}
+      className={cn('h-10 w-full rounded-xl tabular-nums', className)}
       fullWidth
       variant="secondary"
       {...props}

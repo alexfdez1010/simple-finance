@@ -29,6 +29,7 @@ interface CustomProductFormProps {
   onSuccess: () => void;
 }
 
+/** Returns today's UTC input-date string without reading or changing portfolio data. */
 const todayIso = () => new Date().toISOString().split('T')[0];
 
 /**
@@ -154,7 +155,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
           onChange={onMovementChange}
         />
 
-        <aside className="rounded-md bg-muted/50 px-3 py-2">
+        <aside className="rounded-md bg-surface-secondary px-3 py-2">
           <p className="text-xs leading-relaxed text-muted-foreground">
             Compound interest: A = P(1 + r/365)^days. Currency stays fixed after
             creation.

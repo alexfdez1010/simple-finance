@@ -20,7 +20,10 @@ function CardHeader({
   ...props
 }: React.ComponentProps<typeof HeroCard.Header>) {
   return (
-    <HeroCard.Header className={cn('gap-1 p-5 pb-3', className)} {...props} />
+    <HeroCard.Header
+      className={cn('gap-1.5 p-5 pb-3 sm:p-6 sm:pb-3', className)}
+      {...props}
+    />
   );
 }
 
@@ -31,7 +34,7 @@ function CardTitle({
 }: React.ComponentProps<typeof HeroCard.Title>) {
   return (
     <HeroCard.Title
-      className={cn('text-base font-semibold', className)}
+      className={cn('text-[15px] font-semibold tracking-[-0.02em]', className)}
       {...props}
     />
   );
@@ -55,7 +58,12 @@ function CardContent({
   className,
   ...props
 }: React.ComponentProps<typeof HeroCard.Content>) {
-  return <HeroCard.Content className={cn('px-5 pb-5', className)} {...props} />;
+  return (
+    <HeroCard.Content
+      className={cn('px-5 pb-5 sm:px-6 sm:pb-6', className)}
+      {...props}
+    />
+  );
 }
 
 /** Renders an aligned footer region for card actions. */
@@ -63,7 +71,12 @@ function CardFooter({
   className,
   ...props
 }: React.ComponentProps<typeof HeroCard.Footer>) {
-  return <HeroCard.Footer className={cn('px-5 pb-5', className)} {...props} />;
+  return (
+    <HeroCard.Footer
+      className={cn('px-5 pb-5 sm:px-6 sm:pb-6', className)}
+      {...props}
+    />
+  );
 }
 
 /** Renders a right-aligned card action without adding another surface. */

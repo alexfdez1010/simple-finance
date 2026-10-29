@@ -40,7 +40,7 @@ export function SkillTab({
         <Card className="finance-card py-0">
           <Card.Header className="p-5 pb-2">
             <Card.Title className="font-serif text-xl">
-              1. Download skill
+              Download skill
             </Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-1 flex-col gap-5 p-5 pt-2">
@@ -64,7 +64,7 @@ export function SkillTab({
         <Card className="finance-card py-0">
           <Card.Header className="p-5 pb-2">
             <Card.Title className="font-serif text-xl">
-              2. Register MCP server
+              Register MCP server
             </Card.Title>
           </Card.Header>
           <Card.Content className="flex flex-1 flex-col gap-5 p-5 pt-2">

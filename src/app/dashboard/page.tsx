@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ArrowRight, ArrowUpRight } from '@phosphor-icons/react/dist/ssr';
 import { CurrencyWorkspace } from '@/components/workspace/currency-workspace';
 import { HoldingsPreview } from '@/components/workspace/holdings-preview';
 import { PortfolioStats } from '@/components/dashboard/portfolio-stats';
@@ -20,19 +21,24 @@ export default async function DashboardPage() {
     <CurrencyWorkspace
       rates={data.rates}
       title="Portfolio Overview"
-      description="Your balance, performance, and positions at a glance."
+      description="Your balance, performance, and positions at a glance"
       actions={
         <Link
           href="/dashboard/portfolio"
           prefetch={false}
-          className="inline-flex min-h-11 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+          className="group inline-flex min-h-11 items-center gap-2 rounded-xl bg-primary px-4 text-[13px] font-medium text-primary-foreground transition-colors hover:bg-primary/90 active:bg-primary/80"
         >
           Manage holdings
+          <ArrowUpRight
+            aria-hidden
+            size={16}
+            className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
         </Link>
       }
     >
       <PortfolioStats {...data.stats} />
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <PortfolioEvolutionChart data={data.evolutionData} />
         <AllocationByCategoryChart data={data.allocationData} />
       </div>
@@ -41,9 +47,14 @@ export default async function DashboardPage() {
       <Link
         href="/dashboard/analytics"
         prefetch={false}
-        className="inline-flex min-h-11 items-center text-sm font-medium text-primary underline underline-offset-4"
+        className="group inline-flex min-h-11 items-center gap-3 text-[13px] font-medium text-primary"
       >
         Explore all portfolio analytics
+        <ArrowRight
+          aria-hidden
+          size={17}
+          className="transition-transform group-hover:translate-x-1"
+        />
       </Link>
     </CurrencyWorkspace>
   );

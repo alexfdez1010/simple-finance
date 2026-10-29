@@ -3,7 +3,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
+  ArrowUpRight,
   ChartLineUp,
+  LockSimple,
   SquaresFour,
   Wallet,
   PlugsConnected,
@@ -25,21 +27,26 @@ const destinations = [
 export function WorkspaceNavigation() {
   const pathname = usePathname();
   return (
-    <aside className="border-b border-border bg-surface-secondary lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-56 lg:flex-col lg:border-r lg:border-b-0">
+    <aside className="relative z-40 bg-card lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-border">
       <Link
         href="/dashboard"
         prefetch={false}
-        className="flex min-h-20 items-center gap-3 px-5 text-foreground lg:px-6"
+        className="flex min-h-20 items-center gap-3 px-5 text-foreground lg:min-h-28 lg:px-7"
         aria-label="Simple Finance home"
       >
-        <ChartLineUp aria-hidden size={24} className="text-primary" />
-        <span className="text-base font-semibold tracking-tight">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-white">
+          <ChartLineUp aria-hidden size={23} weight="bold" />
+        </span>
+        <span className="text-[17px] font-semibold tracking-[-0.03em]">
           Simple Finance
+          <span className="mt-0.5 block text-[11px] font-normal tracking-normal text-muted-foreground">
+            Every position, in perspective
+          </span>
         </span>
       </Link>
       <nav
         aria-label="Main navigation"
-        className="grid grid-cols-4 gap-1 px-3 pb-3 lg:grid-cols-1 lg:gap-2 lg:px-4 lg:pt-6"
+        className="mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 rounded-2xl border border-white/70 bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:static lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
       >
         {destinations.map(({ href, label, icon: Icon }) => {
           const active =
@@ -53,13 +60,16 @@ export function WorkspaceNavigation() {
               prefetch={false}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 text-[11px] font-medium transition-colors hover:bg-default hover:text-foreground lg:flex-row lg:justify-start lg:gap-3 lg:px-3 lg:text-sm',
-                active ? 'bg-primary/10 text-primary' : 'text-muted-foreground',
+                'navigation-link group flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium hover:bg-default lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:text-[13px]',
+                active
+                  ? 'bg-primary/8 text-primary'
+                  : 'text-muted-foreground hover:text-foreground',
               )}
             >
               <Icon
                 aria-hidden
                 size={19}
+                className="navigation-icon shrink-0"
                 weight={active ? 'fill' : 'regular'}
               />
               <span>{label}</span>
@@ -67,11 +77,30 @@ export function WorkspaceNavigation() {
           );
         })}
       </nav>
-      <div className="mt-auto hidden border-t border-border px-6 py-6 lg:block">
-        <p className="text-xs font-medium">Your private portfolio</p>
-        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-          Every position, in perspective.
-        </p>
+      <div className="mt-auto hidden px-5 pb-6 pt-12 lg:block">
+        <Link
+          href="/dashboard/analytics"
+          prefetch={false}
+          className="group block rounded-2xl bg-surface-secondary p-4"
+        >
+          <ChartLineUp size={22} className="mb-4 text-primary" aria-hidden />
+          <p className="text-sm font-medium">See the bigger picture</p>
+          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+            Explore what shapes your portfolio
+          </p>
+          <span className="mt-4 flex items-center gap-2 text-xs font-medium text-primary">
+            Explore analytics{' '}
+            <ArrowUpRight
+              aria-hidden
+              size={14}
+              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+            />
+          </span>
+        </Link>
+        <div className="mt-6 flex items-center gap-2.5 px-2 text-muted-foreground">
+          <LockSimple aria-hidden size={16} />
+          <span className="text-xs">Your private portfolio</span>
+        </div>
       </div>
     </aside>
   );

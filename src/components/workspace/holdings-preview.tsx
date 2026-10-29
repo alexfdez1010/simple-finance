@@ -5,6 +5,7 @@ import { ArrowUpRight } from '@phosphor-icons/react';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 import type { ProductWithValue } from '@/lib/domain/models/product.types';
 import { assetCategoryLabel } from '@/lib/domain/models/asset-category';
+import { HoldingIdentity } from '@/components/products/holding-identity';
 
 /**
  * Shows up to five largest positions as a readable summary, without management dialogs.
@@ -20,16 +21,24 @@ export function HoldingsPreview({
   const { format } = useDisplayCurrency();
   return (
     <section aria-labelledby="largest-holdings-title" className="finance-card">
-      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-5">
-        <h2 id="largest-holdings-title" className="text-base font-semibold">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-4 sm:px-6">
+        <h2
+          id="largest-holdings-title"
+          className="text-[15px] font-semibold tracking-tight"
+        >
           Largest holdings
         </h2>
         <Link
           href="/dashboard/portfolio"
           prefetch={false}
-          className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-primary hover:underline"
+          className="group inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
         >
-          View all holdings <ArrowUpRight aria-hidden size={16} />
+          View all holdings{' '}
+          <ArrowUpRight
+            aria-hidden
+            size={15}
+            className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+          />
         </Link>
       </div>
       {products.length ? (
@@ -37,7 +46,7 @@ export function HoldingsPreview({
           <caption className="sr-only">
             Your five largest holdings by current value
           </caption>
-          <thead className="border-y border-border bg-surface-secondary text-xs text-muted-foreground">
+          <thead className="border-y border-border/70 bg-surface-secondary/40 text-[11px] text-muted-foreground">
             <tr>
               <th
                 scope="col"
@@ -60,14 +69,24 @@ export function HoldingsPreview({
             {products.slice(0, 5).map((product) => {
               const gain = product.currentValueEur - product.investedEur;
               return (
-                <tr key={product.id}>
+                <tr
+                  key={product.id}
+                  className="transition-colors hover:bg-surface-secondary/40"
+                >
                   <th
                     scope="row"
                     className="px-3 py-4 sm:px-5 text-left font-medium [overflow-wrap:anywhere]"
                   >
-                    {product.name}
-                    <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                      {assetCategoryLabel(product.assetCategory)}
+                    <span className="flex items-center gap-3">
+                      <span className="hidden sm:block">
+                        <HoldingIdentity category={product.assetCategory} />
+                      </span>
+                      <span className="min-w-0">
+                        {product.name}
+                        <span className="mt-1 block text-xs font-normal text-muted-foreground">
+                          {assetCategoryLabel(product.assetCategory)}
+                        </span>
+                      </span>
                     </span>
                   </th>
                   <td className="px-3 py-4 text-right tabular-nums [overflow-wrap:anywhere]">

@@ -20,7 +20,7 @@ export function AnalyticsNavigation() {
   return (
     <nav
       aria-label="Analytics views"
-      className="mb-7 grid grid-cols-4 gap-1 border-b border-border pb-3 sm:flex sm:gap-2"
+      className="mb-8 grid grid-cols-4 gap-1 rounded-2xl bg-default/70 p-1.5 sm:inline-flex"
     >
       {views.map(({ href, label }) => (
         <Link
@@ -29,9 +29,9 @@ export function AnalyticsNavigation() {
           prefetch={false}
           aria-current={pathname === href ? 'page' : undefined}
           className={cn(
-            'inline-flex min-h-11 items-center justify-center rounded-lg px-2 text-center text-xs font-medium transition-colors sm:px-4 sm:text-sm',
+            'navigation-link inline-flex min-h-11 items-center justify-center rounded-xl px-2 text-center text-xs font-medium sm:px-5 sm:text-sm',
             pathname === href
-              ? 'bg-primary/10 text-primary'
+              ? 'bg-card text-foreground shadow-sm'
               : 'text-muted-foreground hover:bg-default hover:text-foreground',
           )}
         >

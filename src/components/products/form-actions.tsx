@@ -37,7 +37,7 @@ export function FormActions({
       </LoadingButton>
       <Link
         href="/dashboard"
-        className="inline-flex min-h-10 items-center rounded-md px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="inline-flex min-h-10 items-center rounded-md px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-surface-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         Cancel
       </Link>

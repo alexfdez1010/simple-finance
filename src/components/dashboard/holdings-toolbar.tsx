@@ -10,7 +10,7 @@ import {
   Select,
   TextField,
 } from '@heroui/react';
-import { MagnifyingGlass, X } from '@phosphor-icons/react';
+import { MagnifyingGlass, SlidersHorizontal, X } from '@phosphor-icons/react';
 import type { HoldingsSort } from './holdings-query';
 
 interface HoldingsToolbarProps {
@@ -34,13 +34,13 @@ export function HoldingsToolbar({
 }: HoldingsToolbarProps) {
   const inputId = useId();
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border/70 bg-card p-4 sm:flex-row sm:items-end sm:p-5">
       <TextField
         className="min-w-0 flex-1"
         name="holdings-search"
         type="search"
       >
-        <Label className="text-xs font-medium text-muted-foreground">
+        <Label className="mb-1 text-xs font-medium text-muted-foreground">
           Search holdings
         </Label>
         <div className="relative">
@@ -55,12 +55,12 @@ export function HoldingsToolbar({
             onChange={(event) => onQueryChange(event.target.value)}
             placeholder="Name, symbol, or currency"
             variant="secondary"
-            className="min-h-11 w-full rounded-xl pr-12 pl-10 [&::-webkit-search-cancel-button]:appearance-none"
+            className="min-h-12 w-full rounded-xl border-transparent pr-12 pl-10 transition-colors focus:border-primary [&::-webkit-search-cancel-button]:appearance-none"
           />
           {query && (
             <Button
               aria-label="Clear search"
-              className="absolute top-0 right-0 min-h-11 min-w-11"
+              className="absolute top-0.5 right-0.5 min-h-11 min-w-11 rounded-xl"
               isIconOnly
               variant="ghost"
               onPress={() => {
@@ -75,7 +75,7 @@ export function HoldingsToolbar({
       </TextField>
       <Select
         aria-label="Sort holdings"
-        className="w-full sm:w-44"
+        className="w-full sm:w-48"
         variant="secondary"
         value={sort}
         onChange={(value) => {
@@ -83,10 +83,11 @@ export function HoldingsToolbar({
             onSortChange(value);
         }}
       >
-        <Label className="text-xs font-medium text-muted-foreground">
+        <Label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+          <SlidersHorizontal aria-hidden size={13} />
           Sort holdings
         </Label>
-        <Select.Trigger className="min-h-11 rounded-xl">
+        <Select.Trigger className="min-h-12 rounded-xl border-transparent">
           <Select.Value />
           <Select.Indicator />
         </Select.Trigger>

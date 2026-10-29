@@ -6,6 +6,7 @@ import { Plus } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { ProductsPanel } from '@/components/dashboard/products-panel';
 import { CurrencyWorkspace } from './currency-workspace';
+import { useDialogFocus } from './use-dialog-focus';
 import { deleteProductAction } from '@/lib/actions/product-actions';
 import type {
   FinancialProduct,
@@ -55,6 +56,9 @@ export function HoldingsWorkspace({
   const [historyTarget, setHistoryTarget] = useState<FinancialProduct | null>(
     null,
   );
+  const openDialog = useDialogFocus(
+    Boolean(addSource || editProduct || deleteTarget || historyTarget),
+  );
 
   /** Deletes the selected holding; rejects failures so the dialog permits retry. */
   async function confirmDelete() {
@@ -69,13 +73,13 @@ export function HoldingsWorkspace({
     <CurrencyWorkspace
       rates={rates}
       title="Your holdings"
-      description="Manage positions, contributions, and individual investment history."
+      description="Manage positions, contributions, and individual investment history"
       actions={
         <div className="flex flex-wrap gap-2">
           <Button
             size="sm"
             className="min-h-11"
-            onPress={() => setAddSource('yahoo')}
+            onPress={() => openDialog(setAddSource, 'yahoo')}
           >
             <Plus aria-hidden size={16} />
             Yahoo Product
@@ -84,7 +88,7 @@ export function HoldingsWorkspace({
             size="sm"
             variant="outline"
             className="min-h-11"
-            onPress={() => setAddSource('custom')}
+            onPress={() => openDialog(setAddSource, 'custom')}
           >
             <Plus aria-hidden size={16} />
             Custom Product
@@ -95,10 +99,10 @@ export function HoldingsWorkspace({
       <ProductsPanel
         products={products}
         showHeading={false}
-        onAddProduct={() => setAddSource('yahoo')}
-        onEditProduct={setEditProduct}
-        onDeleteProduct={setDeleteTarget}
-        onViewProduct={setHistoryTarget}
+        onAddProduct={() => openDialog(setAddSource, 'yahoo')}
+        onEditProduct={(product) => openDialog(setEditProduct, product)}
+        onDeleteProduct={(product) => openDialog(setDeleteTarget, product)}
+        onViewProduct={(product) => openDialog(setHistoryTarget, product)}
       />
       {addSource && (
         <AddProductDialog

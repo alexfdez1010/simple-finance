@@ -1,0 +1,156 @@
+@layer components {
+  .workspace-content > header {
+    animation: workspace-enter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .workspace-content > :not(header) {
+    animation: workspace-enter 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: 45ms;
+  }
+
+  .workspace-content > :nth-child(3) {
+    animation-delay: 85ms;
+  }
+  .workspace-content > :nth-child(n + 4) {
+    animation-delay: 120ms;
+  }
+
+  .chart-reveal {
+    animation: chart-unfold 750ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .value-change {
+    animation: value-settle 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .list-enter > * {
+    animation: workspace-enter 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .list-enter > :nth-child(2) {
+    animation-delay: 35ms;
+  }
+  .list-enter > :nth-child(3) {
+    animation-delay: 70ms;
+  }
+  .list-enter > :nth-child(n + 4) {
+    animation-delay: 105ms;
+  }
+
+  .animate-fade-up {
+    animation: workspace-enter 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .navigation-link {
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .navigation-link:active {
+    transform: scale(0.97);
+  }
+
+  .navigation-link[aria-current='page'] .navigation-icon {
+    animation: icon-settle 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .auth-orbit {
+    animation: orbit-settle 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .holding-card {
+    transition:
+      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 260ms ease;
+  }
+
+  @media (hover: hover) {
+    .holding-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgb(25 36 60 / 0.08);
+    }
+  }
+
+  @keyframes workspace-enter {
+    from {
+      opacity: 0.5;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes chart-unfold {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+
+  @keyframes value-settle {
+    from {
+      opacity: 0.5;
+      filter: blur(3px);
+      transform: translateY(3px);
+    }
+    to {
+      opacity: 1;
+      filter: blur(0);
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes icon-settle {
+    from {
+      transform: scale(0.85);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
+
+  @keyframes balance-light {
+    from {
+      background-position: 100% 0;
+    }
+    to {
+      background-position: 0% 0;
+    }
+  }
+
+  @keyframes orbit-settle {
+    from {
+      transform: rotate(-18deg) scale(0.92);
+      opacity: 0.5;
+    }
+    to {
+      transform: rotate(0) scale(1);
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chart-reveal {
+    clip-path: none;
+  }
+  .lift:hover {
+    transform: none;
+  }
+  .holding-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mobile-dock {
+    background: var(--surface);
+    backdrop-filter: none;
+  }
+}

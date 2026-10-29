@@ -29,6 +29,9 @@ interface Props {
  * Renders the contribution list and an inline form to add or edit one.
  * Withdrawals are entered as negative amounts. The native amount remains
  * visible while its date-specific EUR basis is frozen by the write service.
+ * @param props - Product identity, native currency, existing movements, and refresh callback.
+ * @returns Controlled movement rows; an empty list retains the add action.
+ * Confirmed edits delegate persistence to the contribution editor hook.
  */
 export function CustomContributions({
   customProductDataId,
@@ -67,7 +70,7 @@ export function CustomContributions({
         )}
       </div>
 
-      <ul className="flex flex-col divide-y divide-border rounded-md bg-muted/20">
+      <ul className="flex flex-col divide-y divide-border rounded-md bg-surface-secondary">
         {editor.items.length === 0 && editor.editing !== 'new' && (
           <li className="px-3 py-3 text-xs text-muted-foreground">
             No movements yet. Add the first deposit.
@@ -111,7 +114,7 @@ export function CustomContributions({
           </li>
         )}
         {editor.items.length > 0 && (
-          <li className="flex items-center justify-between bg-muted/60 px-3 py-2 text-sm">
+          <li className="flex items-center justify-between bg-surface-secondary px-3 py-2 text-sm">
             <span className="font-semibold text-foreground">Total</span>
             <span
               className={`font-mono font-semibold ${

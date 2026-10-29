@@ -6,7 +6,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { ChartLineUp } from '@phosphor-icons/react';
 import {
   Card,
   CardContent,
@@ -14,12 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  ChartConfig,
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from '@/components/ui/chart';
+import { PortfolioEvolutionPlot } from './portfolio-evolution-plot';
 import { Button } from '@/components/ui/button';
 import { useDisplayCurrency } from '@/components/dashboard/display-currency-context';
 
@@ -27,42 +22,45 @@ interface PortfolioEvolutionChartProps {
   data: Array<{ date: string; value: number }>;
 }
 
-const chartConfig = {
-  value: {
-    label: 'Portfolio Value',
-    color: 'var(--chart-1)',
-  },
-} satisfies ChartConfig;
-
 type DayRange = 30 | 60 | 90;
 
 const DAY_OPTIONS: DayRange[] = [30, 60, 90];
 
 /**
- * Portfolio Evolution Chart with Y-axis values and day range selector
- *
- * @param data - Array of date/value pairs (up to 90 days)
- * @returns Chart element
+ * Shows snapshot valuations with an independently selectable observation range.
+ * @param props - Dated EUR valuations; samples may be irregularly spaced.
+ * @returns A chart or honest first-snapshot guidance, without data mutations.
+ * Chart marks render immediately; CSS reveals the complete plot independently.
  */
 export function PortfolioEvolutionChart({
   data,
 }: PortfolioEvolutionChartProps) {
-  const { format } = useDisplayCurrency();
+  const { currency, format } = useDisplayCurrency();
   const [range, setRange] = useState<DayRange>(30);
 
   const filteredData = useMemo(() => data.slice(-range), [data, range]);
 
   if (data.length === 0) {
     return (
-      <Card>
+      <Card className="h-full">
         <CardHeader>
-          <CardTitle className="font-serif text-lg">
-            Portfolio Evolution
-          </CardTitle>
+          <CardTitle>Portfolio Evolution</CardTitle>
           <CardDescription>
-            No data yet. Data appears after the first daily snapshot.
+            No data yet, data appears after the first daily snapshot
           </CardDescription>
         </CardHeader>
+        <CardContent className="flex min-h-72 flex-col items-center justify-center gap-4 text-center">
+          <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/8 text-primary">
+            <ChartLineUp aria-hidden size={28} weight="light" />
+          </span>
+          <p className="text-sm font-medium">
+            Give your progress a little time
+          </p>
+          <p className="max-w-64 text-xs leading-relaxed text-muted-foreground">
+            Your daily snapshots will build a picture of how your portfolio
+            changes.
+          </p>
+        </CardContent>
       </Card>
     );
   }
@@ -73,31 +71,23 @@ export function PortfolioEvolutionChart({
   const pct = firstValue > 0 ? ((change / firstValue) * 100).toFixed(2) : '0';
   const isPositive = change >= 0;
 
-  const values = filteredData.map((d) => d.value);
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-  const padding = (maxValue - minValue) * 0.1 || maxValue * 0.05;
-  const domainMin = Math.max(0, minValue - padding);
-  const domainMax = maxValue + padding;
-
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <CardTitle className="font-serif text-lg">
-              Portfolio Evolution
-            </CardTitle>
+            <CardTitle>Portfolio Evolution</CardTitle>
             <CardDescription>
-              Latest {filteredData.length} snapshots · includes cash flows
+              Latest {filteredData.length} snapshots, including cash flows
             </CardDescription>
           </div>
-          <div className="flex gap-1">
+          <div className="flex gap-0.5 rounded-xl bg-default/70 p-1">
             {DAY_OPTIONS.map((d) => (
               <Button
                 key={d}
-                variant={range === d ? 'default' : 'ghost'}
+                variant="ghost"
                 size="xs"
+                className={`min-h-9 px-3 ${range === d ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground'}`}
                 aria-pressed={range === d}
                 onClick={() => setRange(d)}
                 disabled={data.length < d && d !== 30}
@@ -109,65 +99,22 @@ export function PortfolioEvolutionChart({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4 flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <p className="text-xl sm:text-2xl font-bold tabular-nums">
+        <div
+          key={currency}
+          className="value-change my-3 mb-6 flex flex-wrap items-baseline gap-x-3 gap-y-1"
+        >
+          <p className="display-number text-2xl font-semibold sm:text-[28px]">
             {format(lastValue)}
           </p>
           <p
-            className={`text-sm font-semibold tabular-nums ${isPositive ? 'text-gain' : 'text-loss'}`}
+            className={`rounded-full px-2 py-1 text-[11px] font-medium tabular-nums ${isPositive ? 'bg-gain/8 text-gain' : 'bg-loss/8 text-loss'}`}
           >
             {isPositive ? '+' : ''}
             {format(change)} ({isPositive ? '+' : ''}
             {pct}%)
           </p>
         </div>
-        <ChartContainer config={chartConfig} className="h-[280px] w-full">
-          <AreaChart data={filteredData} margin={{ left: 4, right: 4 }}>
-            <CartesianGrid vertical={false} strokeOpacity={0.3} />
-            <XAxis
-              dataKey="date"
-              tickLine={false}
-              axisLine={false}
-              tickMargin={8}
-              tickFormatter={(v) =>
-                new Date(v).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                })
-              }
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              width={76}
-              tickFormatter={(v) => format(v, { compact: true })}
-              domain={[domainMin, domainMax]}
-            />
-            <ChartTooltip
-              content={
-                <ChartTooltipContent
-                  labelFormatter={(v) =>
-                    new Date(v as string).toLocaleDateString('en-US', {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })
-                  }
-                  formatter={(v) => [format(Number(v)), 'Value']}
-                />
-              }
-            />
-            <Area
-              isAnimationActive={false}
-              dataKey="value"
-              type="monotone"
-              fill="var(--color-value)"
-              fillOpacity={0.15}
-              stroke="var(--color-value)"
-              strokeWidth={2}
-            />
-          </AreaChart>
-        </ChartContainer>
+        <PortfolioEvolutionPlot key={range} data={filteredData} />
       </CardContent>
     </Card>
   );

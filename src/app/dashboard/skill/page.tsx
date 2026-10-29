@@ -9,10 +9,10 @@ export const metadata: Metadata = { title: 'Agent setup · Simple Finance' };
 export default async function AgentPage() {
   const data = await loadAgentPage();
   return (
-    <div className="space-y-7">
+    <div className="workspace-content space-y-8">
       <PageHeading
         title="Agent setup"
-        description="Connect your assistant to your portfolio with the Simple Finance skill and MCP server."
+        description="Connect your assistant to your portfolio with the Simple Finance skill and MCP server"
       />
       <SkillTab {...data} />
     </div>

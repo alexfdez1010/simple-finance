@@ -1,43 +1,52 @@
 ---
 name: Simple Finance
-description: A private investment notebook for portfolio review.
+description: A precise personal portfolio with room to see the whole picture.
 colors:
-  forest: '#245c48'
-  gain: '#246647'
-  loss: '#b33d43'
-  mist: '#f5f6f3'
+  perspective-blue: '#0066e5'
+  gain: '#157b47'
+  loss: '#ca3645'
+  aluminum: '#f5f5f7'
   white: '#ffffff'
-  graphite: '#202b28'
-  muted: '#59665e'
-  secondary: '#edf0eb'
-  tertiary: '#e3e9e1'
-  default: '#e4e9e1'
-  border: '#dce2d8'
-  field-border: '#cbd3c8'
-  field-placeholder: '#647168'
-  chart-1: '#39765d'
-  chart-2: '#617dab'
-  chart-3: '#a77d34'
-  chart-4: '#7d739c'
-  chart-5: '#a55f69'
+  graphite: '#1d1d1f'
+  muted: '#666b76'
+  secondary: '#f0f1f5'
+  tertiary: '#e7eaf0'
+  default: '#edeef2'
+  border: '#e6e8ed'
+  field-border: '#d8dbe3'
+  field-placeholder: '#666b76'
+  selection: '#d4e6ff'
+  balance: '#20242d'
+  balance-light: '#354664'
+  chart-1: '#2375ee'
+  chart-2: '#798fed'
+  chart-3: '#d3a34b'
+  chart-4: '#44a79b'
+  chart-5: '#a6adbf'
 typography:
+  display:
+    fontFamily: 'Geist, sans-serif'
+    fontSize: 'clamp(2rem, 3.5vw, 3.25rem)'
+    fontWeight: 500
+    lineHeight: '1.25'
+    letterSpacing: '-0.035em'
   headline:
     fontFamily: 'Geist, sans-serif'
-    fontSize: '1.5rem'
+    fontSize: '28px'
     fontWeight: 600
-    lineHeight: '2rem'
-    letterSpacing: '-0.025em'
+    lineHeight: '1.25'
+    letterSpacing: '-0.035em'
   headline-wide:
     fontFamily: 'Geist, sans-serif'
-    fontSize: '1.875rem'
+    fontSize: '34px'
     fontWeight: 600
-    lineHeight: '2.25rem'
-    letterSpacing: '-0.025em'
+    lineHeight: '1.25'
+    letterSpacing: '-0.035em'
   title:
     fontFamily: 'Geist, sans-serif'
-    fontSize: '1rem'
+    fontSize: '15px'
     fontWeight: 600
-    lineHeight: '1.5rem'
+    letterSpacing: '-0.02em'
   body:
     fontFamily: 'Geist, sans-serif'
     fontSize: '0.875rem'
@@ -54,28 +63,28 @@ typography:
     lineHeight: '1.25rem'
     letterSpacing: '0.025em'
 rounded:
-  surface: '0.75rem'
-  button: '1.125rem'
-  field: '0.5rem'
-  navigation: '0.75rem'
-  input: '0.5625rem'
-  chip: '1.5rem'
+  surface: '1rem'
+  control: '0.75rem'
+  field: '0.75rem'
+  input: '0.75rem'
+  chip: '1rem'
 spacing:
   control-gap: '0.5rem'
-  content-gap: '1.25rem'
+  card-gap: '1.25rem'
   compact-padding: '1.25rem'
   wide-padding: '1.5rem'
+  workspace-gap: '2rem'
 components:
   button-primary:
-    backgroundColor: '{colors.forest}'
+    backgroundColor: '{colors.perspective-blue}'
     textColor: '{colors.white}'
-    rounded: '{rounded.button}'
+    rounded: '{rounded.control}'
     padding: '0 1rem'
     typography: '{typography.body}'
   button-outline:
     backgroundColor: 'transparent'
     textColor: '{colors.graphite}'
-    rounded: '{rounded.button}'
+    rounded: '{rounded.control}'
     padding: '0 1rem'
   input:
     backgroundColor: '{colors.default}'
@@ -84,13 +93,18 @@ components:
     height: '2.5rem'
     padding: '0.5rem 0.75rem'
   navigation-active:
-    textColor: '{colors.forest}'
-    rounded: '{rounded.navigation}'
+    textColor: '{colors.perspective-blue}'
+    rounded: '{rounded.control}'
   card:
     backgroundColor: '{colors.white}'
     textColor: '{colors.graphite}'
     rounded: '{rounded.surface}'
     padding: '1.25rem'
+  balance-panel:
+    backgroundColor: '{colors.balance}'
+    textColor: '{colors.white}'
+    rounded: '{rounded.surface}'
+    padding: '1.5rem'
   metadata-chip:
     backgroundColor: '{colors.default}'
     textColor: '{colors.graphite}'
@@ -104,111 +118,138 @@ Token format: [DESIGN.md specification](https://raw.githubusercontent.com/google
 
 ## Overview
 
-**Creative North Star: "The Investor Research Notebook"**
+**Creative North Star: "Precision, in perspective"**
 
-The interface organizes a private portfolio with calm surfaces, comparable figures, and persistent wayfinding. Mist ground and white containers keep dense financial information legible; forest identifies actions and selection while graphite carries the reading hierarchy.
+The interface gives a personal portfolio a clear center of gravity. Aluminum ground, white surfaces, graphite type, and precise blue controls frame the information; the dark balance panel makes the present valuation immediately recognizable. Generous spacing and a deliberate type hierarchy give financial detail room to be read.
 
-The user confirmed a personal tool and its four workspaces, then requested code-led implementation and review. The notebook metaphor was inferred during that redesign rather than selected through a visual workshop. The notebook means disciplined alignment and focused workspaces, without stationery textures. These rules describe the implemented system; individual page compositions remain in the surface brief.
+The user authorized a complete visual and interaction redesign using the agent's judgment, with polished motion and review of the running application. This direction replaces the earlier forest notebook system. Existing financial meanings, English copy, portfolio capabilities, and independently loaded workspaces remain product constraints. The implementation uses CSS and the existing component adapters without adding dependencies or decorative raster assets.
 
 **Key Characteristics:**
 
-- Opaque surfaces and quiet borders.
-- One sans family for the main hierarchy and tabular financial figures.
-- Focused routes with persistent desktop navigation and an unobscured mobile strip.
-- Explicit data states and a separate visual language for gains and losses.
+- A prominent balance, then comparable supporting figures and detailed evidence.
+- Softly elevated white surfaces on an aluminum ground.
+- Geist typography, tabular financial figures, and explicit units.
+- Persistent desktop wayfinding and a safe-area-aware mobile dock.
+- Short, bounded motion with complete reduced-motion behavior.
 
 ## Colors
 
-A muted botanical neutral palette supports portfolio review without competing with charts.
+Cool, nearly neutral surfaces give the blue interaction accent and categorical chart palette clear roles.
 
 ### Primary
 
-- **Forest:** primary actions, active navigation, focus, and link emphasis.
-- **Gain / Loss:** signed financial outcomes; retain signs and labels alongside color.
+- **Perspective Blue:** primary actions, selected routes, focus, links, and restrained icon backgrounds.
+- **Gain / Loss:** signed financial results, always supported by a sign, label, or explicit state.
 
 ### Secondary
 
-- **Chart 1–5:** a recurring categorical sequence of green, blue, ochre, violet, and rose. Chart colors identify series rather than interaction state.
+- **Chart 1–5:** blue, periwinkle, gold, teal, and cool gray identify series. Category allocation maps these to stocks, bonds/loans, commodities, real estate, and cash respectively.
 
 ### Neutral
 
-- **Mist / White:** page ground and opaque card or overlay surfaces.
-- **Graphite / Muted:** primary reading and explanatory text.
-- **Secondary / Tertiary / Default:** rail, projection bands, selection, and compact control fills.
-- **Border / Field Border / Field Placeholder:** separators, control strokes, and hints.
+- **Aluminum / White:** page ground and opaque content surfaces.
+- **Graphite / Muted:** principal reading hierarchy and supporting explanations.
+- **Secondary / Tertiary / Default:** grouped controls, supporting areas, and interaction fills.
+- **Border / Field Border / Field Placeholder:** quiet separators, field strokes, and hints.
+- **Balance / Balance Light:** the signature dark valuation panel and its restrained radial light.
+- **Selection:** browser text selection, keeping graphite text legible over a pale blue highlight.
 
-**The Meaningful Color Rule.** Reserve gain and loss for financial meaning; chart series and selected navigation have their own roles.
+**The Meaningful Color Rule.** Keep interaction, series identity, and financial outcome separate; never use color as the only explanation of a value.
+
+Sidecar tonal ramps are inspection aids; the frontmatter lists the shipped colors.
 
 ## Typography
 
 **Display and Body Font:** Geist, with sans-serif fallback. The legacy serif alias also resolves to Geist.
-**Metadata Font:** Geist Mono, with monospace fallback, used by compact badges, contribution amounts, shared tooltip values, and technical material.
+**Metadata Font:** Geist Mono, with monospace fallback, for existing compact badges, contribution amounts, shared tooltip values, and technical content.
 
 ### Hierarchy
 
-- **Headline:** compact workspace titles; the wide variant starts at the small breakpoint.
-- **Title:** card headings and product identity.
-- **Body:** explanations and controls; workspace descriptions use a prose-width container.
-- **Label:** summary labels, dates, and supporting details.
-- **Metadata:** small symbol/category badges, an incumbent exception to the main sans hierarchy.
+- **Display:** the principal balance uses the responsive display token; subordinate overview figures use a compact 22px size.
+- **Headline:** workspace titles grow from the compact to the wide token at the small breakpoint; descriptions use a prose-width container.
+- **Title:** card headings and section identity, with close tracking and semibold weight.
+- **Body:** explanations and form content; heading descriptions use 13px before 14px on wider screens.
+- **Label:** comparable summary labels, dates, and supporting text. Dense explanations may use 11px.
+- **Metadata:** small, existing monospace identifiers rather than a competing display hierarchy.
 
-**The Comparable Figures Rule.** Financial values use tabular numerals. Summary values share one baseline and use a compact responsive size rather than oversized display typography.
+The implemented hierarchy also uses 10–18px for compact navigation, identity, controls, and supporting copy; 20–30px for subordinate values; and 36px/48px for the desktop authentication statement. These are observed roles, not a requirement to use every step on each screen.
+
+**The Clear Titles Rule.** Titles and subtitles have no final full stops or decorative dot separators, and brand compositions have no decorative dots. Keep functional chart/category markers and original user-supplied instrument names and symbols intact.
+
+**The Comparable Figures Rule.** Use tabular numerals, explicit currency units, and stable alignment. Large values may wrap; mobile preview amounts may use compact notation.
 
 ## Layout
 
-The dashboard has a fixed desktop rail at the large breakpoint (224px) with an equal content offset. Below it, identity and four main links stay in normal document flow above the workspace. Main content is centered within a 1440px maximum; horizontal gutters step from 16px to 28px to 40px. Page actions wrap beside or beneath the heading.
+At the large breakpoint (1024px), a fixed white rail occupies 240px and content uses the same left offset. The centered content container has a 1480px maximum. Horizontal gutters step from 16px to 32px to 48px; vertical workspace insets step from 28px to 40px to 48px. Workspace gaps grow from 24px to 32px, and ordinary card grids use 20px gaps.
 
-Shared content gaps are 20px; card headers and bodies use 20px inset padding, with selected summary blocks increasing to 24px. The summary uses two columns before four at the extra-large breakpoint. Chart columns use shrinking minimum widths; dense visualizations can scroll within their own labelled region. These route-specific compositions are examples, not compulsory layouts for every future page.
+Below that breakpoint, the identity remains at the top while four navigation destinations form a fixed bottom dock inset 12px horizontally. Its bottom inset is the larger of 12px and the safe-area bottom. The main region reserves 104px plus the safe-area bottom so the dock cannot cover the last content. Touch destinations remain at least 48px high; page actions and analytics destinations use a 44px minimum.
+
+Cards use 20px insets before 24px at the small breakpoint. The balance panel uses 24px before 32px. The home summary and chart proportions belong to its surface brief; future pages should follow the same spacing and shrinking-width discipline without copying its composition. Dense history regions may scroll inside their own labelled container.
 
 ## Elevation & Depth
 
-Ordinary cards and fields are flat. White, secondary fills, and one-pixel borders supply separation. Floating overlays use the project's diffuse overlay shadow; chart tooltips retain a small library shadow. Focus is an outline, not decorative illumination. Global reduced-motion preferences suppress animation and transition durations.
+White cards use a low, diffuse surface shadow; interactive holding cards rise slightly on hover-capable pointers. The dark balance panel uses a restrained radial light. The mobile dock alone adds translucency and backdrop blur; reduced-transparency preferences replace it with an opaque surface. Dialogs retain a stronger overlay shadow and dimming backdrop.
 
-**The Flat Surface Rule.** Use tonal separation and borders for workspace containers; reserve elevation for floating content.
+### Shadow Vocabulary
+
+- **Surface:** `0 4px 24px rgb(25 36 60 / 0.035)` separates content from the ground.
+- **Hover:** `0 12px 36px rgb(25 36 60 / 0.08)` accompanies the 3px lift on interactive cards.
+- **Dock:** `0 8px 40px rgb(25 36 60 / 0.12)` separates the floating mobile navigation.
+- **Overlay:** `0 24px 80px rgb(21 30 50 / 0.18)` identifies modal content.
+
+**The Earned Depth Rule.** Apply depth to communicate a container or interaction level, with stronger elevation reserved for floating navigation and overlays.
 
 ## Shapes
 
-Shared corners are controlled by the HeroUI radius scale and the local base radius. The emitted large, extra-large, and medium radii are recorded in frontmatter, rather than assuming Tailwind's unmodified defaults. Cards and route links use the restrained surface/navigation radius. Shared button adapters retain the larger button radius; compact adapted inputs use the input radius, while native fields use the field radius. Badges retain the more rounded chip silhouette.
+Financial cards and the dock share gently curved surface corners; buttons, selected routes, icon tiles, and segmented controls share the tighter control corner. Keep the HeroUI base radius aligned with those frontmatter values: its extra-large radius is 1.5 times the base and its double-extra-large radius is twice the base. Native fields and the shared adapted input use the field/control radius. Metadata chips and outcome pills retain their rounded silhouette. Avoid introducing a second unrelated corner scale.
 
 ## Components
 
 ### Buttons
 
-Primary actions use forest and white; outline and ghost variants preserve graphite and quiet strokes or transparent fills. Shared adapters delegate hover, disabled, and pending states to HeroUI. Standard buttons are 40px high before 36px at the medium breakpoint; explicit route actions use a 44px minimum. Pressing a shared button scales it slightly. Keyboard focus uses a visible forest outline.
+Primary actions use Perspective Blue and white. Outline and ghost variants retain graphite and quiet neutral hover fills; destructive actions use the loss/danger role. Existing HeroUI adapters preserve pending, disabled, and keyboard contracts. Shared buttons press to 98% scale; route actions keep a 44px minimum and authentication controls use 48px. Focus is a visible two-pixel blue outline with a three-pixel offset.
 
 ### Chips
 
-Small monospace badges identify metadata. Default chips use the default neutral fill; outlined badges are transparent. Destructive metadata delegates its soft treatment to HeroUI. Badge typography is an observed incumbent pattern, not a new display hierarchy.
+Small monospace chips identify metadata. Outcome pills use a signed percentage with an icon and separate gain/loss treatments; they do not replace the underlying explanation. Neutral chips use the default fill, and outlined chips remain transparent.
 
 ### Cards / Containers
 
-White, opaque, one-pixel-bordered containers use no resting shadow. Headers have 20px padding with a 12px bottom inset; bodies have 20px horizontal and bottom padding. Grid children allow shrinking to prevent viewport overflow.
+Opaque white surfaces use the shared surface radius and low shadow without a default border. Headers and bodies share responsive insets. Borders remain useful inside tables, projection bands, and grouped data. Grid children allow shrinking, and large values can wrap.
 
 ### Inputs / Fields
 
-Shared inputs are full-width secondary HeroUI fields with a 40px height, quiet border, tabular numerals, and the input corner scale. HeroUI supplies hover, invalid, and disabled states. All interactive controls retain visible keyboard focus; labels remain available to assistive technology.
+The shared adapted input remains a 40px-high secondary HeroUI field with tabular numerals. Authentication fields are 48px high with the control radius. HeroUI supplies hover, invalid, disabled, and pending states; labels remain explicit and failures remain recoverable. The field border is quiet at rest and focus stays visible.
 
 ### Navigation
 
-Desktop links pair icons and text; mobile links stack those elements in four equal columns. Active links use forest over a ten-percent forest fill and expose current-page state. Hover uses the default neutral fill. Analytics uses a separate four-link row with the same selection vocabulary.
+Desktop links combine an icon and label, with selection conveyed by the fill and icon weight; the mobile dock stacks icons and labels in four equal columns. Current routes use an eight-percent blue fill and expose `aria-current`. Analytics uses a neutral segmented group with a white selected item. All navigation uses real links and preserves independent route loading.
 
-### Ledger Summary
+### Balance and Charts
 
-Comparable labels, values, and explanations share one card. A bordered secondary-fill projection band belongs to the same surface. Unavailable historical changes show an em dash and an explanatory state rather than a fabricated zero.
+The dark balance panel anchors the overview; supporting capital, return, latest change, and forecast remain separate readable figures. Missing snapshot history displays an em dash and an explanation. The evolution area uses the first chart color and a unique gradient ID per instance. Its controls select observations, labelled “pts”. The category ring is accompanied by every category's value and percentage; signed or zero totals omit the ring and explain unavailable percentages.
+
+### Motion and Dialogs
+
+Workspace headings enter in 420ms; content enters in 560ms with bounded 45–120ms delays. Lists settle in 480ms with delays capped at 105ms. The balance light sweeps once in 1100ms; chart containers reveal once in 750ms. Currency values settle in 260ms, selected icons in 340ms, and authentication geometry in 900ms. The common easing is `cubic-bezier(0.16, 1, 0.3, 1)`; short color feedback uses ease. Recharts mark animation remains disabled so hydration and reduced motion cannot leave empty chart marks.
+
+The global reduced-motion override suppresses animations and transitions, removes hover lifts, and exposes chart containers without clipping. Content-entry effects do not loop. Lazy management dialogs remember their opener, restore it on close, and fall back to the main workspace if deletion removed that control. Pending or failed writes keep dialog focus.
 
 ## Do's and Don'ts
 
 ### Do:
 
-- **Do** use opaque white surfaces, quiet borders, and the shared corner scale.
-- **Do** preserve tabular figures, explicit units, and meaningful gain/loss signs.
-- **Do** keep navigation visible and allow controls and long values to wrap on small screens.
-- **Do** retain visible keyboard focus and respect reduced-motion preferences.
+- **Do** use the shared aluminum, white, graphite, and blue hierarchy.
+- **Do** preserve real financial values, explicit units, signs, and unavailable-data states.
+- **Do** keep route navigation visible and reserve space for the mobile dock.
+- **Do** keep titles and subtitles free of final full stops and decorative dot separators, and omit decorative dots from brands.
+- **Do** retain visible focus, focus restoration, and reduced-motion and reduced-transparency behavior.
+- **Do** keep animations short, bounded, and independent of chart mark rendering.
 
 ### Don't:
 
-- **Don't** substitute decorative transparency or ambient card shadows for the established flat surfaces.
-- **Don't** use color alone to explain a financial state.
-- **Don't** promote page-specific chart arrangements into a universal layout requirement.
-
-Observed caveats: the larger shared-button and adapted-input corners remain incumbent variants, not reasons to enlarge future workspace cards. Tonal ramps in the sidecar are generated inspection aids, not additional shipped colors. The notebook metaphor remains an inferred visual direction.
+- **Don't** add fabricated portfolio values or illustrative chart histories to production.
+- **Don't** use color alone to communicate financial outcomes or chart categories.
+- **Don't** apply dock translucency to ordinary financial cards.
+- **Don't** let motion delay interaction or conceal chart marks after hydration.
+- **Don't** promote the home chart arrangement into a rule for every workspace.

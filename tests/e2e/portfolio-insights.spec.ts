@@ -181,6 +181,31 @@ test('contains large balances on a narrow screen', async ({ page }) => {
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
   ).toBe(true);
+
+  // A long category word must wrap before the adjacent amount, even at 320px.
+  await prisma.financialProduct.updateMany({
+    where: { name: 'Bond ladder' },
+    data: { assetCategory: 'COMMODITIES' },
+  });
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.reload();
+  const categoryLabel = page
+    .getByRole('list', { name: 'Category values' })
+    .getByText('Commodities', { exact: true });
+  await expect(categoryLabel).toBeVisible();
+  const labelLines = await categoryLabel.evaluate((label) => {
+    const amountLeft = label.nextElementSibling!.getBoundingClientRect().left;
+    const ink = document.createRange();
+    ink.selectNodeContents(label);
+    return Array.from(ink.getClientRects(), (line) => ({
+      right: line.right,
+      amountLeft,
+    }));
+  });
+  expect(labelLines.length).toBeGreaterThan(0);
+  for (const line of labelLines) {
+    expect(line.right).toBeLessThanOrEqual(line.amountLeft);
+  }
 });
 
 /** Persistent navigation identifies the current route at desktop and mobile widths. */

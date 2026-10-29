@@ -43,15 +43,37 @@ export function convertFromEur(eurAmount: number, rate: number): number {
 }
 
 /**
+ * Joins compact decimal tokens with stable spacing across Intl engine versions.
+ * @param value - Converted amount, including its intended sign.
+ * @param meta - Currency symbol and existing compact precision policy.
+ * @returns Localized compact amount with explicit unit and currency separators.
+ * Pure formatting; zero and negative zero retain their Intl numeric meaning.
+ */
+function formatCompactAmount(value: number, meta: CurrencyMeta): string {
+  const parts = new Intl.NumberFormat('es-ES', {
+    notation: 'compact',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: meta.intl ? 1 : 2,
+  }).formatToParts(value);
+  const amount = parts
+    .filter((part) => part.type !== 'literal')
+    .map((part) =>
+      part.type === 'compact' ? ` ${part.value.trim()}` : part.value,
+    )
+    .join('');
+  return `${amount} ${meta.symbol}`;
+}
+
+/**
  * Formats an EUR amount in the chosen display currency.
- * Uses Intl for fiat (EUR/USD) and manual symbol+number for crypto/XAUT
- * since Intl.NumberFormat does not support those currency codes.
+ * Uses Intl currency formatting for standard EUR amounts and explicit symbols
+ * for other currencies; compact token spacing is stable during hydration.
  *
  * @param eurAmount - Amount in EUR
  * @param currency - Display currency
  * @param rate - Multiplier (1 EUR → rate units of currency)
  * @param opts - Formatting options
- * @returns Formatted string
+ * @returns Formatted string without mutating the amount or display preference.
  */
 export function formatInCurrency(
   eurAmount: number,
@@ -63,19 +85,19 @@ export function formatInCurrency(
   const raw = eurAmount * rate;
   const value = opts.absolute ? Math.abs(raw) : raw;
 
+  if (opts.compact) return formatCompactAmount(value, meta);
+
   if (meta.intl) {
     return new Intl.NumberFormat('es-ES', {
       style: 'currency',
       currency: meta.code,
-      notation: opts.compact ? 'compact' : 'standard',
-      maximumFractionDigits: opts.compact ? 1 : 2,
+      maximumFractionDigits: 2,
     }).format(value);
   }
 
   const num = value.toLocaleString('es-ES', {
-    notation: opts.compact ? 'compact' : 'standard',
-    minimumFractionDigits: opts.compact ? 0 : 2,
-    maximumFractionDigits: opts.compact ? 2 : meta.maxFrac,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: meta.maxFrac,
   });
   return `${num} ${meta.symbol}`;
 }

@@ -16,7 +16,7 @@ export default async function AllocationPage() {
     <CurrencyWorkspace
       rates={data.rates}
       title="Portfolio allocation"
-      description="See where your capital is invested, by position, asset class, and currency."
+      description="See where your capital is invested, by position, asset class, and currency"
     >
       <div className="grid items-start gap-5 xl:grid-cols-2">
         <PortfolioAllocationChart data={data.allocationData} />

@@ -66,7 +66,7 @@ export function MonthlyInvestmentGainsChart({
         </CardTitle>
         <CardDescription>
           Month close − previous close − net contributions (deposits minus
-          withdrawals). Completed months with both closing snapshots only.
+          withdrawals), completed months with both closing snapshots only
         </CardDescription>
       </CardHeader>
       <CardContent className="min-w-0">

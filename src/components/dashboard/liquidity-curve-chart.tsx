@@ -52,7 +52,7 @@ export function LiquidityCurveChart({ data }: LiquidityCurveChartProps) {
             Cash Availability
           </CardTitle>
           <CardDescription>
-            Add a product to see how fast you can raise cash.
+            Add a product to see how fast you can raise cash
           </CardDescription>
         </CardHeader>
       </Card>
