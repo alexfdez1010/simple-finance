@@ -2,8 +2,8 @@ import { ChartLineUp } from '@phosphor-icons/react';
 
 /**
  * Gives the desktop password screen its own restrained brand composition.
- * @returns Decorative orbital geometry and truthful product context, hidden on mobile.
- * Pure presentation; the geometry has no data meaning and no interactive behavior.
+ * @returns Brand symbol and truthful product context, hidden on mobile.
+ * Pure presentation; the symbol has no data meaning and no interactive behavior.
  */
 export function AuthBrand() {
   return (
@@ -18,11 +18,8 @@ export function AuthBrand() {
         className="relative flex min-h-72 flex-1 items-center justify-center"
         aria-hidden
       >
-        <div className="auth-orbit relative flex size-64 items-center justify-center rounded-full border border-white/15 xl:size-80">
-          <div className="absolute inset-6 rounded-full border border-white/15" />
-          <div className="absolute inset-12 rounded-full border border-white/20" />
-          <div className="absolute inset-[4.5rem] rounded-full border border-white/20" />
-          <span className="flex size-20 items-center justify-center rounded-[1.25rem] bg-white/10 ring-1 ring-white/15">
+        <div className="auth-orbit relative flex size-64 items-center justify-center rounded-full xl:size-80">
+          <span className="flex size-20 items-center justify-center rounded-[1.25rem] bg-white/10">
             <ChartLineUp size={40} weight="light" />
           </span>
         </div>

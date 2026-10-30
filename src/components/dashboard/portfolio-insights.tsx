@@ -90,7 +90,7 @@ export function PortfolioInsights({
             </div>
           ))}
         </div>
-        <p className="mt-5 border-t border-separator pt-3 text-[11px] leading-relaxed text-muted-foreground">
+        <p className="mt-5 pt-3 text-[11px] leading-relaxed text-muted-foreground">
           Allocation and coverage use positive holding values. Liquidity uses
           your configured settlement times; sale proceeds may differ.{' '}
           {insights.excludedCount > 0 &&

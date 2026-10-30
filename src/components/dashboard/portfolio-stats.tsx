@@ -121,7 +121,7 @@ export function PortfolioStats({
         <div
           role="group"
           aria-label="Projected profit"
-          className="mt-5 grid gap-3 border-t border-border pt-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end sm:gap-6"
+          className="mt-5 grid gap-3 pt-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end sm:gap-6"
         >
           <ProfitRateDisplay profitRates={profitRates} />
           <p className="text-[11px] leading-relaxed text-muted-foreground">

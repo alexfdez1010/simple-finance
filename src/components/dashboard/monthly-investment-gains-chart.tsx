@@ -143,7 +143,7 @@ export function MonthlyInvestmentGainsChart({
                   </thead>
                   <tbody>
                     {data.map((row) => (
-                      <tr key={row.month} className="border-t border-separator">
+                      <tr key={row.month}>
                         <th scope="row" className="p-2">
                           {row.month}
                         </th>

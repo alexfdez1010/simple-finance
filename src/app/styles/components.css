@@ -37,9 +37,8 @@
     box-shadow: 0 12px 36px rgb(25 36 60 / 0.08);
   }
 
-  .hairline {
-    height: 1px;
-    background-color: var(--separator);
+  .select__trigger {
+    @apply items-center;
   }
 
   .display-number {

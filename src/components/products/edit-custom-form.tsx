@@ -147,7 +147,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
         </FieldGroup>
       </form>
 
-      <section className="border-t border-border pt-4">
+      <section className="pt-4">
         <CustomContributions
           customProductDataId={product.custom.id}
           currency={currency}

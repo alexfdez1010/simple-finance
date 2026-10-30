@@ -34,7 +34,7 @@ export function StatsLoadingSkeleton() {
             </div>
           ))}
         </div>
-        <div className="mt-6 border-t border-border pt-5">
+        <div className="mt-6 pt-5">
           <Skeleton className="h-3 w-32 rounded-sm" />
           <Skeleton className="mt-4 h-6 w-28 rounded-md" />
         </div>

@@ -27,7 +27,7 @@ const destinations = [
 export function WorkspaceNavigation() {
   const pathname = usePathname();
   return (
-    <aside className="relative z-40 bg-card lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-60 lg:flex-col lg:border-r lg:border-border">
+    <aside className="relative z-40 bg-card lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-60 lg:flex-col">
       <Link
         href="/dashboard"
         prefetch={false}
@@ -46,7 +46,7 @@ export function WorkspaceNavigation() {
       </Link>
       <nav
         aria-label="Main navigation"
-        className="mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 rounded-2xl border border-white/70 bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:static lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
+        className="mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 rounded-2xl bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:static lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
       >
         {destinations.map(({ href, label, icon: Icon }) => {
           const active =

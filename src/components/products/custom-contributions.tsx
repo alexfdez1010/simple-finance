@@ -70,7 +70,7 @@ export function CustomContributions({
         )}
       </div>
 
-      <ul className="flex flex-col divide-y divide-border rounded-md bg-surface-secondary">
+      <ul className="flex flex-col rounded-md bg-surface-secondary">
         {editor.items.length === 0 && editor.editing !== 'new' && (
           <li className="px-3 py-3 text-xs text-muted-foreground">
             No movements yet. Add the first deposit.

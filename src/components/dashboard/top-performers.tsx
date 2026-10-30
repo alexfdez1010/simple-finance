@@ -63,7 +63,7 @@ export function TopPerformers({ performers }: TopPerformersProps) {
           return (
             <div
               key={item.name}
-              className="flex items-center gap-3 border-b border-border px-1 py-2.5 last:border-0"
+              className="flex items-center gap-3 px-1 py-2.5"
             >
               <span className="text-xs font-bold text-muted-foreground w-5 tabular-nums">
                 #{i + 1}

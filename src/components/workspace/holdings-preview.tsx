@@ -46,7 +46,7 @@ export function HoldingsPreview({
           <caption className="sr-only">
             Your five largest holdings by current value
           </caption>
-          <thead className="border-y border-border/70 bg-surface-secondary/40 text-[11px] text-muted-foreground">
+          <thead className="bg-surface-secondary/40 text-[11px] text-muted-foreground">
             <tr>
               <th
                 scope="col"
@@ -65,7 +65,7 @@ export function HoldingsPreview({
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody>
             {products.slice(0, 5).map((product) => {
               const gain = product.currentValueEur - product.investedEur;
               return (

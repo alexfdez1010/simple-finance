@@ -105,7 +105,7 @@ export function ProductCard({
       </Card.Header>
 
       <Card.Content className="flex flex-1 flex-col px-6 pb-5">
-        <div className="mb-6 border-b border-separator pb-6">
+        <div className="mb-6 pb-6">
           <p className="mb-2 text-xs text-muted-foreground">Current value</p>
           <p
             key={currency}
@@ -140,7 +140,7 @@ export function ProductCard({
         </div>
       </Card.Content>
       {(onView || onEdit || onDelete) && (
-        <Card.Footer className="mx-6 border-t border-separator px-0 py-2.5">
+        <Card.Footer className="mx-6 px-0 py-2.5">
           <div
             className="flex w-full flex-wrap items-center gap-1"
             role="group"

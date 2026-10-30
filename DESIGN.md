@@ -215,7 +215,7 @@ Small monospace chips identify metadata. Outcome pills use a signed percentage w
 
 ### Cards / Containers
 
-Opaque white surfaces use the shared surface radius and low shadow without a default border. Headers and bodies share responsive insets. Borders remain useful inside tables, projection bands, and grouped data. Grid children allow shrinking, and large values can wrap.
+Opaque white surfaces use the shared surface radius and low shadow without a default border. Headers and bodies share responsive insets. Tables, projection bands, and grouped data use spacing and surface fills without decorative separator lines. Grid children allow shrinking, and large values can wrap.
 
 ### Inputs / Fields
 
@@ -231,7 +231,7 @@ The dark balance panel anchors the overview; supporting capital, return, latest 
 
 ### Motion and Dialogs
 
-Workspace headings enter in 420ms; content enters in 560ms with bounded 45–120ms delays. Lists settle in 480ms with delays capped at 105ms. The balance light sweeps once in 1100ms; chart containers reveal once in 750ms. Currency values settle in 260ms, selected icons in 340ms, and authentication geometry in 900ms. The common easing is `cubic-bezier(0.16, 1, 0.3, 1)`; short color feedback uses ease. Recharts mark animation remains disabled so hydration and reduced motion cannot leave empty chart marks.
+Workspace headings enter in 420ms; content enters in 560ms with bounded 45–120ms delays. Lists settle in 480ms with delays capped at 105ms. The balance light sweeps once in 1100ms; chart containers reveal once in 750ms. Currency values settle in 260ms, selected icons in 340ms, and authentication symbol in 900ms. The common easing is `cubic-bezier(0.16, 1, 0.3, 1)`; short color feedback uses ease. Recharts mark animation remains disabled so hydration and reduced motion cannot leave empty chart marks.
 
 The global reduced-motion override suppresses animations and transitions, removes hover lifts, and exposes chart containers without clipping. Content-entry effects do not loop. Lazy management dialogs remember their opener, restore it on close, and fall back to the main workspace if deletion removed that control. Pending or failed writes keep dialog focus.
 
@@ -253,3 +253,7 @@ The global reduced-motion override suppresses animations and transitions, remove
 - **Don't** apply dock translucency to ordinary financial cards.
 - **Don't** let motion delay interaction or conceal chart marks after hydration.
 - **Don't** promote the home chart arrangement into a rule for every workspace.
+
+## Shared Select alignment
+
+The global `.select__trigger` centers its contents vertically at every control height, including placeholders and wrapped values. Decorative separator lines and authentication rings are omitted; field borders, focus outlines, and financial chart marks retain their functional roles.
