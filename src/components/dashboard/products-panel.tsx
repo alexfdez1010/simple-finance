@@ -3,8 +3,9 @@
 
 import { useState } from 'react';
 import { Button, Card } from '@heroui/react';
-import { Plus, MagnifyingGlass, Wallet } from '@phosphor-icons/react';
+import { Plus, MagnifyingGlass } from '@phosphor-icons/react';
 import { ProductCard } from '@/components/products/product-card';
+import { PortfolioArtwork } from '@/components/visuals/portfolio-artwork';
 import { HoldingsToolbar } from './holdings-toolbar';
 import { queryHoldings, type HoldingsSort } from './holdings-query';
 import type {
@@ -67,9 +68,7 @@ export function ProductsPanel({
       {products.length === 0 ? (
         <Card className="finance-card py-0">
           <Card.Content className="flex min-h-96 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
-            <span className="mb-2 flex size-16 items-center justify-center rounded-2xl bg-primary/8 text-primary">
-              <Wallet aria-hidden size={30} weight="duotone" />
-            </span>
+            <PortfolioArtwork />
             <h3 className="text-2xl font-semibold tracking-tight">
               Build your portfolio
             </h3>
@@ -132,7 +131,7 @@ export function ProductsPanel({
           ) : (
             <section
               aria-label="Products"
-              className="list-enter grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3"
+              className="grid grid-cols-1 gap-5 md:grid-cols-2 2xl:grid-cols-3"
             >
               {filtered.map((product) => (
                 <ProductCard

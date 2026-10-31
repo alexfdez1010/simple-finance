@@ -92,11 +92,17 @@ export function ProductHistoryDialog({ product, open, onOpenChange }: Props) {
   return (
     <Modal>
       <Modal.Backdrop
+        className="finance-dialog-backdrop"
         isOpen={open}
         onOpenChange={onOpenChange}
         variant="opaque"
       >
-        <Modal.Container placement="center" scroll="inside" size="lg">
+        <Modal.Container
+          className="finance-dialog-motion"
+          placement="center"
+          scroll="inside"
+          size="lg"
+        >
           <Modal.Dialog className="rounded-xl">
             <Modal.CloseTrigger aria-label="Close" />
             <Modal.Header className="pb-2">

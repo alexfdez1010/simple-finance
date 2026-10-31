@@ -65,7 +65,7 @@ interface ProfitRateDisplayProps {
  * Only the local period changes; zero and negative projections remain visible.
  */
 export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
-  const { format } = useDisplayCurrency();
+  const { currency, format } = useDisplayCurrency();
   const [currentPeriod, setCurrentPeriod] = useState<ProfitPeriod>('daily');
 
   /** Advances to the next supported profit period. */
@@ -92,11 +92,15 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
           onPress={handleCycle}
           size="sm"
           variant="ghost"
-          className="min-h-11 shrink-0"
+          className="group min-h-11 shrink-0"
           aria-label={`Show ${config.next.toLowerCase()} profit`}
         >
           {config.next}
-          <ArrowRight aria-hidden size={14} />
+          <ArrowRight
+            aria-hidden
+            size={14}
+            className="transition-transform group-hover:translate-x-0.5 motion-reduce:transform-none"
+          />
         </Button>
       </div>
       <div
@@ -105,7 +109,10 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
         aria-atomic="true"
       >
         {profitRates ? (
-          <>
+          <div
+            key={`${currency}-${currentPeriod}`}
+            className="value-change flex min-w-0 flex-wrap items-baseline gap-2"
+          >
             <p
               className={`display-number min-w-0 font-sans text-xl font-semibold ${
                 value >= 0 ? 'text-gain' : 'text-loss'
@@ -121,7 +128,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
               {sign}
               {pct.toFixed(2)}%
             </span>
-          </>
+          </div>
         ) : (
           <p className="text-sm text-muted-foreground">
             — Return estimate unavailable

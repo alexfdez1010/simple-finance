@@ -6,6 +6,7 @@ import { useDisplayCurrency } from '@/components/dashboard/display-currency-cont
 import type { ProductWithValue } from '@/lib/domain/models/product.types';
 import { assetCategoryLabel } from '@/lib/domain/models/asset-category';
 import { HoldingIdentity } from '@/components/products/holding-identity';
+import { PortfolioArtwork } from '@/components/visuals/portfolio-artwork';
 
 /**
  * Shows up to five largest positions as a readable summary, without management dialogs.
@@ -112,10 +113,13 @@ export function HoldingsPreview({
           </tbody>
         </table>
       ) : (
-        <p className="px-5 pb-6 text-sm leading-relaxed text-muted-foreground">
-          Add your first holding to start tracking your portfolio. Market assets
-          and custom investments live together in Holdings.
-        </p>
+        <div className="flex items-center gap-5 px-5 pb-6 sm:px-6">
+          <PortfolioArtwork className="w-24" />
+          <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+            Add your first holding to start tracking your portfolio. Market
+            assets and custom investments live together in Holdings.
+          </p>
+        </div>
       )}
     </section>
   );

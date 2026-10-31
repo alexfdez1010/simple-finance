@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useNavigationIndicator } from './use-navigation-indicator';
 
 const views = [
   { href: '/dashboard/analytics', label: 'Overview' },
@@ -17,11 +18,14 @@ const views = [
  */
 export function AnalyticsNavigation() {
   const pathname = usePathname();
+  const navigationRef = useNavigationIndicator(pathname);
   return (
     <nav
+      ref={navigationRef}
       aria-label="Analytics views"
-      className="mb-8 grid grid-cols-4 gap-1 rounded-2xl bg-default/70 p-1.5 sm:inline-flex"
+      className="navigation-track analytics-navigation relative mb-8 grid grid-cols-4 gap-1 rounded-2xl bg-default/70 p-1.5 sm:inline-flex"
     >
+      <span aria-hidden className="navigation-indicator" />
       {views.map(({ href, label }) => (
         <Link
           key={href}
@@ -31,7 +35,7 @@ export function AnalyticsNavigation() {
           className={cn(
             'navigation-link inline-flex min-h-11 items-center justify-center rounded-xl px-2 text-center text-xs font-medium sm:px-5 sm:text-sm',
             pathname === href
-              ? 'bg-card text-foreground shadow-sm'
+              ? 'text-foreground'
               : 'text-muted-foreground hover:bg-default hover:text-foreground',
           )}
         >

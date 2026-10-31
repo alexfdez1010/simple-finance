@@ -4,3 +4,6 @@
 @import './styles/base.css';
 @import './styles/components.css';
 @import './styles/motion.css';
+@import './styles/dialogs.css';
+@import './styles/illustrations.css';
+@import './styles/navigation.css';

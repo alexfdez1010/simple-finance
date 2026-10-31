@@ -30,6 +30,7 @@ export function EditProductDialog({
 }: EditProductDialogProps) {
   if (!product) return null;
 
+  /** Dismisses only after the form confirms its write; closing keeps exit motion. */
   const handleSuccess = () => {
     onOpenChange(false);
   };
@@ -39,11 +40,17 @@ export function EditProductDialog({
   return (
     <Modal>
       <Modal.Backdrop
+        className="finance-dialog-backdrop"
         isOpen={open}
         onOpenChange={onOpenChange}
         variant="opaque"
       >
-        <Modal.Container placement="center" scroll="inside" size="md">
+        <Modal.Container
+          className="finance-dialog-motion"
+          placement="center"
+          scroll="inside"
+          size="md"
+        >
           <Modal.Dialog className="rounded-xl">
             <Modal.CloseTrigger aria-label="Close" />
             <Modal.Header className="pb-2">

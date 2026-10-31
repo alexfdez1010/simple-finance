@@ -6,7 +6,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ChartLineUp } from '@phosphor-icons/react';
+import { CalendarDots } from '@phosphor-icons/react';
 import {
   Card,
   CardContent,
@@ -30,7 +30,7 @@ const DAY_OPTIONS: DayRange[] = [30, 60, 90];
  * Shows snapshot valuations with an independently selectable observation range.
  * @param props - Dated EUR valuations; samples may be irregularly spaced.
  * @returns A chart or honest first-snapshot guidance, without data mutations.
- * Chart marks render immediately; CSS reveals the complete plot independently.
+ * Axes remain visible while CSS reveals the series independently of its data.
  */
 export function PortfolioEvolutionChart({
   data,
@@ -51,7 +51,7 @@ export function PortfolioEvolutionChart({
         </CardHeader>
         <CardContent className="flex min-h-72 flex-col items-center justify-center gap-4 text-center">
           <span className="flex size-14 items-center justify-center rounded-2xl bg-primary/8 text-primary">
-            <ChartLineUp aria-hidden size={28} weight="light" />
+            <CalendarDots aria-hidden size={28} weight="duotone" />
           </span>
           <p className="text-sm font-medium">
             Give your progress a little time

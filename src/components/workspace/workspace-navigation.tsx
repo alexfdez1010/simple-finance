@@ -10,6 +10,7 @@ import {
   PlugsConnected,
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+import { useNavigationIndicator } from './use-navigation-indicator';
 
 const destinations = [
   { href: '/dashboard', label: 'Home', icon: SquaresFour },
@@ -25,6 +26,7 @@ const destinations = [
  */
 export function WorkspaceNavigation() {
   const pathname = usePathname();
+  const navigationRef = useNavigationIndicator(pathname);
   return (
     <aside className="relative z-40 bg-card lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-60 lg:flex-col">
       <Link
@@ -44,9 +46,11 @@ export function WorkspaceNavigation() {
         </span>
       </Link>
       <nav
+        ref={navigationRef}
         aria-label="Main navigation"
-        className="mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 rounded-2xl bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:static lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
+        className="navigation-track workspace-navigation mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 rounded-2xl bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:relative lg:inset-auto lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
       >
+        <span aria-hidden className="navigation-indicator" />
         {destinations.map(({ href, label, icon: Icon }) => {
           const active =
             href === '/dashboard'
@@ -59,17 +63,17 @@ export function WorkspaceNavigation() {
               prefetch={false}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'navigation-link group flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium hover:bg-default lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:text-[13px]',
+                'navigation-link group flex min-h-12 min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-1 py-2 text-[10px] font-medium lg:flex-row lg:justify-start lg:gap-3 lg:px-4 lg:text-[13px]',
                 active
-                  ? 'bg-primary/8 text-primary'
-                  : 'text-muted-foreground hover:text-foreground',
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:bg-default hover:text-foreground',
               )}
             >
               <Icon
                 aria-hidden
                 size={19}
                 className="navigation-icon shrink-0"
-                weight={active ? 'fill' : 'regular'}
+                weight={active ? 'duotone' : 'regular'}
               />
               <span>{label}</span>
             </Link>

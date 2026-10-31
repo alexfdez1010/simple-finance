@@ -14,6 +14,10 @@ import type {
 } from '@/lib/domain/models/product.types';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
 
+type HoldingsDialog =
+  | { kind: 'add'; source: 'yahoo' | 'custom' }
+  | { kind: 'edit' | 'delete' | 'history'; product: FinancialProduct };
+
 const AddProductDialog = dynamic(() =>
   import('@/components/products/add-product-dialog').then(
     (module) => module.AddProductDialog,
@@ -38,7 +42,7 @@ const ProductHistoryDialog = dynamic(() =>
 /**
  * Owns product management state exclusively inside the holdings route.
  * @param props - Server-valued products and display rates.
- * @returns Searchable holdings and lazily loaded, conditionally mounted dialogs.
+ * @returns Searchable holdings and lazily loaded dialogs with complete exit motion.
  * Only confirmed deletion mutates data; failures stay in the confirmation dialog.
  */
 export function HoldingsWorkspace({
@@ -48,25 +52,29 @@ export function HoldingsWorkspace({
   products: ProductWithValue[];
   rates: Record<DisplayCurrency, number>;
 }) {
-  const [addSource, setAddSource] = useState<'yahoo' | 'custom' | null>(null);
-  const [editProduct, setEditProduct] = useState<FinancialProduct | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<FinancialProduct | null>(
-    null,
-  );
-  const [historyTarget, setHistoryTarget] = useState<FinancialProduct | null>(
-    null,
-  );
-  const openDialog = useDialogFocus(
-    Boolean(addSource || editProduct || deleteTarget || historyTarget),
-  );
+  const [dialog, setDialog] = useState<HoldingsDialog | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [session, setSession] = useState(0);
+  const rememberTrigger = useDialogFocus(isOpen);
+
+  /**
+   * Opens a fresh form while retaining the previous dialog through its exit.
+   * @param target - The requested form or holding detail; never mutates its data.
+   * @returns Nothing; resets local form state through a new session key.
+   */
+  function showDialog(target: HoldingsDialog): void {
+    rememberTrigger(setDialog, target);
+    setSession((previous) => previous + 1);
+    setIsOpen(true);
+  }
 
   /** Deletes the selected holding; rejects failures so the dialog permits retry. */
   async function confirmDelete() {
-    if (!deleteTarget) return;
-    const result = await deleteProductAction(deleteTarget.id);
+    if (dialog?.kind !== 'delete') return;
+    const result = await deleteProductAction(dialog.product.id);
     if (!result.success)
       throw new Error(result.error || 'Could not delete this holding');
-    setDeleteTarget(null);
+    setIsOpen(false);
   }
 
   return (
@@ -79,7 +87,7 @@ export function HoldingsWorkspace({
           <Button
             size="sm"
             className="min-h-11"
-            onPress={() => openDialog(setAddSource, 'yahoo')}
+            onPress={() => showDialog({ kind: 'add', source: 'yahoo' })}
           >
             <Plus aria-hidden size={16} />
             Yahoo Product
@@ -88,7 +96,7 @@ export function HoldingsWorkspace({
             size="sm"
             variant="outline"
             className="min-h-11"
-            onPress={() => openDialog(setAddSource, 'custom')}
+            onPress={() => showDialog({ kind: 'add', source: 'custom' })}
           >
             <Plus aria-hidden size={16} />
             Custom Product
@@ -99,38 +107,42 @@ export function HoldingsWorkspace({
       <ProductsPanel
         products={products}
         showHeading={false}
-        onAddProduct={() => openDialog(setAddSource, 'yahoo')}
-        onEditProduct={(product) => openDialog(setEditProduct, product)}
-        onDeleteProduct={(product) => openDialog(setDeleteTarget, product)}
-        onViewProduct={(product) => openDialog(setHistoryTarget, product)}
+        onAddProduct={() => showDialog({ kind: 'add', source: 'yahoo' })}
+        onEditProduct={(product) => showDialog({ kind: 'edit', product })}
+        onDeleteProduct={(product) => showDialog({ kind: 'delete', product })}
+        onViewProduct={(product) => showDialog({ kind: 'history', product })}
       />
-      {addSource && (
+      {dialog?.kind === 'add' && (
         <AddProductDialog
-          open
-          defaultTab={addSource}
-          onOpenChange={(open) => !open && setAddSource(null)}
+          key={session}
+          open={isOpen}
+          defaultTab={dialog.source}
+          onOpenChange={setIsOpen}
         />
       )}
-      {editProduct && (
+      {dialog?.kind === 'edit' && (
         <EditProductDialog
-          open
-          product={editProduct}
-          onOpenChange={(open) => !open && setEditProduct(null)}
+          key={session}
+          open={isOpen}
+          product={dialog.product}
+          onOpenChange={setIsOpen}
         />
       )}
-      {deleteTarget && (
+      {dialog?.kind === 'delete' && (
         <DeleteProductDialog
-          open
-          productName={deleteTarget.name}
+          key={session}
+          open={isOpen}
+          productName={dialog.product.name}
           onConfirm={confirmDelete}
-          onOpenChange={(open) => !open && setDeleteTarget(null)}
+          onOpenChange={setIsOpen}
         />
       )}
-      {historyTarget && (
+      {dialog?.kind === 'history' && (
         <ProductHistoryDialog
-          open
-          product={historyTarget}
-          onOpenChange={(open) => !open && setHistoryTarget(null)}
+          key={session}
+          open={isOpen}
+          product={dialog.product}
+          onOpenChange={setIsOpen}
         />
       )}
     </CurrencyWorkspace>

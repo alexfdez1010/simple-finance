@@ -1,82 +1,57 @@
+@theme {
+  --ease-finance: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-feedback: 160ms;
+  --duration-panel: 280ms;
+}
+
 @layer components {
   .workspace-content > header {
-    animation: workspace-enter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: workspace-enter var(--duration-panel) var(--ease-finance);
   }
 
-  .workspace-content > :not(header) {
-    animation: workspace-enter 560ms cubic-bezier(0.16, 1, 0.3, 1) both;
-    animation-delay: 45ms;
-  }
-
-  .workspace-content > :nth-child(3) {
-    animation-delay: 85ms;
-  }
-  .workspace-content > :nth-child(n + 4) {
-    animation-delay: 120ms;
-  }
-
-  .chart-reveal {
-    animation: chart-unfold 750ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  .chart-reveal .recharts-area {
+    animation: chart-unfold 560ms var(--ease-finance);
   }
 
   .value-change {
-    animation: value-settle 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .list-enter > * {
-    animation: workspace-enter 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .list-enter > :nth-child(2) {
-    animation-delay: 35ms;
-  }
-  .list-enter > :nth-child(3) {
-    animation-delay: 70ms;
-  }
-  .list-enter > :nth-child(n + 4) {
-    animation-delay: 105ms;
+    animation: value-settle var(--duration-feedback) ease-out;
   }
 
   .animate-fade-up {
-    animation: workspace-enter 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: workspace-enter 400ms var(--ease-finance);
   }
 
   .navigation-link {
     transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      transform 250ms cubic-bezier(0.16, 1, 0.3, 1);
+      background-color var(--duration-feedback) ease,
+      color var(--duration-feedback) ease;
   }
 
-  .navigation-link:active {
-    transform: scale(0.97);
-  }
-
-  .navigation-link[aria-current='page'] .navigation-icon {
-    animation: icon-settle 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .auth-orbit {
-    animation: orbit-settle 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  .navigation-icon {
+    transition: transform var(--duration-panel) var(--ease-finance);
   }
 
   .holding-card {
     transition:
-      transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 260ms ease;
+      transform var(--duration-panel) var(--ease-finance),
+      box-shadow var(--duration-panel) ease;
   }
 
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     .holding-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 36px rgb(25 36 60 / 0.08);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgb(25 36 60 / 0.07);
+    }
+
+    .navigation-link:hover .navigation-icon {
+      transform: translateY(-1px);
     }
   }
 
   @keyframes workspace-enter {
     from {
-      opacity: 0.5;
-      transform: translateY(12px);
+      opacity: 0.8;
+      transform: translateY(5px);
     }
     to {
       opacity: 1;
@@ -89,29 +64,18 @@
       clip-path: inset(0 100% 0 0);
     }
     to {
-      clip-path: inset(0 0 0 0);
+      clip-path: inset(0);
     }
   }
 
   @keyframes value-settle {
     from {
-      opacity: 0.5;
-      filter: blur(3px);
-      transform: translateY(3px);
+      opacity: 0.65;
+      transform: translateY(2px);
     }
     to {
       opacity: 1;
-      filter: blur(0);
       transform: translateY(0);
-    }
-  }
-
-  @keyframes icon-settle {
-    from {
-      transform: scale(0.85);
-    }
-    to {
-      transform: scale(1);
     }
   }
 
@@ -123,27 +87,16 @@
       background-position: 0% 0;
     }
   }
-
-  @keyframes orbit-settle {
-    from {
-      transform: rotate(-18deg) scale(0.92);
-      opacity: 0.5;
-    }
-    to {
-      transform: rotate(0) scale(1);
-      opacity: 1;
-    }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .chart-reveal {
+  .chart-reveal .recharts-area {
     clip-path: none;
   }
-  .lift:hover {
-    transform: none;
-  }
-  .holding-card:hover {
+
+  .lift:hover,
+  .holding-card:hover,
+  .navigation-link:hover .navigation-icon {
     transform: none;
   }
 }

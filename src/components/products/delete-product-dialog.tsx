@@ -51,11 +51,16 @@ export function DeleteProductDialog({
   return (
     <AlertDialog>
       <AlertDialog.Backdrop
+        className="finance-dialog-backdrop"
         isOpen={open}
         onOpenChange={onOpenChange}
         variant="opaque"
       >
-        <AlertDialog.Container placement="center" size="sm">
+        <AlertDialog.Container
+          className="finance-dialog-motion"
+          placement="center"
+          size="sm"
+        >
           <AlertDialog.Dialog className="rounded-xl">
             <AlertDialog.Header>
               <AlertDialog.Icon status="danger">

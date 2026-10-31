@@ -18,7 +18,7 @@ const chartConfig = {
  * Plots a bounded set of portfolio valuations with a unique area-fill definition.
  * @param props - Chronological EUR observations, already restricted to the selected range.
  * @returns A responsive chart; a single observation remains visible as a dot.
- * No fetching or mark animation; the independent CSS reveal respects reduced motion.
+ * No fetching or Recharts animation; CSS reveals only the series with reduced-motion support.
  */
 export function PortfolioEvolutionPlot({
   data,

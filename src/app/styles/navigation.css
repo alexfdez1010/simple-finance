@@ -1,0 +1,62 @@
+@layer components {
+  .navigation-track {
+    isolation: isolate;
+  }
+
+  .navigation-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    width: var(--indicator-width, 0);
+    height: var(--indicator-height, 0);
+    border-radius: 0.75rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translate3d(var(--indicator-x, 0), var(--indicator-y, 0), 0);
+  }
+
+  .workspace-navigation .navigation-indicator {
+    @apply bg-primary/8;
+  }
+
+  .workspace-navigation .navigation-link[aria-current='page'] {
+    @apply bg-primary/8;
+  }
+
+  .analytics-navigation .navigation-indicator {
+    @apply bg-card shadow-sm;
+  }
+
+  .analytics-navigation .navigation-link[aria-current='page'] {
+    @apply bg-card shadow-sm;
+  }
+
+  .navigation-track[data-indicator-ready] .navigation-indicator {
+    opacity: 1;
+  }
+
+  .navigation-track[data-indicator-ready]
+    .navigation-link[aria-current='page'] {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .navigation-track[data-indicator-animate] .navigation-indicator {
+    transition:
+      transform 280ms cubic-bezier(0.2, 0.8, 0.2, 1),
+      width 200ms ease,
+      height 200ms ease;
+  }
+
+  .navigation-track .navigation-link {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navigation-track .navigation-indicator {
+    transition: none;
+  }
+}

@@ -122,7 +122,7 @@ Token format: [DESIGN.md specification](https://raw.githubusercontent.com/google
 
 The interface gives a personal portfolio a clear center of gravity. Aluminum ground, white surfaces, graphite type, and precise blue controls frame the information; the dark balance panel makes the present valuation immediately recognizable. Generous spacing and a deliberate type hierarchy give financial detail room to be read.
 
-The user authorized a complete visual and interaction redesign using the agent's judgment, with polished motion and review of the running application. This direction replaces the earlier forest notebook system. Existing financial meanings, English copy, portfolio capabilities, and independently loaded workspaces remain product constraints. The implementation uses CSS and the existing component adapters without adding dependencies or decorative raster assets.
+The user authorized visual and interaction improvements using the agent's judgment, with polished motion, original imagery, and review of the running application. This direction replaces the earlier forest notebook system. Existing financial meanings, English copy, portfolio capabilities, and independently loaded workspaces remain product constraints. The implementation uses CSS and existing component adapters without new dependencies. The original folio illustration extends the graphite, aluminum, and blue language in authentication and first-holding states; its prompt and usage are recorded in [visual assets](docs/visual-assets.md).
 
 **Key Characteristics:**
 
@@ -233,9 +233,9 @@ The navigation rail describes the product as “Portfolio & performance” and k
 
 ### Motion and Dialogs
 
-Workspace headings enter in 420ms; content enters in 560ms with bounded 45–120ms delays. Lists settle in 480ms with delays capped at 105ms. The balance light sweeps once in 1100ms; chart containers reveal once in 750ms. Currency values settle in 260ms, selected icons in 340ms, and authentication symbol in 900ms. The common easing is `cubic-bezier(0.16, 1, 0.3, 1)`; short color feedback uses ease. Recharts mark animation remains disabled so hydration and reduced motion cannot leave empty chart marks.
+Workspace headings settle in 280ms without delaying data or staggering holding rows. Selected navigation surfaces move between destinations in 280ms and retarget from their current position on interruption; breakpoint and font changes realign immediately. Financial values settle in 160ms without blur or fabricated intermediate amounts. Chart series reveal in 560ms while axes stay visible. The balance light sweeps once within its background without extending the panel's scrollable bounds, and the original auth folio arrives in 780ms. The common easing is `cubic-bezier(0.16, 1, 0.3, 1)`; short color feedback uses ease. Recharts mark animation remains disabled so hydration and reduced motion cannot leave empty chart marks.
 
-The global reduced-motion override suppresses animations and transitions, removes hover lifts, and exposes chart containers without clipping. Content-entry effects do not loop. Lazy management dialogs remember their opener, restore it on close, and fall back to the main workspace if deletion removed that control. Pending or failed writes keep dialog focus.
+The global reduced-motion override suppresses animations and transitions, removes hover lifts, and exposes chart series without clipping. Content-entry effects do not loop. Lazy management dialogs retain their content through HeroUI's entrance and exit lifecycle, use 280ms entrance and 160ms dismissal, and reset forms on each new opening. They remember their opener, restore it on close, and fall back to the main workspace if deletion removed that control. Pending or failed writes keep dialog focus.
 
 ## Do's and Don'ts
 
