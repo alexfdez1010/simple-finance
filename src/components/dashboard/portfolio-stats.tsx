@@ -62,7 +62,7 @@ export function PortfolioStats({
   return (
     <section
       aria-label="Portfolio summary"
-      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]"
+      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
     >
       <div
         role="group"
@@ -74,7 +74,7 @@ export function PortfolioStats({
             <Wallet aria-hidden size={18} /> Total Value
           </p>
           <span className="rounded-full bg-white/10 px-3 py-1.5 text-[11px] font-medium text-white/80">
-            {productCount} holdings
+            {productCount} {productCount === 1 ? 'holding' : 'holdings'}
           </span>
         </div>
         <p
@@ -90,29 +90,29 @@ export function PortfolioStats({
           >
             <ReturnIcon aria-hidden size={14} weight="bold" />
             {totalReturnPercentage >= 0 ? '+' : ''}
-            {totalReturnPercentage.toFixed(2)}%
+            {totalReturnPercentage.toFixed(2)}% all time
           </span>
         </div>
       </div>
       <div className="finance-card flex min-w-0 flex-col justify-between p-5 sm:p-6">
-        <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 sm:gap-4">
+        <div className="grid gap-5 sm:grid-cols-3 sm:gap-4">
           {figures.map(({ label, value, detail, tone }) => (
             <div
               key={label}
               role="group"
               aria-label={label}
-              className="min-w-0 last:col-span-2 sm:last:col-span-1"
+              className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] items-baseline gap-x-3 gap-y-1 sm:block"
             >
               <p className="text-xs font-medium text-muted-foreground">
                 {label}
               </p>
               <p
                 key={currency}
-                className={`display-number value-change mt-2 text-[22px] font-semibold sm:mt-4 ${tone ?? 'text-foreground'}`}
+                className={`display-number value-change row-span-2 text-right text-xl leading-snug font-semibold sm:mt-3 sm:text-left sm:text-[22px] ${tone ?? 'text-foreground'}`}
               >
                 {value}
               </p>
-              <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+              <p className="col-start-1 text-[11px] leading-relaxed text-muted-foreground sm:mt-2">
                 {detail}
               </p>
             </div>
@@ -121,12 +121,11 @@ export function PortfolioStats({
         <div
           role="group"
           aria-label="Projected profit"
-          className="mt-5 grid gap-3 pt-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] sm:items-end sm:gap-6"
+          className="mt-6 rounded-xl bg-surface-secondary/70 p-4"
         >
           <ProfitRateDisplay profitRates={profitRates} />
-          <p className="text-[11px] leading-relaxed text-muted-foreground">
-            Estimates use available return assumptions. They are projections,
-            not guaranteed returns.
+          <p className="mt-3 text-[11px] leading-relaxed text-muted-foreground">
+            Based on available return assumptions, not guaranteed returns.
           </p>
         </div>
       </div>

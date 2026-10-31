@@ -33,7 +33,7 @@ export function HoldingsPreview({
           prefetch={false}
           className="group inline-flex min-h-11 items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
         >
-          View all holdings{' '}
+          {products.length ? 'View all holdings' : 'Add your first holding'}{' '}
           <ArrowUpRight
             aria-hidden
             size={15}

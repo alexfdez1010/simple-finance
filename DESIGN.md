@@ -184,7 +184,7 @@ At the large breakpoint (1024px), a fixed white rail occupies 240px and content 
 
 Below that breakpoint, the identity remains at the top while four navigation destinations form a fixed bottom dock inset 12px horizontally. Its bottom inset is the larger of 12px and the safe-area bottom. The main region reserves 104px plus the safe-area bottom so the dock cannot cover the last content. Touch destinations remain at least 48px high; page actions and analytics destinations use a 44px minimum.
 
-Cards use 20px insets before 24px at the small breakpoint. The balance panel uses 24px before 32px. The home summary and chart proportions belong to its surface brief; future pages should follow the same spacing and shrinking-width discipline without copying its composition. Dense history regions may scroll inside their own labelled container.
+Cards use 20px insets before 24px at the small breakpoint. The card adapter removes HeroUI's outer padding and gap so headers and bodies own these insets exactly once. The balance panel uses 24px before 32px. The home summary and chart proportions belong to its surface brief; future pages should follow the same spacing and shrinking-width discipline without copying its composition. Dense history regions may scroll inside their own labelled container.
 
 ## Elevation & Depth
 
@@ -227,7 +227,9 @@ Desktop links combine an icon and label, with selection conveyed by the fill and
 
 ### Balance and Charts
 
-The dark balance panel anchors the overview; supporting capital, return, latest change, and forecast remain separate readable figures. Missing snapshot history displays an em dash and an explanation. The evolution area uses the first chart color and a unique gradient ID per instance. Its controls select observations, labelled “pts”. The category ring is accompanied by every category's value and percentage; signed or zero totals omit the ring and explain unavailable percentages.
+The dark balance panel anchors the overview; supporting capital, return, latest change, and forecast remain separate readable figures. At desktop widths, the balance and supporting figures use a 1:1.2 ratio. Below 640px, supporting figures become rows with labels on the left and comparable amounts on the right. The balance percentage explicitly identifies its all-time period. Projections occupy a muted inset surface with their assumption text kept inside it; the period display sizes to its content rather than stretching through the disclaimer. Loading skeletons follow the same arrangement. Missing snapshot history displays an em dash and an explanation. The evolution area uses the first chart color and a unique gradient ID per instance. Its controls select observations, labelled “pts”. Its value axis reserves 82px for compact amounts and currency units. The category ring is accompanied by every category's value and percentage; signed or zero totals omit the ring and explain unavailable percentages.
+
+The navigation rail describes the product as “Portfolio & performance” and keeps its four destinations and private-portfolio footer. It omits the repeated analytics promotional card. Empty holdings summaries name the next step directly: “Add your first holding”, linking to the existing management workspace.
 
 ### Motion and Dialogs
 

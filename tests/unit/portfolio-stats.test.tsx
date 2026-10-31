@@ -44,6 +44,16 @@ function metric(name: string) {
 }
 
 describe('portfolio summary financial states', () => {
+  it('identifies lifetime returns and a single holding without altering percentages', () => {
+    renderSummary({ productCount: 1 });
+    const balance = metric('Total Value');
+    expect(balance.getByText('1 holding')).toBeTruthy();
+    expect(balance.getByText('+20.00% all time')).toBeTruthy();
+    expect(
+      metric('Return').getByText('+20.00% on invested capital'),
+    ).toBeTruthy();
+  });
+
   it('preserves an unknown latest change instead of inventing a zero', () => {
     renderSummary();
     const latest = metric('Latest change');

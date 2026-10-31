@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 function Card({ className, ...props }: React.ComponentProps<typeof HeroCard>) {
   return (
     <HeroCard
-      className={cn('finance-card py-0 text-foreground', className)}
+      className={cn('finance-card gap-0 p-0 text-foreground', className)}
       variant="default"
       {...props}
     />

@@ -74,7 +74,7 @@ export function PortfolioEvolutionPlot({
         <YAxis
           tickLine={false}
           axisLine={false}
-          width={62}
+          width={82}
           tickCount={5}
           tickFormatter={(value) => format(value, { compact: true })}
           domain={[

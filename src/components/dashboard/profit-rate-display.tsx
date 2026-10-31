@@ -83,7 +83,7 @@ export function ProfitRateDisplay({ profitRates }: ProfitRateDisplayProps) {
   const signedValue = value >= 0 ? `+${absoluteValue}` : `-${absoluteValue}`;
 
   return (
-    <div className="flex h-full flex-col justify-between gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
       <div className="flex flex-wrap items-center justify-between gap-x-3">
         <p className="text-xs font-medium text-muted-foreground">
           Estimated {config.label.toLowerCase()} profit

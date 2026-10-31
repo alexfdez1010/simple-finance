@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  ArrowUpRight,
   ChartLineUp,
   LockSimple,
   SquaresFour,
@@ -40,7 +39,7 @@ export function WorkspaceNavigation() {
         <span className="text-[17px] font-semibold tracking-[-0.03em]">
           Simple Finance
           <span className="mt-0.5 block text-[11px] font-normal tracking-normal text-muted-foreground">
-            Every position, in perspective
+            Portfolio & performance
           </span>
         </span>
       </Link>
@@ -78,25 +77,6 @@ export function WorkspaceNavigation() {
         })}
       </nav>
       <div className="mt-auto hidden px-5 pb-6 pt-12 lg:block">
-        <Link
-          href="/dashboard/analytics"
-          prefetch={false}
-          className="group block rounded-2xl bg-surface-secondary p-4"
-        >
-          <ChartLineUp size={22} className="mb-4 text-primary" aria-hidden />
-          <p className="text-sm font-medium">See the bigger picture</p>
-          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-            Explore what shapes your portfolio
-          </p>
-          <span className="mt-4 flex items-center gap-2 text-xs font-medium text-primary">
-            Explore analytics{' '}
-            <ArrowUpRight
-              aria-hidden
-              size={14}
-              className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-            />
-          </span>
-        </Link>
         <div className="mt-6 flex items-center gap-2.5 px-2 text-muted-foreground">
           <LockSimple aria-hidden size={16} />
           <span className="text-xs">Your private portfolio</span>

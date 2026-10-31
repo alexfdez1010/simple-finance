@@ -200,12 +200,23 @@ test.describe('Portfolio Snapshots and Charts', () => {
       mobileTotal!.y + mobileTotal!.height,
     );
     expect(mobileProjected!.y).toBeGreaterThan(
-      mobileInvested!.y + mobileInvested!.height,
+      mobileLatest!.y + mobileLatest!.height,
     );
     expect(mobileProjected!.x).toBeCloseTo(mobileInvested!.x, 0);
-    expect(mobileProjected!.width).toBeGreaterThan(mobileInvested!.width * 1.9);
-    expect(mobileLatest!.y).toBeGreaterThan(mobileInvested!.y);
+    expect(mobileProjected!.width).toBeCloseTo(mobileInvested!.width, 0);
+    expect(mobileLatest!.y).toBeGreaterThan(
+      mobileInvested!.y + mobileInvested!.height,
+    );
     expect(mobileLatest!.width).toBeCloseTo(mobileProjected!.width, 0);
+    const assumption = await projected
+      .getByText(
+        'Based on available return assumptions, not guaranteed returns.',
+      )
+      .boundingBox();
+    expect(assumption).not.toBeNull();
+    expect(assumption!.y + assumption!.height).toBeLessThan(
+      mobileProjected!.y + mobileProjected!.height,
+    );
     expect(hasOverflow).toBe(false);
   });
 });

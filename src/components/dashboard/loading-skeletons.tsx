@@ -17,7 +17,7 @@ export function StatsLoadingSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.45fr)]"
+      className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]"
     >
       <div className="balance-surface flex min-h-60 flex-col justify-between rounded-2xl p-6 sm:p-8">
         <Skeleton className="h-3 w-24 rounded-sm bg-white/15" />
@@ -25,16 +25,16 @@ export function StatsLoadingSkeleton() {
         <Skeleton className="h-3 w-36 rounded-sm bg-white/15" />
       </div>
       <div className="finance-card p-6">
-        <div className="grid grid-cols-3 gap-5">
+        <div className="grid gap-5 sm:grid-cols-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div key={index}>
+            <div key={index} className="flex justify-between sm:block">
               <Skeleton className="h-3 w-14 max-w-full rounded-sm" />
               <Skeleton className="mt-5 h-7 w-24 max-w-full rounded-md" />
-              <Skeleton className="mt-3 h-3 w-20 max-w-full rounded-sm" />
+              <Skeleton className="mt-3 hidden h-3 w-20 max-w-full rounded-sm sm:block" />
             </div>
           ))}
         </div>
-        <div className="mt-6 pt-5">
+        <div className="mt-6 rounded-xl bg-surface-secondary/70 p-4">
           <Skeleton className="h-3 w-32 rounded-sm" />
           <Skeleton className="mt-4 h-6 w-28 rounded-md" />
         </div>
