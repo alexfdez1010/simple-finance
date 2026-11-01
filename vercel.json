@@ -1,8 +1,4 @@
 {
-  "crons": [
-    {
-      "path": "/api/cron/snapshot",
-      "schedule": "0 5 * * *"
-    }
-  ]
+  "git": { "deploymentEnabled": false },
+  "crons": []
 }

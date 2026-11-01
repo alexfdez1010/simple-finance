@@ -3,12 +3,8 @@
 import { prisma } from './prisma-client';
 import { mapCustomData } from './product-mappers';
 import type {
-  CustomProduct,
   FinancialProduct,
-  UpdateCustomProductInput,
   UpdateProductQuantityInput,
-  UpdateYahooFinanceProductInput,
-  YahooFinanceProduct,
 } from '@/lib/domain/models/product.types';
 
 /** Finds one product with its type-specific data, or null. */
@@ -67,50 +63,6 @@ export async function updateProductQuantity(
   });
   const product = await findProductById(input.productId);
   if (!product) throw new Error('Product not found after update');
-  return product;
-}
-
-/** Updates a Yahoo Finance product and returns it. */
-export async function updateYahooFinanceProduct(
-  input: UpdateYahooFinanceProductInput,
-): Promise<YahooFinanceProduct> {
-  const product = await prisma.financialProduct.update({
-    where: { id: input.productId },
-    data: {
-      name: input.name,
-      quantity: input.quantity,
-      assetCategory: input.assetCategory,
-      daysToLiquidity: input.daysToLiquidity,
-      yahoo: {
-        update: {
-          purchasePrice: input.purchasePrice,
-          purchaseDate: input.purchaseDate,
-        },
-      },
-    },
-    include: { yahoo: true },
-  });
-  return { ...product, type: 'YAHOO_FINANCE', yahoo: product.yahoo! };
-}
-
-/** Updates custom metadata without reinterpreting its fixed currency. */
-export async function updateCustomProduct(
-  input: UpdateCustomProductInput,
-): Promise<CustomProduct> {
-  await prisma.financialProduct.update({
-    where: { id: input.productId },
-    data: {
-      name: input.name,
-      quantity: 1,
-      assetCategory: input.assetCategory,
-      daysToLiquidity: input.daysToLiquidity,
-      custom: { update: { annualReturnRate: input.annualReturnRate } },
-    },
-  });
-  const product = await findProductById(input.productId);
-  if (!product || product.type !== 'CUSTOM') {
-    throw new Error('Custom product not found after update');
-  }
   return product;
 }
 

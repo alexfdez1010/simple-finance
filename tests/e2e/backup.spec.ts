@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { test, expect, type APIRequestContext } from '@playwright/test';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from './database-client';
 import { financeBackupFixture } from '../fixtures/finance-backup';
 import type { FinanceBackup } from '../../src/lib/backup/backup-schema';
 import { authenticateTestUser } from './auth-helper';
@@ -67,12 +67,9 @@ test.describe('Complete finance backups', () => {
     const request = page.context().request;
     expect((await restore(request, financeBackupFixture())).ok()).toBeTruthy();
     const before = await exported(request);
-    await prisma.$executeRawUnsafe(
-      `CREATE FUNCTION backup_test_reject_settings() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'Injected QA failure'; END $$`,
-    );
     try {
       await prisma.$executeRawUnsafe(
-        `CREATE TRIGGER backup_test_reject BEFORE INSERT ON runway_settings FOR EACH ROW EXECUTE FUNCTION backup_test_reject_settings()`,
+        `CREATE TRIGGER backup_test_reject BEFORE INSERT ON runway_settings BEGIN SELECT RAISE(ABORT, 'Injected QA failure'); END`,
       );
       const replacement = financeBackupFixture();
       replacement.data.products[0].name = 'Must roll back';
@@ -81,7 +78,7 @@ test.describe('Complete finance backups', () => {
       expect((await exported(request)).data).toEqual(before.data);
     } finally {
       await prisma.$executeRawUnsafe(
-        'DROP FUNCTION backup_test_reject_settings() CASCADE',
+        'DROP TRIGGER IF EXISTS backup_test_reject',
       );
     }
   });

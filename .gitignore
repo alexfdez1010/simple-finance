@@ -65,3 +65,10 @@ generated
 /.impeccable/build/
 /.impeccable/mocks/
 /.impeccable/hook.cache.json
+
+# Cloudflare
+.open-next/
+.wrangler/
+.dev.vars*
+.env.*
+!.env.example

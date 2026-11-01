@@ -6,7 +6,6 @@
 import 'server-only';
 
 const SKILL_NAME = 'simple-finance';
-export const TOKEN_ENV_VAR = 'SIMPLE_FINANCE_TOKEN';
 
 /**
  * Build the SKILL.md markdown describing the MCP server to an agent.
@@ -20,6 +19,8 @@ description: Personal investment portfolio. Add, update, list and delete financi
 ---
 
 # Simple Finance
+
+Connect using OAuth with your Simple Finance account. Approve access in the browser when prompted.
 
 Investment-portfolio assistant backed by the \`${SKILL_NAME}\` MCP server at \`${serverUrl}\`.
 
@@ -60,7 +61,6 @@ export function buildMcpJson(serverUrl: string): string {
         [SKILL_NAME]: {
           type: 'http',
           url: serverUrl,
-          headers: { Authorization: `Bearer \${${TOKEN_ENV_VAR}}` },
         },
       },
     },

@@ -1,31 +1,42 @@
-/**
- * Helper functions for authentication in E2E tests.
- * @module tests/e2e/auth-helper
- */
+import { randomBytes } from 'node:crypto';
+import type { Page, APIRequestContext, Cookie } from '@playwright/test';
 
-import { createHash } from 'node:crypto';
-import { Page } from '@playwright/test';
+export const testCredentials = {
+  email: 'owner@example.test',
+  password: 'test-password-12345678',
+};
 
-const PASSWORD = process.env.PASSWORD ?? '12345678';
-const AUTH_COOKIE_NAME = 'simple-finance-auth';
+let cachedCookies: Cookie[] = [];
 
-/**
- * Sets the auth cookie directly so tests skip the UI login flow.
- * The cookie value is sha256(PASSWORD) — same shape as
- * `generateAuthToken` in src/lib/auth/auth-utils.ts.
- *
- * @param page - Playwright page object
- */
+/** Uses the real session API and shared browser cookie jar instead of forging authentication. */
 export async function authenticateTestUser(page: Page): Promise<void> {
-  const token = createHash('sha256').update(PASSWORD).digest('hex');
-  await page.context().addCookies([
+  if (cachedCookies.length) {
+    await page.context().addCookies(cachedCookies);
+    return;
+  }
+  await loginTestUser(page.context().request);
+  cachedCookies = await page.context().cookies();
+}
+
+/** Authenticates an isolated localhost test context and fails loudly if setup did not provision its owner. */
+export async function loginTestUser(request: APIRequestContext): Promise<void> {
+  const response = await request.post(
+    'http://localhost:3000/api/auth/sign-in/email',
     {
-      name: AUTH_COOKIE_NAME,
-      value: token,
-      domain: 'localhost',
-      path: '/',
-      httpOnly: true,
-      sameSite: 'Lax',
+      data: testCredentials,
+      headers: {
+        origin: 'http://localhost:3000',
+        'cf-connecting-ip': Array.from(randomBytes(4)).join('.'),
+      },
     },
-  ]);
+  );
+  if (!response.ok())
+    throw new Error(
+      `Test login failed: ${response.status()} ${await response.text()}`,
+    );
+}
+
+/** Drops the local fixture cache when a test intentionally revokes that session. */
+export function clearTestSession(): void {
+  cachedCookies = [];
 }

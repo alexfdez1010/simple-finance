@@ -4,7 +4,7 @@
  */
 
 import type { Page } from '@playwright/test';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from './database-client';
 
 const prisma = new PrismaClient();
 

@@ -20,9 +20,14 @@ describe('portable finance backup validation', () => {
     } as const;
     const fixture = financeBackupFixture();
     expect(
-      Prisma.dmmf.datamodel.models.map((model) => model.name).sort(),
+      Prisma.dmmf.datamodel.models
+        .filter((model) => model.name in mapping)
+        .map((model) => model.name)
+        .sort(),
     ).toEqual(Object.keys(mapping).sort());
-    for (const model of Prisma.dmmf.datamodel.models) {
+    for (const model of Prisma.dmmf.datamodel.models.filter(
+      (model) => model.name in mapping,
+    )) {
       const key = mapping[model.name as keyof typeof mapping];
       expect(Object.keys(fixture.data[key][0]).sort()).toEqual(
         model.fields

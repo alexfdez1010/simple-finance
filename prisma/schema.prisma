@@ -2,12 +2,20 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  provider   = "prisma-client-js"
+  engineType = "client"
+  output     = "../generated/prisma"
+}
+
+generator workerClient {
+  provider   = "prisma-client"
+  output     = "../generated/cloudflare"
+  runtime    = "workerd"
+  engineType = "client"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -115,7 +123,7 @@ model CustomProductContribution {
 model ProductSnapshot {
   id        String   @id @default(cuid())
   productId String
-  date      DateTime @db.Date
+  date      DateTime
   value     Float
   quantity  Float
   createdAt DateTime @default(now())
@@ -131,7 +139,7 @@ model ProductSnapshot {
 /// Daily snapshot of total portfolio value
 model PortfolioSnapshot {
   id          String   @id @default(cuid())
-  date        DateTime @unique @db.Date
+  date        DateTime @unique
   value       Float // Total portfolio value in EUR
   /// Capital included in this valuation; null for snapshots created before capture support.
   investedEur Float?

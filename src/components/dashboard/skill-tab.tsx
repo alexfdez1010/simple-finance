@@ -13,27 +13,16 @@ import { cn } from '@/lib/utils';
 
 interface SkillTabProps {
   serverUrl: string;
-  token: string;
   mcpJson: string;
-  tokenEnvVar: string;
 }
 
 /**
  * Renders the skill onboarding panel on its dedicated integration page.
  *
  * @param serverUrl - Public URL of the MCP HTTP endpoint
- * @param token - Bearer token an agent must send (sha256 of PASSWORD)
  * @param mcpJson - Pre-rendered mcp.json snippet
- * @param tokenEnvVar - Name of the env var the snippet references
  */
-export function SkillTab({
-  serverUrl,
-  token,
-  mcpJson,
-  tokenEnvVar,
-}: SkillTabProps) {
-  const exportLine = `export ${tokenEnvVar}='${token}'`;
-
+export function SkillTab({ serverUrl, mcpJson }: SkillTabProps) {
   return (
     <section aria-label="Agent skill" className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -69,7 +58,8 @@ export function SkillTab({
           </Card.Header>
           <Card.Content className="flex flex-1 flex-col gap-5 p-5 pt-2">
             <p className="text-sm text-muted-foreground">
-              Add the config and export <code>${tokenEnvVar}</code>.
+              Add the server URL, then sign in with OAuth and approve access in
+              your browser.
             </p>
             <div className="flex flex-wrap gap-2">
               <a
@@ -103,20 +93,6 @@ export function SkillTab({
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <code className="break-all text-sm">{serverUrl}</code>
               <CopyButton value={serverUrl} label="Copy URL" />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <span className="text-xs font-medium text-muted-foreground">
-              Bearer token
-            </span>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <code className="break-all text-sm">{token}</code>
-              <CopyButton value={token} label="Copy token" />
-            </div>
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <code className="break-all text-xs">{exportLine}</code>
-              <CopyButton value={exportLine} label="Copy export" />
             </div>
           </div>
 

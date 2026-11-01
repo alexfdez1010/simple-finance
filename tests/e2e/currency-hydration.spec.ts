@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from './database-client';
 import { authenticateTestUser } from './auth-helper';
 import { cleanDatabase } from './test-helpers';
 

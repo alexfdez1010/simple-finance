@@ -1,6 +1,5 @@
-import { createHash } from 'node:crypto';
 import { test, expect } from '@playwright/test';
-import { authenticateTestUser } from './auth-helper';
+import { authenticateTestUser, testCredentials } from './auth-helper';
 import { cleanDatabase, selectHeroOption } from './test-helpers';
 
 const routes = [
@@ -61,10 +60,9 @@ test('keeps the landing overview separate from detailed analytics and agent secr
     page.getByLabel('Monthly investment gains', { exact: true }),
   ).toHaveCount(0);
   await expect(page.getByLabel('Agent skill', { exact: true })).toHaveCount(0);
-  const token = createHash('sha256')
-    .update(process.env.PASSWORD ?? '12345678')
-    .digest('hex');
-  expect(await response!.text()).not.toContain(token);
+  expect(await response!.text()).not.toContain(
+    process.env.BETTER_AUTH_SECRET || 'unconfigured-secret',
+  );
   await page.getByRole('link', { name: 'Analytics', exact: true }).click();
   await expect(
     page.getByLabel('Monthly investment gains', { exact: true }),
@@ -128,10 +126,11 @@ test('protects a deep-linked integration page and returns there after login', as
   await page.context().clearCookies();
   await page.goto('http://localhost:3000/dashboard/skill');
   await expect(page).toHaveURL(/\/auth\?redirectTo=%2Fdashboard%2Fskill$/);
+  await page.getByLabel('Email', { exact: true }).fill(testCredentials.email);
   await page
     .getByLabel('Password', { exact: true })
-    .fill(process.env.PASSWORD ?? '12345678');
-  await page.getByRole('button', { name: 'Continue', exact: true }).click();
+    .fill(testCredentials.password);
+  await page.getByRole('button', { name: 'Sign in', exact: true }).click();
   await expect(page).toHaveURL('http://localhost:3000/dashboard/skill');
   await expect(page.getByLabel('Agent skill', { exact: true })).toBeVisible();
 });

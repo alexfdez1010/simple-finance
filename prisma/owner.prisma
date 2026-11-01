@@ -1,0 +1,6 @@
+/// Permanent registration claim; intentionally independent of the user lifecycle.
+model OwnerRegistration {
+  id Int @id
+
+  @@map("owner_registration")
+}

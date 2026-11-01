@@ -16,7 +16,7 @@ import {
   openHoldingsPage,
   selectHeroOption,
 } from './test-helpers';
-import { PrismaClient } from '../../generated/prisma';
+import { PrismaClient } from './database-client';
 
 const prisma = new PrismaClient();
 
@@ -77,7 +77,7 @@ test.describe('Per-product snapshots and history dialog', () => {
     expect(row.value).toBeGreaterThan(1000);
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
     expect(row.date.toISOString().slice(0, 10)).toBe(
       today.toISOString().slice(0, 10),
     );

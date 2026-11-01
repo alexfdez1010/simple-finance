@@ -4,7 +4,7 @@ A production-ready portfolio tracker built with Next.js 16, React 19, TypeScript
 
 Built following **SOLID principles** and enterprise-level best practices with comprehensive test coverage.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.2.6-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16.2.12-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19.1.0-blue)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)](https://www.typescriptlang.org/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.x-38bdf8)](https://tailwindcss.com/)
@@ -50,17 +50,12 @@ Runway & FIRE (`/dashboard/runway`) projects how long the current portfolio cove
 - **Evolution Chart** - Area chart showing last 30 days of portfolio value
 - **Daily Changes Chart** - Bar chart displaying day-to-day value changes
 - **Color-Coded Visualization** - Green bars for gains, red bars for losses
-- **Automated Data Collection** - Cron job creates daily snapshots at midnight UTC
+- **Automated Data Collection** - Cron job creates daily snapshots at 05:00 UTC
 - **Interactive Tooltips** - Hover to see detailed values and dates
 
-### 🔐 Password Protection
+### Account access and MCP
 
-- **Single-Password Authentication** - Simple password-based access control
-- **Cookie-Based Sessions** - Secure HttpOnly cookies with 365-day expiration
-- **SHA-256 Token Hashing** - Secure token generation and validation
-- **Route Protection** - All routes protected except auth page
-- **Smart Redirects** - Preserves intended destination after login
-- **Environment-Based** - Password stored in `PASSWORD` environment variable
+Better Auth provides email/password sign-in, revocable sessions and OAuth for MCP. Only the first account can register; the database permanently closes registration afterward. Connect assistants through OAuth at `/api/mcp/mcp` and approve their portfolio access in the browser.
 
 ### 🏗️ Technical Excellence
 
@@ -77,7 +72,7 @@ Runway & FIRE (`/dashboard/runway`) projects how long the current portfolio cove
 
 ### Frontend
 
-- **[Next.js 16.2.6](https://nextjs.org/docs)** - React framework with App Router and Server Components
+- **[Next.js 16.2.12](https://nextjs.org/docs)** - React framework with App Router and Server Components
 - **[React 19.1.0](https://react.dev/)** - Latest React with concurrent features
 - **[TypeScript 5.x](https://www.typescriptlang.org/)** - Strict type safety throughout
 - **[TailwindCSS 4.x](https://tailwindcss.com/)** - Utility-first styling and design tokens
@@ -98,8 +93,8 @@ Global color, spacing, typography, surface, and chart tokens live in `src/app/st
 
 ### Backend & Data
 
-- **[Prisma 6.7.0](https://www.prisma.io/)** - Type-safe ORM with PostgreSQL
-- **[PostgreSQL](https://www.postgresql.org/)** - Production-ready relational database
+- **[Prisma 6](https://www.prisma.io/)** - Type-safe financial repositories with the D1 adapter
+- **[Cloudflare D1](https://developers.cloudflare.com/d1/)** - SQLite financial and account storage
 - **[Yahoo Finance2](https://www.npmjs.com/package/yahoo-finance2)** - Real-time financial data
 - **[Zod 4.x](https://zod.dev/)** - Runtime schema validation
 - **[date-fns](https://date-fns.org/)** - Modern date manipulation
@@ -113,100 +108,20 @@ Global color, spacing, typography, surface, and chart tokens live in `src/app/st
 
 ### DevOps & Tools
 
-- **[Docker](https://www.docker.com/)** - Containerized PostgreSQL for development
+- **[Wrangler](https://developers.cloudflare.com/workers/wrangler/)** - Local D1 development and Worker deployment
 - **[ESLint](https://eslint.org/)** - Code linting with Next.js config
 - **[Prettier](https://prettier.io/)** - Automatic code formatting
 - **[Turbopack](https://turbo.build/pack)** - Fast development builds
 
-## 📋 Prerequisites
+## Local setup and authentication
 
-Before you begin, ensure you have the following installed:
+Use Bun and Node.js 22 or later. Run `bun install`, copy `.env.example` into `.env` and `.dev.vars`, set random secrets, run `bun run database`, then `bun run dev`. SQLite development data lives in Wrangler's local D1 state; Docker and PostgreSQL are no longer required.
 
-- **[Bun](https://bun.com/)** 1.3.x or higher (package manager + script runner)
-- **[Node.js](https://nodejs.org/)** 20.x or higher (Next.js runtime)
-- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (for PostgreSQL database)
-- **[Git](https://git-scm.com/)** for version control
+Open [the local app](http://localhost:3000). The first visitor creates the only account with name, email and a password of at least 12 characters. Later visits show email/password sign-in. Use **Sign out** to revoke the browser session.
 
-> Bun replaces npm for installs and script execution — faster cold installs, content-addressable cache, and stricter lockfile integrity (`bun.lock`). Install via `curl -fsSL https://bun.com/install | bash`.
+See [Cloudflare deployment and account access](docs/cloudflare-deployment.md) for configuration, OAuth discovery, cron, migration, validation and rollback commands.
 
-## 🚀 Quick Start
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/alexfdez1010/simple-finance.git
-cd simple-finance
-```
-
-### 2. Install Dependencies
-
-```bash
-bun install
-```
-
-This will install all required packages including Next.js, React, Prisma, and testing tools.
-
-### 3. Set Up Environment Variables
-
-```bash
-cp .env.example .env
-```
-
-The default configuration works out of the box:
-
-```env
-DATABASE_URL="postgresql://postgres:postgres@localhost:5434/db"
-PASSWORD="12345678"
-CRON_SECRET="your-secure-cron-token-here"
-```
-
-**Note:** Change the `PASSWORD` to your desired access password and the `CRON_SECRET` for secure cron job access. This protects all routes from unauthorized access and secures the snapshot API endpoint.
-
-### 4. Start the Database
-
-```bash
-bun run database
-```
-
-This starts a PostgreSQL container using Docker Compose. The database will be available at `localhost:5434`.
-
-### 5. Run Database Migrations
-
-Open a new terminal and run:
-
-```bash
-bun run database:dev
-```
-
-This creates the database schema and generates the Prisma client.
-
-### 6. Start the Development Server
-
-```bash
-bun run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser. You'll be prompted to enter the password (default: `12345678`). After authentication, you'll see the Simple Finance dashboard!
-
-### 7. Stop the Database (when done)
-
-```bash
-bun run database:down
-```
-
-## 🎬 Usage
-
-### Authentication
-
-When you first visit the application, you'll be redirected to the password page:
-
-1. Enter the password (default: `12345678`)
-2. Click **"Continue"**
-3. You'll be authenticated and redirected to the dashboard
-4. Your session is stored in a secure cookie for 30 days
-5. To logout, clear your browser cookies
-
-The password is stored in the `PASSWORD` environment variable for security.
+## Usage
 
 ### Adding a Yahoo Finance Product
 
@@ -249,78 +164,21 @@ Each product card shows:
 - Return amount and percentage
 - Purchase/investment date
 
-### Portfolio Charts & Cron Jobs
+### Portfolio charts and daily capture
 
-The application includes automated portfolio tracking with daily snapshots:
+Cloudflare captures daily snapshots at 05:00 UTC. Dates are stored at UTC midnight, and repeated captures update that day's record. The endpoint requires the independent `CRON_SECRET`; browser sessions and MCP tokens do not authorize cron calls.
 
-1. **Daily Snapshots** - Cron job creates portfolio value snapshots at midnight UTC
-2. **Evolution Chart** - View last 30 days of portfolio value trends
-3. **Daily Changes Chart** - See day-to-day value changes with color coding
+## Available commands
 
-Yahoo quotes are attempted up to three times with exponential backoff during a
-snapshot run. If any required quote remains unavailable, the run returns 503
-and writes neither product nor portfolio rows for that date. This keeps a
-temporary provider failure from becoming a false zero-value loss. Vercel does
-not retry failed cron invocations, so retries are handled inside the route.
-
-**Setting up Cron Jobs:**
-
-```bash
-# cURL command for testing
-curl -X POST http://localhost:3000/api/cron/snapshot \
-  -H "Authorization: Bearer your-secure-cron-token-here"
-
-# Cron expression for midnight UTC daily
-0 0 * * *
-```
-
-**Supported Cron Services:**
-
-- Vercel Cron Jobs
-- GitHub Actions
-- EasyCron / Cron-job.org
-- Railway Cron Jobs
-
-## 📜 Available Scripts
-
-### Development Commands
-
-| Command          | Description                                                    |
-| ---------------- | -------------------------------------------------------------- |
-| `bun run dev`    | Start development server with Turbopack (auto-starts database) |
-| `bun run build`  | Build optimized production bundle                              |
-| `bun run start`  | Start production server                                        |
-| `bun run launch` | Build and start with database                                  |
-
-### Testing Commands
-
-| Command                    | Description                                          |
-| -------------------------- | ---------------------------------------------------- |
-| `bun test`                 | Run all tests (unit + integration + E2E)             |
-| `bun run test:unit`        | Run unit tests with Vitest                           |
-| `bun run test:integration` | Run integration tests                                |
-| `bun run test:e2e`         | Run E2E tests with Playwright (auto-manages test DB) |
-| `bun run playwright`       | Open Playwright UI for debugging tests               |
-
-### Database Commands
-
-| Command                   | Description                             |
-| ------------------------- | --------------------------------------- |
-| `bun run database`        | Start PostgreSQL container              |
-| `bun run database:down`   | Stop and remove database container      |
-| `bun run database:dev`    | Create and run migrations (development) |
-| `bun run database:deploy` | Deploy migrations (production)          |
-| `bun run database:studio` | Open Prisma Studio (database GUI)       |
-| `bun run database:create` | Generate Prisma client and push schema  |
-
-### Code Quality Commands
-
-| Command               | Description                          |
-| --------------------- | ------------------------------------ |
-| `bun run lint`        | Run ESLint and Prisma format check   |
-| `bun run format`      | Format all code with Prettier        |
-| `bun run lint-format` | Lint and format (run before commits) |
-| `bun run pre-commit`  | Run all tests + lint + format        |
+- `bun run dev` starts Next.js with local Cloudflare bindings
+- `bun run database` applies SQLite migrations locally
+- `bun run database:deploy` applies D1 migrations remotely
+- `bun run build:cloudflare` builds the Worker with OpenNext
+- `bun run preview` starts the built Worker locally
+- `bun run deploy` builds and deploys to Cloudflare
+- `bun run lint-format` runs ESLint, Prisma formatting and Prettier
+- `bun run test:unit` runs isolated unit tests
+- `bun run test:e2e` starts the local app and runs Playwright
 
 ## 🏗️ Project Structure
 
@@ -483,27 +341,15 @@ bun run test:e2e
 
 **Technologies:** Playwright, Chromium
 
-### Test Database
+### Test database
 
-E2E tests use an isolated test database that is automatically:
-
-- Created before tests run
-- Cleaned between test runs (via `global-setup.ts`)
-- Destroyed after tests complete
-
-### Running All Tests
-
-```bash
-bun run test
-```
-
-This runs unit tests, integration tests, and E2E tests sequentially.
+E2E fixtures use only Wrangler's local SQLite database. Run `bun run database` before the suite. Tests provision a local owner through Better Auth and replace financial fixtures; they never connect to production D1. See [validation and host requirements](docs/cloudflare-deployment.md).
 
 ## 🗄️ Database Schema
 
 ### Models
 
-The database uses a **polymorphic design** with Prisma and PostgreSQL:
+The database uses a **polymorphic design** with Prisma and SQLite:
 
 **FinancialProduct** (Base table)
 
@@ -567,15 +413,9 @@ Where:
 A = 1000 × (1 + 0.055/365)^365 = €1,056.54
 ```
 
-### Database Migrations
+### Database migrations
 
-```bash
-# Create a new migration after schema changes
-bun run database:dev
-
-# View database in GUI
-bun run database:studio
-```
+D1 SQLite migrations live in `migrations/` and are applied with Wrangler. Prisma schema files describe the same financial and authentication tables. The original PostgreSQL history remains in `prisma/migrations/` only for rollback to the previous deployment.
 
 ## 🏛️ Architecture
 
@@ -609,62 +449,9 @@ This project follows **Clean Architecture** principles with clear separation of 
 - **Server Actions** - Modern Next.js data mutations
 - **Server Components** - Server-side rendering with data fetching
 
-## 🚀 Deployment
+## Deployment
 
-### Environment Variables
-
-Required environment variables:
-
-```env
-DATABASE_URL="postgresql://user:password@host:5434/database"
-PASSWORD="your-secure-password-here"
-CRON_SECRET="your-secure-cron-token-here"
-```
-
-### Production Build
-
-```bash
-# Build optimized bundle
-bun run build
-
-# Start production server
-bun run start
-```
-
-### Authentication Setup
-
-For production deployment, ensure the `PASSWORD` environment variable is set securely:
-
-```env
-PASSWORD="your-secure-password-here"
-```
-
-**Security Best Practices:**
-
-- Use a strong, unique password (minimum 12 characters recommended)
-- Use a secure CRON_SECRET (minimum 32 characters, random string)
-- Store in environment variables, never in code
-- Use your platform's secrets management (Vercel Secrets, Railway Variables, etc.)
-- Change password and tokens periodically
-- Use HTTPS in production (enforced by secure cookie flag)
-
-### Deployment Platforms
-
-This application can be deployed to:
-
-- **[Vercel](https://vercel.com/)** - Recommended (built by Next.js creators)
-- **[Railway](https://railway.app/)** - Easy PostgreSQL + Node.js hosting
-- **[Fly.io](https://fly.io/)** - Docker-based deployment
-- **[AWS](https://aws.amazon.com/)** / **[GCP](https://cloud.google.com/)** - Enterprise solutions
-
-### Database Hosting
-
-For production PostgreSQL:
-
-- **[Vercel Postgres](https://vercel.com/storage/postgres)** - Serverless PostgreSQL
-- **[Supabase](https://supabase.com/)** - Open-source Firebase alternative
-- **[Neon](https://neon.tech/)** - Serverless PostgreSQL
-- **[Railway](https://railway.app/)** - Simple PostgreSQL hosting
+Production uses Cloudflare Workers, OpenNext, D1 SQLite and KV. The domain is [Simple Finance](https://finance.alejandrofernandezcamello.me). Follow [deployment and rollback](docs/cloudflare-deployment.md) for secrets, migrations, OAuth and the 05:00 UTC cron. Import financial data afterward from Holdings.
 
 ## 🤝 Contributing
 
@@ -714,8 +501,6 @@ This project is open source and available under the [MIT License](LICENSE).
 - Built following enterprise best practices
 - Inspired by modern financial tracking applications
 - Uses best-in-class open source technologies
-
----
 
 **⭐ If you find this project useful, please consider giving it a star on GitHub!**
 

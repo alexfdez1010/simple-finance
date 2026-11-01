@@ -28,7 +28,7 @@ Use `computeSafeRunwayProjection(products, settings)` at rendering boundaries to
 
 The initial `20261101140000_add_runway_settings` migration creates the singleton settings table. `20261101150000_retire_fire_assumptions` adds defaults for legacy income, withdrawal and deadline columns, allowing the new three-field insert without deleting stored data. Legacy columns remain only for rollback compatibility and are excluded from active reads and writes. Their values have no effect on either simulation. Holdings and snapshots are unchanged.
 
-The existing Vercel production pipeline runs Prisma generation, the Next.js build and `database:deploy` before promotion. Outside that pipeline, regenerate the Prisma client and run `bun run database:deploy` against the intended database before serving this revision.
+Production now runs on Cloudflare Workers and D1 SQLite. Run `bun run database:deploy` to apply D1 migrations, then `bun run deploy` to generate Prisma types, build with OpenNext and publish the Worker. See [Cloudflare deployment](cloudflare-deployment.md).
 
 ## Design and maintenance decisions
 

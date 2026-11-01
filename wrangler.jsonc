@@ -1,0 +1,52 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "simple-finance",
+  "main": "worker.ts",
+  "account_id": "5e11425b8b8df86d50d3fa7c0c7cd4db",
+  "compatibility_date": "2026-10-30",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS",
+  },
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "simple-finance",
+    },
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "simple-finance",
+      "database_id": "f5265f44-d077-4ddd-91cc-8eaed42f536e",
+      "migrations_dir": "migrations",
+    },
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "https://finance.alejandrofernandezcamello.me",
+  },
+  "triggers": {
+    "crons": ["0 5 * * *"],
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "workers_dev": true,
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "be614e6e36924d2aa1bd10b2936c2670",
+    },
+  ],
+  "routes": [
+    {
+      "pattern": "finance.alejandrofernandezcamello.me",
+      "custom_domain": true,
+      "zone_id": "bdb8bcd3fed8238371dc7bf71e8c2101",
+    },
+  ],
+  "dev": {
+    "port": 3000,
+  },
+}

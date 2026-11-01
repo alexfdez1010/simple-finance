@@ -10,13 +10,11 @@
  */
 
 import { unstable_cache } from 'next/cache';
-import YahooFinance from 'yahoo-finance2';
+import { createYahooClient } from '@/lib/infrastructure/yahoo-finance/client';
 import {
   computeAnnualGeomReturn,
   samplesFromChartQuotes,
 } from '@/lib/domain/services/yahoo-expected-return';
-
-const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 const ONE_DAY_SECONDS = 24 * 60 * 60;
 
@@ -26,7 +24,7 @@ const fetchExpectedReturn = unstable_cache(
       const end = new Date();
       const start = new Date();
       start.setFullYear(end.getFullYear() - 5);
-      const result = await yahooFinance.chart(symbol, {
+      const result = await createYahooClient().chart(symbol, {
         period1: start,
         period2: end,
         interval: '1mo',

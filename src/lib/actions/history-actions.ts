@@ -14,6 +14,7 @@
 
 'use server';
 
+import { requireAuthentication } from '@/lib/auth/auth-utils';
 import { findProductById } from '@/lib/infrastructure/database/product-repository';
 import { findProductSnapshots } from '@/lib/infrastructure/database/product-snapshot-repository';
 import { fetchYahooQuoteServer } from '@/lib/infrastructure/yahoo-finance/server-client';
@@ -59,6 +60,7 @@ export async function getProductHistoryAction(
   productId: string,
 ): Promise<ProductHistoryResult | null> {
   try {
+    await requireAuthentication();
     const product = await findProductById(productId);
     if (!product) return null;
 

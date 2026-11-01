@@ -7,7 +7,7 @@ import {
 import { fetchYahooQuoteWithRetryServer } from '@/lib/infrastructure/yahoo-finance/server-client';
 import { upsertPortfolioSnapshot } from '@/lib/infrastructure/database/portfolio-snapshot-repository';
 import { upsertProductSnapshot } from '@/lib/infrastructure/database/product-snapshot-repository';
-import { generateAuthToken } from '@/lib/auth/auth-utils';
+import { createHash, timingSafeEqual } from 'node:crypto';
 
 /**
  * API endpoint to create a daily portfolio snapshot.
@@ -38,7 +38,12 @@ export async function GET(request: NextRequest) {
 
     const token = authHeader.substring(7);
 
-    if (generateAuthToken(token) !== generateAuthToken(expectedToken)) {
+    if (
+      !timingSafeEqual(
+        createHash('sha256').update(token).digest(),
+        createHash('sha256').update(expectedToken).digest(),
+      )
+    ) {
       return NextResponse.json(
         { error: 'Invalid authorization token' },
         { status: 401 },
@@ -66,7 +71,7 @@ export async function GET(request: NextRequest) {
       totalInvestment > 0 ? (totalReturn / totalInvestment) * 100 : 0;
 
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setUTCHours(0, 0, 0, 0);
 
     await Promise.all(
       enriched.map((p) =>

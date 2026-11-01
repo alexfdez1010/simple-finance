@@ -5,7 +5,7 @@
  * @module infrastructure/yahoo-finance/server-client
  */
 
-import YahooFinance from 'yahoo-finance2';
+import { createYahooClient } from '@/lib/infrastructure/yahoo-finance/client';
 import { convertToEur } from '@/lib/domain/services/currency-converter';
 
 /**
@@ -28,9 +28,6 @@ export interface YahooQuoteRetryOptions {
   fetchQuote?: (symbol: string) => Promise<YahooQuote | null>;
   wait?: (milliseconds: number) => Promise<void>;
 }
-
-// Create a single instance to reuse
-const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 /** Resolves after a delay between retry attempts. */
 function wait(milliseconds: number): Promise<void> {
@@ -55,7 +52,7 @@ export async function fetchYahooQuoteServer(
 
   try {
     // Use yahoo-finance2 library which handles authentication
-    const quote = await yahooFinance.quote(symbol);
+    const quote = await createYahooClient().quote(symbol);
 
     if (!quote || quote.regularMarketPrice === undefined) {
       console.error(`No price data available for symbol: ${symbol}`);

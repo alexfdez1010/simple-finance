@@ -6,6 +6,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireAuthentication } from '@/lib/auth/auth-utils';
 import {
   createYahooFinanceProduct,
   findAllProducts,
@@ -50,6 +51,7 @@ export async function createYahooProduct(
   daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
+    await requireAuthentication();
     const input: CreateYahooFinanceProductInput = {
       name,
       symbol: symbol.toUpperCase(),
@@ -79,6 +81,7 @@ export async function createYahooProduct(
  */
 export async function getProducts(): Promise<FinancialProduct[]> {
   try {
+    await requireAuthentication();
     return await findAllProducts();
   } catch (error) {
     console.error('Failed to get products:', error);
@@ -94,6 +97,7 @@ export async function updateProductQuantityAction(
   quantity: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAuthentication();
     await updateProductQuantity({ productId, quantity });
     revalidatePath('/dashboard', 'layout');
     return { success: true };
@@ -114,6 +118,7 @@ export async function deleteProductAction(
   productId: string,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAuthentication();
     await deleteProduct(productId);
     revalidatePath('/dashboard', 'layout');
     return { success: true };
@@ -134,6 +139,7 @@ export async function getProduct(
   productId: string,
 ): Promise<FinancialProduct | null> {
   try {
+    await requireAuthentication();
     return await findProductById(productId);
   } catch (error) {
     console.error('Failed to get product:', error);
@@ -154,6 +160,7 @@ export async function updateYahooProductAction(
   daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAuthentication();
     const input: UpdateYahooFinanceProductInput = {
       productId,
       name,
@@ -184,5 +191,6 @@ export async function updateYahooProductAction(
 export async function validateYahooSymbol(
   symbol: string,
 ): Promise<YahooQuote | null> {
+  await requireAuthentication();
   return await fetchYahooQuoteServer(symbol);
 }

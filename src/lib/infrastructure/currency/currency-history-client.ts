@@ -17,13 +17,11 @@
  */
 
 import { unstable_cache } from 'next/cache';
-import YahooFinance from 'yahoo-finance2';
+import { createYahooClient } from '@/lib/infrastructure/yahoo-finance/client';
 import {
   computeAnnualGeomReturn,
   samplesFromChartQuotes,
 } from '@/lib/domain/services/yahoo-expected-return';
-
-const yahooFinance = new YahooFinance({ suppressNotices: ['yahooSurvey'] });
 
 const ONE_DAY_SECONDS = 24 * 60 * 60;
 const HISTORY_LOOKBACK_DAYS = 7;
@@ -64,7 +62,7 @@ const fetchHistoricalRateForTicker = unstable_cache(
     try {
       const { start, end } = historicalWindow(dateKey);
       const cutoff = new Date(`${dateKey}T23:59:59.999Z`).getTime();
-      const result = await yahooFinance.chart(ticker, {
+      const result = await createYahooClient().chart(ticker, {
         period1: start,
         period2: end,
         interval: '1d',
@@ -88,7 +86,7 @@ const fetchGeomeanForTicker = unstable_cache(
       const end = new Date();
       const start = new Date();
       start.setFullYear(end.getFullYear() - 5);
-      const result = await yahooFinance.chart(ticker, {
+      const result = await createYahooClient().chart(ticker, {
         period1: start,
         period2: end,
         interval: '1mo',

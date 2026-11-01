@@ -1,28 +1,28 @@
-/**
- * Global setup for E2E tests
- * Cleans the database before running tests
- * @module tests/e2e/global-setup
- */
+import { request } from '@playwright/test';
+import { PrismaClient } from './database-client';
+import { testCredentials } from './auth-helper';
 
-import { PrismaClient } from '../../generated/prisma';
-
-/**
- * Global setup function
- * Cleans all products from the database before tests run
- */
-async function globalSetup() {
+/** Cleans local financial fixtures and creates the sole test owner through Better Auth when needed. */
+export default async function globalSetup() {
   const prisma = new PrismaClient();
-
   try {
-    await prisma.runwaySettings.deleteMany({});
-    // Clean up all products before running tests
-    await prisma.financialProduct.deleteMany({});
-    console.log('✓ Database cleaned successfully');
-  } catch (error) {
-    console.error('Failed to clean database:', error);
+    await prisma.rateLimit.deleteMany();
+    await prisma.runwaySettings.deleteMany();
+    await prisma.financialProduct.deleteMany();
+    await prisma.portfolioSnapshot.deleteMany();
+    const ctx = await request.newContext();
+    if (!(await prisma.user.count())) {
+      const result = await ctx.post(
+        'http://localhost:3000/api/auth/sign-up/email',
+        {
+          data: { ...testCredentials, name: 'Test Owner' },
+          headers: { origin: 'http://localhost:3000' },
+        },
+      );
+      if (!result.ok()) throw new Error(await result.text());
+    }
+    await ctx.dispose();
   } finally {
     await prisma.$disconnect();
   }
 }
-
-export default globalSetup;

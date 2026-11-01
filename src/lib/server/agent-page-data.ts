@@ -1,7 +1,6 @@
 import 'server-only';
 import { headers } from 'next/headers';
-import { expectedMcpToken } from '@/lib/mcp/auth';
-import { TOKEN_ENV_VAR, buildMcpJson } from '@/lib/mcp/skill';
+import { buildMcpJson } from '@/lib/mcp/skill';
 
 /**
  * Resolves authenticated MCP connection details for the agent setup page only.
@@ -21,8 +20,6 @@ export async function loadAgentPage() {
   const serverUrl = `${protocol}://${host}/api/mcp/mcp`;
   return {
     serverUrl,
-    token: expectedMcpToken(),
     mcpJson: buildMcpJson(serverUrl),
-    tokenEnvVar: TOKEN_ENV_VAR,
   };
 }

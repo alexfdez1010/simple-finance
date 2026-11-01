@@ -2,18 +2,18 @@
 
 ## Project Overview
 
-Simple Finance is a **portfolio tracking application** built with **Next.js 16 (App Router)**, **React 19**, **TypeScript 5**, **TailwindCSS 4**, and **Prisma 6** with PostgreSQL. It tracks financial products from Yahoo Finance and custom fixed-rate investments.
+Simple Finance is a **portfolio tracking application** built with **Next.js 16 (App Router)**, **React 19**, **TypeScript 5**, **TailwindCSS 4**, and **Prisma 6** with Cloudflare D1 SQLite. It tracks financial products from Yahoo Finance and custom fixed-rate investments.
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 with App Router, Server Components, Server Actions
 - **Language:** TypeScript 5 (strict mode)
-- **Styling:** TailwindCSS 4 + shadcn/ui (new-york style)
-- **Database:** PostgreSQL via Prisma 6 ORM
+- **Styling:** TailwindCSS 4 with existing HeroUI 3 components
+- **Database:** Cloudflare D1 SQLite; Prisma WASM client for repositories and native D1 batches for atomic multi-row writes
 - **Charts:** Recharts 2
 - **Validation:** Zod 4
 - **Testing:** Vitest (unit) + Playwright (E2E)
-- **Auth:** Single-password with HttpOnly cookie
+- **Auth:** Better Auth email/password sessions, permanent first-owner registration claim, MCP OAuth with PKCE
 
 ## Architecture
 
@@ -41,7 +41,7 @@ This project uses **Bun** (>=1.3) as the package manager and script runner. Use 
 - `bun run test:unit` — Run unit tests (Vitest)
 - `bun run test:e2e` — Run E2E tests (Playwright, requires Docker)
 - `bun run database` — Start PostgreSQL via Docker Compose
-- `bun run database:studio` — Open Prisma Studio
+- `bun run preview` — Build and open the Worker with its local D1 explorer
 
 ## Code Standards (from AGENTS.md)
 
@@ -62,3 +62,18 @@ This project uses **Bun** (>=1.3) as the package manager and script runner. Use 
 - Currency formatting: `es-ES` locale, EUR
 - Server Components by default, `'use client'` only when needed
 - Server Actions for mutations with path revalidation
+
+## Cloudflare migration decisions
+
+Migration date: 2026-11-01. Production uses Workers/OpenNext, D1 `simple-finance` in Western Europe, and KV for market-data caching. Canonical origin: `https://finance.alejandrofernandezcamello.me`. See `docs/cloudflare-deployment.md` for commands, OAuth discovery, backup behavior and rollback.
+
+- Import Prisma through `generated/cloudflare/client` in the Worker, generated with `runtime = "workerd"`. The separate Node client remains for fixtures and schema tools. The Node entry tries to read WASM from the filesystem, which fails in workerd. Never retain a request-bound D1 client across requests.
+- Better Auth uses its native D1 adapter. The Prisma auth adapter's conditional mutations can invoke unsupported interactive transactions even with its transaction option disabled.
+- D1 `batch()` supplies atomicity for financial backup replacement and multi-row product writes. Prisma D1 transaction calls do not provide that guarantee. Bounded JSON import chunks preserve the existing version 1 backup format.
+- The database trigger permanently closes registration after the first owner and survives account deletion or empty financial imports. Do not seed a production test account.
+- MCP uses signed, scoped, resource-bound OAuth tokens. No `PASSWORD`, SHA-256 session cookie or static MCP token remains. Better Auth's browser client performs OAuth response redirects itself; do not navigate twice.
+- The snapshot cron is `0 5 * * *` (05:00 UTC), with UTC-midnight date keys. Disable the Vercel cron during cutover and retain old infrastructure for rollback.
+- Local `.env`, `.dev.vars`, `.env.cloudflare.production` and `.env.pre-cloudflare` contain credentials or private configuration and must remain ignored. E2E fixtures only access Wrangler's local SQLite state.
+- Generate binding types without Worker runtime globals to avoid overriding browser DOM types. `allowJs` stays false so TypeScript does not analyze the generated OpenNext bundle.
+
+- Yahoo Finance clients are request-local too. Reusing a global client retains crumb/cookie fetch I/O and causes cross-request errors in workerd. `createYahooClient()` creates each network client's lifetime; only plain market-data results are cached in KV.

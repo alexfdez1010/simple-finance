@@ -54,7 +54,7 @@ Validation: lint/format, production build/TypeScript, all 168 unit tests and all
 
 ## Verification
 
-Run `bun run lint-format`, `bun run test:unit`, and `bun run build`. End-to-end tests include portfolio insight calculations, analytics navigation, product search and sorting, editing, and mobile overflow checks. Run the Playwright suite against the isolated database from `compose-test.yml`, with `DATABASE_URL` pointing to port 5434 and the server and tests sharing test authentication settings. The suite clears its target database.
+Run `bun run lint-format`, `bun run test:unit`, and `bun run build`. End-to-end tests include portfolio insight calculations, analytics navigation, product search and sorting, editing, and mobile overflow checks. Run the Playwright suite against Wrangler’s local SQLite database after `bun run database`. The suite clears local financial fixtures and signs in through Better Auth. Production D1 is never used by tests.
 
 ## References
 

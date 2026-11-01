@@ -19,8 +19,8 @@ describe('agent setup request data', () => {
     const data = await loadAgentPage();
     expect(data.serverUrl).toBe('https://portfolio.example.com/api/mcp/mcp');
     expect(data.mcpJson).toContain(data.serverUrl);
-    expect(data.token).toBe('test-credential');
-    expect(data.tokenEnvVar).toBe('SIMPLE_FINANCE_TOKEN');
+    expect(data).not.toHaveProperty('token');
+    expect(data.mcpJson).not.toContain('Authorization');
   });
   it('uses the local HTTP endpoint without forwarded headers', async () => {
     request.headers.mockResolvedValue(new Headers({ host: 'localhost:3000' }));

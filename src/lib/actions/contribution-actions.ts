@@ -7,6 +7,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireAuthentication } from '@/lib/auth/auth-utils';
 import { deleteContribution } from '@/lib/infrastructure/database/contribution-repository';
 import {
   addContributionWithEurBasis,
@@ -47,6 +48,7 @@ export async function addContributionAction(
   note?: string | null,
 ): Promise<ActionResult> {
   try {
+    await requireAuthentication();
     assertNotFuture(date);
     const created = await addContributionWithEurBasis({
       customProductDataId,
@@ -71,6 +73,7 @@ export async function updateContributionAction(
   note?: string | null,
 ): Promise<ActionResult> {
   try {
+    await requireAuthentication();
     assertNotFuture(date);
     await updateContributionWithEurBasis({ id, amount, date, note });
     revalidatePath('/dashboard', 'layout');
@@ -87,6 +90,7 @@ export async function deleteContributionAction(
   id: string,
 ): Promise<ActionResult> {
   try {
+    await requireAuthentication();
     await deleteContribution(id);
     revalidatePath('/dashboard', 'layout');
     return { success: true };

@@ -1,30 +1,17 @@
-/**
- * Prisma client singleton instance
- * @module infrastructure/database/prisma-client
- */
+import { PrismaD1 } from '@prisma/adapter-d1';
+import { PrismaClient } from '../../../../generated/cloudflare/client';
+import { getDatabase } from '@/lib/cloudflare/context';
 
-import { PrismaClient } from '../../../../generated/prisma';
-
-/**
- * Global Prisma client instance to prevent multiple instances in development
- */
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-/**
- * Singleton Prisma client instance
- * Reuses the same instance in development to avoid connection exhaustion
- */
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log:
-      process.env.NODE_ENV === 'development'
-        ? ['query', 'error', 'warn']
-        : ['error'],
-  });
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
+/** Builds a request-bound client; D1 bindings cannot be shared across requests. */
+function createClient(): PrismaClient {
+  return new PrismaClient({ adapter: new PrismaD1(getDatabase()) });
 }
+
+/** Lazily resolves D1 for existing repositories without doing I/O during module evaluation. */
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, property) {
+    const client = createClient();
+    const value = Reflect.get(client, property);
+    return typeof value === 'function' ? value.bind(client) : value;
+  },
+});

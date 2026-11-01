@@ -33,7 +33,7 @@ export default async function RootLayout({
 }>) {
   const headersList = await headers();
   const pathname = headersList.get('x-pathname') || '/';
-  const isAuthPage = pathname === '/auth';
+  const isAuthPage = pathname.split('?')[0] === '/auth';
 
   return (
     <html lang="en" data-theme="light">

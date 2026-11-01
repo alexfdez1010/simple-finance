@@ -5,17 +5,15 @@
  * @module tests/e2e/mcp.spec
  */
 
-import { createHash } from 'node:crypto';
-import { config as loadEnv } from 'dotenv';
 import { test, expect, request } from '@playwright/test';
 import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 
-loadEnv();
+import { loginTestUser } from './auth-helper';
+import { oauthTokens } from './oauth-helper';
 
-const PASSWORD = process.env.PASSWORD ?? '12345678';
 const MCP_URL = 'http://localhost:3000/api/mcp/mcp';
-const TOKEN = createHash('sha256').update(PASSWORD).digest('hex');
+let TOKEN: string;
 
 const TOOL_NAMES = [
   'list_assets',
@@ -66,6 +64,10 @@ test('MCP rejects missing or wrong bearer tokens with 401', async () => {
 });
 
 test('MCP exposes catalog and supports add/list/update/delete for both asset types', async () => {
+  const context = await request.newContext();
+  await loginTestUser(context);
+  TOKEN = (await oauthTokens(context)).access_token;
+  await context.dispose();
   const transport = new StreamableHTTPClientTransport(new URL(MCP_URL), {
     requestInit: { headers: { Authorization: `Bearer ${TOKEN}` } },
   });

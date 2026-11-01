@@ -4,12 +4,12 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   ChartLineUp,
-  LockSimple,
   SquaresFour,
   Wallet,
   PlugsConnected,
   HourglassSimple,
 } from '@phosphor-icons/react';
+import { SignOutButton } from '@/components/auth/sign-out-button';
 import { cn } from '@/lib/utils';
 import { useNavigationIndicator } from './use-navigation-indicator';
 
@@ -82,11 +82,8 @@ export function WorkspaceNavigation() {
           );
         })}
       </nav>
-      <div className="mt-auto hidden px-5 pb-6 pt-12 lg:block">
-        <div className="mt-6 flex items-center gap-2.5 px-2 text-muted-foreground">
-          <LockSimple aria-hidden size={16} />
-          <span className="text-xs">Your private portfolio</span>
-        </div>
+      <div className="absolute right-4 top-5 lg:static lg:mt-auto lg:px-6 lg:pb-6 lg:pt-12">
+        <SignOutButton />
       </div>
     </aside>
   );

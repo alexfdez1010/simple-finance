@@ -1,77 +1,79 @@
-import { Prisma } from '../../../../generated/prisma';
-import { prisma } from './prisma-client';
+import { getDatabase } from '@/lib/cloudflare/context';
 import { backupSchema, type FinanceBackup } from '@/lib/backup/backup-schema';
 import type { DisplayCurrency } from '@/lib/utils/format-currency';
+import { backupTables, portableRow } from './backup-tables';
+import { backupChunks } from './backup-chunks';
 
 /**
- * Reads all persisted records from one consistent snapshot without changing them.
- * @param displayCurrency - Browser preference to carry to another installation.
- * @returns A versioned copy preserving IDs, nulls, precision and timestamps; empty tables remain empty.
- * @throws On database errors or stored records incompatible with the portable format.
+ * Exports financial tables from a single atomic D1 batch, excluding accounts and OAuth secrets.
+ * @param displayCurrency - Browser preference included in the existing version 1 format.
+ * @returns Validated portable copy; throws on database or schema errors without mutations.
  */
 export async function exportBackup(
   displayCurrency: DisplayCurrency,
 ): Promise<FinanceBackup> {
-  const data = await prisma.$transaction(
-    async (tx) => ({
-      products: await tx.financialProduct.findMany({ orderBy: { id: 'asc' } }),
-      yahoo: await tx.yahooFinanceData.findMany({ orderBy: { id: 'asc' } }),
-      custom: await tx.customProductData.findMany({ orderBy: { id: 'asc' } }),
-      contributions: await tx.customProductContribution.findMany({
-        orderBy: { id: 'asc' },
-      }),
-      productSnapshots: await tx.productSnapshot.findMany({
-        orderBy: { id: 'asc' },
-      }),
-      portfolioSnapshots: await tx.portfolioSnapshot.findMany({
-        orderBy: { id: 'asc' },
-      }),
-      runwaySettings: await tx.runwaySettings.findMany({
-        orderBy: { id: 'asc' },
-      }),
-    }),
-    { isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead },
-  );
-  return backupSchema.parse(
-    JSON.parse(
-      JSON.stringify({
-        format: 'simple-finance-backup',
-        version: 1,
-        exportedAt: new Date().toISOString(),
-        preferences: { displayCurrency },
-        data,
-      }),
+  const db = getDatabase();
+  const entries = Object.entries(backupTables);
+  const results = await db.batch<Record<string, unknown>>(
+    entries.map(([, table]) =>
+      db.prepare(`SELECT * FROM "${table}" ORDER BY id ASC`),
     ),
   );
+  return backupSchema.parse({
+    format: 'simple-finance-backup',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    preferences: { displayCurrency },
+    data: Object.fromEntries(
+      entries.map(([key], index) => [
+        key,
+        results[index].results.map(portableRow),
+      ]),
+    ),
+  });
 }
 
 /**
- * Revalidates and replaces all app records in one transaction, including empty collections.
- * @param input - Complete portable copy; rejected before mutation if invalid.
- * @returns Resolves after commit; any failed write rolls back the entire replacement.
- * Locks app tables against concurrent writes; never calls market-data services.
+ * Validates before replacing financial data in one D1 batch transaction, preserving the account.
+ * @param input - Complete version 1 backup, including empty collections.
+ * @returns Resolves only after the atomic commit; any failed statement rolls everything back.
  */
 export async function restoreBackup(input: FinanceBackup): Promise<void> {
   const { data } = backupSchema.parse(input);
-  await prisma.$transaction(
-    async (tx) => {
-      // Serialize replacement against product edits and scheduled historical captures.
-      await tx.$executeRaw`LOCK TABLE financial_products, yahoo_finance_data, custom_product_data,
-      custom_product_contributions, product_snapshots, portfolio_snapshots, runway_settings
-      IN EXCLUSIVE MODE`;
-      await tx.financialProduct.deleteMany();
-      await tx.portfolioSnapshot.deleteMany();
-      await tx.runwaySettings.deleteMany();
-      await tx.financialProduct.createMany({ data: data.products });
-      await tx.yahooFinanceData.createMany({ data: data.yahoo });
-      await tx.customProductData.createMany({ data: data.custom });
-      await tx.customProductContribution.createMany({
-        data: data.contributions,
-      });
-      await tx.productSnapshot.createMany({ data: data.productSnapshots });
-      await tx.portfolioSnapshot.createMany({ data: data.portfolioSnapshots });
-      await tx.runwaySettings.createMany({ data: data.runwaySettings });
-    },
-    { timeout: 60_000 },
-  );
+  const db = getDatabase();
+  const statements = [
+    db.prepare('DELETE FROM financial_products'),
+    db.prepare('DELETE FROM portfolio_snapshots'),
+    db.prepare('DELETE FROM runway_settings'),
+  ];
+  for (const [key, table] of Object.entries(backupTables)) {
+    const records = data[key as keyof typeof data];
+    if (!records.length) continue;
+    const columns = Object.keys(records[0]);
+    // One bound JSON argument avoids D1's 100-parameter limit for large histories.
+    const select = columns
+      .map((column) => `json_extract(value, '$.${column}')`)
+      .join(', ');
+    const names = columns.map((column) => `"${column}"`).join(', ');
+    const normalized = records.map((record) =>
+      Object.fromEntries(
+        Object.entries(record).map(([column, value]) => [
+          column,
+          typeof value === 'string' &&
+          ['date', 'purchaseDate', 'createdAt', 'updatedAt'].includes(column)
+            ? value.replace('Z', '+00:00')
+            : value,
+        ]),
+      ),
+    );
+    for (const chunk of backupChunks(normalized))
+      statements.push(
+        db
+          .prepare(
+            `INSERT INTO "${table}" (${names}) SELECT ${select} FROM json_each(?)`,
+          )
+          .bind(chunk),
+      );
+  }
+  await db.batch(statements);
 }

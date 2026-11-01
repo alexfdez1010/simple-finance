@@ -3,6 +3,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireAuthentication } from '@/lib/auth/auth-utils';
 import type { CreateCustomProductInput } from '@/lib/domain/models/product.types';
 import {
   DEFAULT_ASSET_CATEGORY,
@@ -30,6 +31,7 @@ export async function createCustomProductAction(
   daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
+    await requireAuthentication();
     const firstMovement: Omit<
       CreateCustomProductInput['firstMovement'],
       'amountEur'
@@ -71,6 +73,7 @@ export async function updateCustomProductAction(
   daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    await requireAuthentication();
     await updateCustomProduct({
       productId,
       name,
