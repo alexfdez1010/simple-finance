@@ -21,9 +21,11 @@ export function PageHeading({
         <h1 className="text-[28px] leading-tight font-semibold tracking-[-0.035em] sm:text-[34px]">
           {title}
         </h1>
-        <p className="mt-2 max-w-prose text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
-          {description}
-        </p>
+        {description && (
+          <p className="mt-2 max-w-prose text-[13px] leading-relaxed text-muted-foreground sm:text-sm">
+            {description}
+          </p>
+        )}
       </div>
       {actions && (
         <div className="flex shrink-0 flex-wrap items-center gap-2">

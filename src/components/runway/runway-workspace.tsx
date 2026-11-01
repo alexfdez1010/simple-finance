@@ -68,43 +68,43 @@ export function RunwayWorkspace({
 
   return (
     <div className="space-y-6">
-      <div className="grid items-start gap-6 xl:grid-cols-[300px_minmax(0,1fr)]">
-        <form
-          onChange={preview}
-          onSubmit={save}
-          className="finance-card p-5 sm:p-6"
+      <form
+        onChange={preview}
+        onSubmit={save}
+        className="finance-card p-5 sm:p-6"
+      >
+        <fieldset disabled={pending} className="min-w-0">
+          <legend className="sr-only">Your monthly cost</legend>
+          <RunwayFields
+            settings={settings}
+            actions={
+              <Button
+                type="submit"
+                disabled={pending || !draft || !dirty}
+                className="h-12 w-full px-6 lg:w-auto"
+              >
+                {pending ? 'Saving…' : 'Save settings'}
+              </Button>
+            }
+          />
+        </fieldset>
+        <p
+          role="status"
+          className={
+            message || dirty ? 'mt-3 text-xs text-muted-foreground' : 'sr-only'
+          }
         >
-          <fieldset disabled={pending} className="min-w-0">
-            <legend className="mb-5 text-base font-semibold">
-              Your monthly cost
-            </legend>
-            <RunwayFields settings={settings} />
-            <Button
-              type="submit"
-              disabled={pending || !draft || !dirty}
-              className="mt-6 w-full"
-            >
-              {pending ? 'Saving…' : 'Save settings'}
-            </Button>
-          </fieldset>
-          <p role="status" className="mt-3 text-xs text-muted-foreground">
-            {message ||
-              (dirty
-                ? 'Unsaved preview'
-                : saved
-                  ? 'Saved settings'
-                  : 'Enter your monthly living cost to start')}
-          </p>
-        </form>
-        {projection && draft ? (
-          <RunwayResults projection={projection} settings={draft} />
-        ) : (
-          <div className="flex min-h-80 items-center justify-center rounded-2xl bg-card p-8 text-center text-muted-foreground">
-            {calculation?.error ??
-              'Add your monthly living cost and inflation to calculate your runway and FIRE target'}
-          </div>
-        )}
-      </div>
+          {message || (dirty ? 'Unsaved preview' : '')}
+        </p>
+      </form>
+      {projection && draft ? (
+        <RunwayResults projection={projection} settings={draft} />
+      ) : (
+        <div className="flex min-h-48 items-center justify-center rounded-2xl bg-card p-8 text-center text-muted-foreground">
+          {calculation?.error ??
+            'Enter your monthly living cost to see the projection'}
+        </div>
+      )}
       {projection && draft && (
         <RunwayCharts projection={projection} settings={draft} />
       )}

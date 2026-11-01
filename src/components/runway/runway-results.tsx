@@ -27,15 +27,15 @@ export function RunwayResults({
     ],
   ];
   return (
-    <div className="min-w-0 space-y-5">
+    <div className="grid min-w-0 gap-5 xl:grid-cols-2">
       <section
         aria-label="Monthly cost coverage"
-        className="balance-surface rounded-2xl p-6 sm:p-8"
+        className="balance-surface flex flex-col justify-between rounded-2xl p-6 sm:p-8"
       >
         <div className="flex flex-wrap items-start justify-between gap-5">
           <div>
             <h2 className="text-sm text-white/75">Monthly living cost</h2>
-            <p className="display-number mt-2 text-4xl font-semibold sm:text-5xl">
+            <p className="display-number mt-2 text-4xl font-semibold 2xl:text-5xl">
               {format(s.monthlyExpenses)}
             </p>
           </div>
@@ -59,9 +59,6 @@ export function RunwayResults({
             </div>
           ))}
         </dl>
-        <p className="mt-5 text-xs text-white/65">
-          First month estimate, before the cost rises with inflation
-        </p>
       </section>
       <section aria-label="FIRE estimate" className="finance-card p-6 sm:p-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -76,8 +73,7 @@ export function RunwayResults({
           </span>
         </div>
         <p className="mt-4 text-sm text-muted-foreground">
-          Monthly spending covered at {(s.withdrawalRate * 100).toFixed(1)}%
-          annual withdrawal
+          Monthly withdrawal at {(s.withdrawalRate * 100).toFixed(1)}% / year
         </p>
         <p className="display-number mt-1 text-3xl font-semibold">
           {format(monthlyWithdrawal)}{' '}
@@ -104,7 +100,7 @@ export function RunwayResults({
         <div className="mt-7 grid gap-5 sm:grid-cols-2">
           <div>
             <h3 className="text-sm text-muted-foreground">
-              Invest each month to reach FIRE in {s.targetYears} years
+              Invest / month for FIRE in {s.targetYears} years
             </h3>
             <p
               className="display-number mt-2 text-2xl font-semibold text-primary"
@@ -112,37 +108,25 @@ export function RunwayResults({
             >
               {format(p.requiredMonthlyContribution)}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {format(
-                Math.max(
-                  0,
-                  p.requiredMonthlyContribution - s.monthlyContribution,
-                ),
-              )}{' '}
-              above your planned monthly investment
-            </p>
           </div>
           <div>
             <h3 className="text-sm text-muted-foreground">
-              Projected wealth in {s.targetYears} years
+              Wealth in {s.targetYears} years
             </h3>
             <p className="display-number mt-2 text-2xl font-semibold">
               {format(p.projectedWealth)}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              With {format(s.monthlyContribution)} invested each month
             </p>
             <p className="mt-2 text-xs font-medium text-primary">
               {p.projectedFireMonth === 0
                 ? 'FIRE target already reached'
                 : p.projectedFireMonth == null
                   ? 'FIRE target not reached within 50 years'
-                  : `Estimated FIRE in ${formatRunwayMonths(p.projectedFireMonth)}`}
+                  : `FIRE projection: ${formatRunwayMonths(p.projectedFireMonth)}`}
             </p>
           </div>
         </div>
       </section>
-      <details className="px-1 text-xs text-muted-foreground">
+      <details className="px-1 text-xs text-muted-foreground xl:col-span-2">
         <summary className="min-h-8 cursor-pointer font-medium">
           Calculation assumptions
         </summary>
@@ -152,17 +136,18 @@ export function RunwayResults({
             {s.annualReturnOverride == null
               ? 'weighted across current holdings'
               : 'from your override'}
-            . Annual inflation: {(s.annualInflation * 100).toFixed(2)}%.
+            . Annual inflation: {(s.annualInflation * 100).toFixed(2)}%. Planned
+            investment: {format(s.monthlyContribution)} / month.
           </p>
           <p>
-            Runway compounds the remaining capital monthly, adds other income
-            and deducts inflation-adjusted living costs. Investment gains
-            already in your balance are counted once.
+            Monthly figures show the first month. Runway then inflates living
+            costs and compounds the remaining capital. Other income stays fixed;
+            accrued gains are counted once.
           </p>
           <p>
-            FIRE uses annual living costs divided by your withdrawal rate,
-            excluding salary. The future target rises with inflation. Building
-            wealth uses only your planned investment after living costs.
+            FIRE divides annual living costs by the withdrawal rate, excluding
+            salary. The target rises with inflation. Wealth adds only your
+            planned investment after living costs.
           </p>
           <p>
             The model uses your total portfolio, including illiquid assets.

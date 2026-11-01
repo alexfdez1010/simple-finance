@@ -70,9 +70,7 @@ test('starts with the monthly cost and inflation, without invented results', asy
     page.getByRole('region', { name: 'FIRE estimate', exact: true }),
   ).toHaveCount(0);
   await expect(
-    page.getByText(
-      'Add your monthly living cost and inflation to calculate your runway and FIRE target',
-    ),
+    page.getByText('Enter your monthly living cost to see the projection'),
   ).toBeVisible();
 });
 
@@ -199,6 +197,35 @@ test('keeps the simulation usable on mobile and exposes readable chart figures',
   ).toBeVisible();
   await page.getByText('Income & simulation settings', { exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
+  const costInput = page.getByLabel('Monthly living cost (EUR)', {
+    exact: true,
+  });
+  const formBounds = await page
+    .locator('form')
+    .filter({ has: costInput })
+    .boundingBox();
+  const costBounds = await costInput.boundingBox();
+  const coverageBounds = await page
+    .getByRole('region', { name: 'Monthly cost coverage', exact: true })
+    .boundingBox();
+  const fireBounds = await page
+    .getByRole('region', { name: 'FIRE estimate', exact: true })
+    .boundingBox();
+  expect(formBounds).not.toBeNull();
+  expect(costBounds!.height).toBeGreaterThanOrEqual(44);
+  expect(Math.abs(coverageBounds!.y - fireBounds!.y)).toBeLessThanOrEqual(2);
+  expect(
+    Math.abs(coverageBounds!.width - fireBounds!.width),
+  ).toBeLessThanOrEqual(2);
+  expect(Math.abs(formBounds!.x - coverageBounds!.x)).toBeLessThanOrEqual(2);
+  expect(
+    Math.abs(
+      formBounds!.x + formBounds!.width - fireBounds!.x - fireBounds!.width,
+    ),
+  ).toBeLessThanOrEqual(2);
+  expect(formBounds!.y + formBounds!.height).toBeLessThanOrEqual(
+    coverageBounds!.y,
+  );
   await page.screenshot({
     path: test.info().outputPath('runway-desktop.png'),
     fullPage: true,

@@ -6,11 +6,7 @@ import { loadRunwayPage } from '@/lib/server/runway-page-data';
 export default async function RunwayPage() {
   const { products, rates, settings } = await loadRunwayPage();
   return (
-    <CurrencyWorkspace
-      rates={rates}
-      title="Runway & FIRE"
-      description="Monthly living costs and financial independence"
-    >
+    <CurrencyWorkspace rates={rates} title="Runway & FIRE" description="">
       <RunwayWorkspace
         products={products.map(({ currentValueEur, expectedAnnualReturn }) => ({
           currentValueEur,

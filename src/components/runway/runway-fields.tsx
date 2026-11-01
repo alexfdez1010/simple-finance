@@ -1,6 +1,7 @@
 'use client';
 
 import { Input } from '@/components/ui/input';
+import type { ReactNode } from 'react';
 import { Field, FieldLabel } from '@/components/ui/field';
 import type { RunwaySettings } from '@/lib/domain/models/runway.types';
 
@@ -23,6 +24,8 @@ function NumberField({
   max = 1e9,
   step = 0.01,
   required = true,
+  prominent = false,
+  help,
 }: {
   name: keyof RunwaySettings;
   label: string;
@@ -31,6 +34,8 @@ function NumberField({
   max?: number;
   step?: number;
   required?: boolean;
+  prominent?: boolean;
+  help?: string;
 }) {
   return (
     <Field>
@@ -45,7 +50,14 @@ function NumberField({
         max={max}
         step={step}
         required={required}
+        className={prominent ? 'h-12 text-xl' : undefined}
+        aria-describedby={help ? `runway-${name}-help` : undefined}
       />
+      {help && (
+        <p id={`runway-${name}-help`} className="text-xs text-muted-foreground">
+          {help}
+        </p>
+      )}
     </Field>
   );
 }
@@ -53,17 +65,20 @@ function NumberField({
 /** Collects living cost and inflation first, with optional independent income and FIRE assumptions. */
 export function RunwayFields({
   settings,
+  actions,
 }: {
   settings: RunwaySettings | null;
+  actions: ReactNode;
 }) {
   const values = settings ?? DEFAULT_RUNWAY_SETTINGS;
   return (
     <>
-      <div className="space-y-5">
+      <div className="grid items-end gap-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto]">
         <NumberField
           name="monthlyExpenses"
           label="Monthly living cost (EUR)"
           value={settings?.monthlyExpenses ?? ''}
+          prominent
         />
         <NumberField
           name="annualInflation"
@@ -71,22 +86,21 @@ export function RunwayFields({
           value={values.annualInflation * 100}
           min={-20}
           max={100}
+          prominent
         />
+        <div className="sm:col-span-2 lg:col-span-1">{actions}</div>
       </div>
-      <details className="mt-6">
+      <details className="mt-4">
         <summary className="min-h-11 cursor-pointer text-sm font-medium text-primary">
           Income & simulation settings
         </summary>
-        <div className="mt-3 space-y-5">
+        <div className="mt-3 grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
           <NumberField
             name="monthlyIncome"
             label="Other net income per month (EUR)"
             value={values.monthlyIncome}
+            help="Excludes portfolio returns"
           />
-          <p className="text-xs text-muted-foreground">
-            Salary or other recurring income while drawing down. Excludes
-            portfolio returns.
-          </p>
           <NumberField
             name="monthlyContribution"
             label="Monthly investment after living costs (EUR)"
@@ -118,11 +132,8 @@ export function RunwayFields({
             min={-99}
             max={100}
             required={false}
+            help="Blank uses the portfolio estimate"
           />
-          <p className="text-xs text-muted-foreground">
-            Leave the return blank to use the weighted estimate of your whole
-            portfolio.
-          </p>
         </div>
       </details>
     </>
