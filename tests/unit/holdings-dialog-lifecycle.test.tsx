@@ -16,6 +16,10 @@ import type {
   ProductWithValue,
 } from '@/lib/domain/models/product.types';
 
+vi.mock('@/components/backup/backup-controls', () => ({
+  BackupControls: () => null,
+}));
+
 const actions = vi.hoisted(() => ({ remove: vi.fn() }));
 vi.mock('@/lib/actions/product-actions', () => ({
   deleteProductAction: actions.remove,

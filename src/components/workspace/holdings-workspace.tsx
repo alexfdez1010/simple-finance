@@ -4,6 +4,7 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { Plus } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
+import { BackupControls } from '@/components/backup/backup-controls';
 import { ProductsPanel } from '@/components/dashboard/products-panel';
 import { CurrencyWorkspace } from './currency-workspace';
 import { useDialogFocus } from './use-dialog-focus';
@@ -104,6 +105,7 @@ export function HoldingsWorkspace({
         </div>
       }
     >
+      <BackupControls />
       <ProductsPanel
         products={products}
         showHeading={false}

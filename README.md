@@ -722,3 +722,7 @@ This project is open source and available under the [MIT License](LICENSE).
 ## Glass dashboard and portfolio insights
 
 See [Portfolio experience](docs/portfolio-experience.md) for analytics views, searchable holdings, statistic definitions, module usage, and verification instructions.
+
+## Complete data backups
+
+Use **Export backup** and **Import backup** in Holdings to save and restore all products, movements, historical snapshots, simulation settings and display currency. Import previews the copy and asks before replacing existing data. See [data backups](docs/data-backups.md) for the format, API and verification workflow.
