@@ -41,6 +41,7 @@ export async function selectHeroOption(
  * Use this in beforeEach hooks to ensure test isolation
  */
 export async function cleanDatabase(): Promise<void> {
+  await prisma.runwaySettings.deleteMany({});
   // Per-product snapshots cascade-delete with `financialProduct`, but
   // remove them explicitly so failed runs cannot leave orphans behind.
   await prisma.productSnapshot.deleteMany({});

@@ -140,7 +140,11 @@ describe('navigation selection continuity', () => {
   it('disconnects measurement and cancels outstanding work when unmounted', () => {
     const removeListener = vi.spyOn(window, 'removeEventListener');
     const { unmount } = render(<WorkspaceNavigation />);
-    expect(observe).toHaveBeenCalledTimes(5);
+    const nav = screen.getByRole('navigation', { name: 'Main navigation' });
+    expect(observe).toHaveBeenCalledWith(nav);
+    for (const link of nav.querySelectorAll('a')) {
+      expect(observe).toHaveBeenCalledWith(link);
+    }
     expect(frames.size).toBe(1);
     unmount();
     expect(disconnect).toHaveBeenCalledOnce();

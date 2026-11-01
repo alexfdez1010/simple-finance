@@ -14,6 +14,7 @@ async function globalSetup() {
   const prisma = new PrismaClient();
 
   try {
+    await prisma.runwaySettings.deleteMany({});
     // Clean up all products before running tests
     await prisma.financialProduct.deleteMany({});
     console.log('✓ Database cleaned successfully');

@@ -7,6 +7,8 @@ import { PortfolioInsights } from '@/components/dashboard/portfolio-insights';
 import { PortfolioEvolutionChart } from '@/components/dashboard/portfolio-evolution-chart';
 import { AllocationByCategoryChart } from '@/components/dashboard/allocation-by-category-chart';
 import { loadOverviewPage } from '@/lib/server/portfolio-page-data';
+import { getRunwaySettings } from '@/lib/infrastructure/database/runway-repository';
+import { RunwaySummary } from '@/components/runway/runway-summary';
 
 export const revalidate = 60;
 
@@ -16,7 +18,10 @@ export const revalidate = 60;
  * Reads overview data only; analytics and agent configuration load on their routes.
  */
 export default async function DashboardPage() {
-  const data = await loadOverviewPage();
+  const [data, runwaySettings] = await Promise.all([
+    loadOverviewPage(),
+    getRunwaySettings(),
+  ]);
   return (
     <CurrencyWorkspace
       rates={data.rates}
@@ -38,6 +43,15 @@ export default async function DashboardPage() {
       }
     >
       <PortfolioStats {...data.stats} />
+      <RunwaySummary
+        products={data.products.map(
+          ({ currentValueEur, expectedAnnualReturn }) => ({
+            currentValueEur,
+            expectedAnnualReturn,
+          }),
+        )}
+        settings={runwaySettings}
+      />
       <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
         <PortfolioEvolutionChart data={data.evolutionData} />
         <AllocationByCategoryChart data={data.allocationData} />

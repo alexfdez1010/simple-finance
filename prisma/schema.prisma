@@ -140,3 +140,19 @@ model PortfolioSnapshot {
   @@index([date])
   @@map("portfolio_snapshots")
 }
+
+/// Shared EUR assumptions for this single-owner app's runway and FIRE simulation.
+/// Annual rates are decimals; null return override uses the current portfolio mix.
+model RunwaySettings {
+  id                   String   @id @default("default")
+  monthlyExpenses      Float
+  monthlyIncome        Float
+  annualInflation      Float
+  withdrawalRate       Float
+  targetYears          Int
+  monthlyContribution  Float
+  annualReturnOverride Float?
+  updatedAt            DateTime @updatedAt
+
+  @@map("runway_settings")
+}

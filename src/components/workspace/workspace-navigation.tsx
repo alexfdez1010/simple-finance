@@ -8,6 +8,7 @@ import {
   SquaresFour,
   Wallet,
   PlugsConnected,
+  HourglassSimple,
 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { useNavigationIndicator } from './use-navigation-indicator';
@@ -16,6 +17,7 @@ const destinations = [
   { href: '/dashboard', label: 'Home', icon: SquaresFour },
   { href: '/dashboard/portfolio', label: 'Holdings', icon: Wallet },
   { href: '/dashboard/analytics', label: 'Analytics', icon: ChartLineUp },
+  { href: '/dashboard/runway', label: 'Runway', icon: HourglassSimple },
   { href: '/dashboard/skill', label: 'Agent setup', icon: PlugsConnected },
 ];
 
@@ -48,7 +50,7 @@ export function WorkspaceNavigation() {
       <nav
         ref={navigationRef}
         aria-label="Main navigation"
-        className="navigation-track workspace-navigation mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-4 gap-1 rounded-2xl bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:relative lg:inset-auto lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
+        className="navigation-track workspace-navigation mobile-dock fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] grid grid-cols-5 gap-1 rounded-2xl bg-card/95 p-2 shadow-[0_8px_40px_rgb(25_36_60/0.12)] backdrop-blur-xl lg:relative lg:inset-auto lg:mx-4 lg:mt-4 lg:grid-cols-1 lg:gap-1.5 lg:rounded-none lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
       >
         <span aria-hidden className="navigation-indicator" />
         {destinations.map(({ href, label, icon: Icon }) => {

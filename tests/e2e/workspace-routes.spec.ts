@@ -10,6 +10,7 @@ const routes = [
   ['/dashboard/analytics/allocation', 'Portfolio allocation', 'Analytics'],
   ['/dashboard/analytics/cash-flow', 'Cash flow & liquidity', 'Analytics'],
   ['/dashboard/analytics/risk', 'Risk & daily changes', 'Analytics'],
+  ['/dashboard/runway', 'Runway & FIRE', 'Runway'],
   ['/dashboard/skill', 'Agent setup', 'Agent setup'],
 ] as const;
 

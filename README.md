@@ -15,6 +15,8 @@ Built following **SOLID principles** and enterprise-level best practices with co
 
 The home dashboard at `/dashboard` summarizes portfolio value, returns, recent evolution, allocation, and the largest holdings. `/` and default sign-in redirect there. Holdings (`/dashboard/portfolio`), analytics (`/dashboard/analytics`), and agent setup (`/dashboard/skill`) each load their own data and client components. Analytics has independent allocation, cash-flow, and risk routes. See [portfolio experience and module usage](docs/portfolio-experience.md) for route responsibilities, public component/loader invocation examples, accounting definitions, and verification guidance.
 
+Runway & FIRE (`/dashboard/runway`) projects how long the current portfolio covers monthly living costs with inflation and estimated returns. Saved assumptions also populate the home dashboard. It includes an independent wealth-accumulation scenario, an inflation-adjusted FIRE target and the monthly investment needed to reach it. See [simulation accounting, usage and deployment](docs/runway-simulation.md).
+
 ## 🎯 Features
 
 ### 📊 Dual Product Types
