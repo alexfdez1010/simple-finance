@@ -5,12 +5,8 @@ import { prisma } from './prisma-client';
 const SETTINGS_ID = 'default';
 const assumptions = {
   monthlyExpenses: true,
-  monthlyIncome: true,
   annualInflation: true,
-  withdrawalRate: true,
-  targetYears: true,
   monthlyContribution: true,
-  annualReturnOverride: true,
 } as const;
 
 /**
@@ -34,9 +30,14 @@ export async function getRunwaySettings(): Promise<RunwaySettings | null> {
 export async function saveRunwaySettings(
   settings: RunwaySettings,
 ): Promise<void> {
+  const values = {
+    monthlyExpenses: settings.monthlyExpenses,
+    annualInflation: settings.annualInflation,
+    monthlyContribution: settings.monthlyContribution,
+  };
   await prisma.runwaySettings.upsert({
     where: { id: SETTINGS_ID },
-    create: { id: SETTINGS_ID, ...settings },
-    update: settings,
+    create: { id: SETTINGS_ID, ...values },
+    update: values,
   });
 }

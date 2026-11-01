@@ -31,7 +31,7 @@ export function computeSafeRunwayProjection(
     return {
       projection: null,
       error:
-        'This portfolio cannot be projected with the current assumptions. Check for negative balances or try a lower return.',
+        'This portfolio cannot be projected with the current assumptions. Check its balances and return estimates.',
     };
   }
 }

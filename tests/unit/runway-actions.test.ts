@@ -13,12 +13,8 @@ vi.mock('@/lib/infrastructure/database/runway-repository', () => ({
 
 const settings: RunwaySettings = {
   monthlyExpenses: 2_000,
-  monthlyIncome: 1_000,
   annualInflation: 0.02,
-  withdrawalRate: 0.04,
-  targetYears: 15,
   monthlyContribution: 500,
-  annualReturnOverride: null,
 };
 
 describe('saveRunwaySettingsAction', () => {
@@ -49,18 +45,11 @@ describe('saveRunwaySettingsAction', () => {
 
   it.each([
     ['monthlyExpenses', -1],
-    ['monthlyIncome', Infinity],
-    ['monthlyIncome', NaN],
+    ['monthlyExpenses', Infinity],
+    ['monthlyExpenses', NaN],
     ['monthlyContribution', 1_000_000_001],
     ['annualInflation', -0.21],
     ['annualInflation', 1.01],
-    ['withdrawalRate', 0],
-    ['withdrawalRate', 0.21],
-    ['targetYears', 0],
-    ['targetYears', 1.5],
-    ['targetYears', 51],
-    ['annualReturnOverride', -1],
-    ['annualReturnOverride', 1.01],
   ])('rejects invalid %s=%s without changing settings', async (key, value) => {
     const result = await saveRunwaySettingsAction({
       ...settings,
@@ -71,11 +60,28 @@ describe('saveRunwaySettingsAction', () => {
     expect(revalidatePath).not.toHaveBeenCalled();
   });
 
-  it('accepts a zero expense plan and negative return scenario', async () => {
+  it.each([
+    ['withdrawalRate', 0.04],
+    ['targetYears', 10],
+    ['monthlyIncome', 1000],
+    ['annualReturnOverride', 0.05],
+  ])(
+    'rejects retired %s inputs instead of using hidden assumptions',
+    async (key, value) => {
+      const result = await saveRunwaySettingsAction({
+        ...settings,
+        [key]: value,
+      });
+      expect(result.success).toBe(false);
+      expect(saveRunwaySettings).not.toHaveBeenCalled();
+      expect(revalidatePath).not.toHaveBeenCalled();
+    },
+  );
+
+  it('accepts a zero expense plan', async () => {
     const zeroExpense = {
       ...settings,
       monthlyExpenses: 0,
-      annualReturnOverride: -0.5,
     };
     expect(await saveRunwaySettingsAction(zeroExpense)).toEqual({
       success: true,

@@ -41,6 +41,25 @@ async function enterMonthlyCost(page: Page, cost: string, inflation = '2') {
     .fill(inflation);
 }
 
+/** Gives the fixture a known positive yield without introducing historical accrued gains. */
+async function enablePortfolioReturn(): Promise<void> {
+  await prisma.customProductData.updateMany({
+    data: { annualReturnRate: 0.05 },
+  });
+  await prisma.customProductContribution.updateMany({
+    data: { date: new Date() },
+  });
+}
+
+/** Converts the user-facing finite FIRE duration to months for contribution sensitivity checks. */
+function fireMonths(duration: string): number {
+  const years = duration.match(/(\d+(?:\.\d+)?)\s+years?/);
+  const months = duration.match(/(\d+(?:\.\d+)?)\s+mo/);
+  if (!years && !months)
+    throw new Error(`Expected a finite FIRE duration: ${duration}`);
+  return Number(years?.[1] ?? 0) * 12 + Number(months?.[1] ?? 0);
+}
+
 test.beforeEach(async ({ page }) => {
   await cleanDatabase();
   await seedCapital();
@@ -62,6 +81,20 @@ test('starts with the monthly cost and inflation, without invented results', asy
   await expect(
     page.getByLabel('Annual inflation (%)', { exact: true }),
   ).toHaveValue('2');
+  await expect(page.getByRole('spinbutton')).toHaveCount(3);
+  await expect(
+    page.getByLabel('Monthly investment after living costs (EUR)', {
+      exact: true,
+    }),
+  ).toHaveValue('0');
+  for (const removedLabel of [
+    'Other net income per month (EUR)',
+    'Years to reach FIRE',
+    'Annual FIRE withdrawal rate (%)',
+    'Annual return override (%)',
+  ]) {
+    await expect(page.getByLabel(removedLabel, { exact: true })).toHaveCount(0);
+  }
   await expect(
     page.getByRole('button', { name: 'Save settings', exact: true }),
   ).toBeDisabled();
@@ -148,46 +181,101 @@ test('retains the draft after an expired-session save and allows retry', async (
   ).toHaveValue('1000');
 });
 
-/** Zero growth has an exact savings requirement and FIRE excludes the separately entered salary. */
-test('calculates required monthly savings and identifies a reached FIRE target', async ({
+/** Automatic portfolio returns determine FIRE; investing more each month must shorten the computed time. */
+test('computes FIRE time from the portfolio and responds to monthly investment', async ({
   page,
 }) => {
-  await enterMonthlyCost(page, '1000', '0');
-  await page.getByText('Income & simulation settings', { exact: true }).click();
-  await page.getByLabel('Years to reach FIRE', { exact: true }).fill('1');
-  await page
-    .getByLabel('Annual return override (%)', { exact: true })
-    .fill('0');
-  await expect(page.getByTestId('runway-duration')).toHaveText('10 years');
-  await expect(page.getByTestId('fire-monthly-required')).toContainText(
-    '15.000,00',
+  await enablePortfolioReturn();
+  await page.reload();
+  await enterMonthlyCost(page, '1000');
+  const withoutInvestment = fireMonths(
+    await page.getByTestId('fire-time').innerText(),
   );
+  const investment = page.getByLabel(
+    'Monthly investment after living costs (EUR)',
+    { exact: true },
+  );
+  await investment.fill('500');
+  const with500 = fireMonths(await page.getByTestId('fire-time').innerText());
+  expect(with500).toBeLessThan(withoutInvestment);
+  await investment.fill('1000');
+  const with1000Text = await page.getByTestId('fire-time').innerText();
+  expect(fireMonths(with1000Text)).toBeLessThan(with500);
   await page
-    .getByLabel('Other net income per month (EUR)', { exact: true })
-    .fill('1000');
-  await expect(page.getByTestId('runway-duration')).toHaveText('50+ years');
+    .getByRole('button', { name: 'Save settings', exact: true })
+    .click();
+  await expect(page.getByRole('status')).toContainText('Settings saved');
+  await page.reload();
+  await expect(investment).toHaveValue('1000');
+  await expect(page.getByTestId('fire-time')).toHaveText(with1000Text);
+  await page.getByRole('link', { name: 'Home', exact: true }).click();
+  await expect(
+    page.getByRole('region', { name: 'Financial runway', exact: true }),
+  ).toContainText(with1000Text);
+  await page.getByRole('link', { name: 'Runway & FIRE', exact: true }).click();
   const fire = page.getByRole('region', { name: 'FIRE estimate', exact: true });
   await expect(fire.getByText('FIRE', { exact: true })).toHaveCount(0);
   await page
     .getByLabel('Monthly living cost (EUR)', { exact: true })
     .fill('100');
   await expect(fire.getByText('FIRE', { exact: true })).toBeVisible();
-  await expect(page.getByTestId('fire-monthly-required')).toContainText('0,00');
+  await expect(page.getByTestId('fire-time')).toHaveText('Reached');
+});
+
+/** Obsolete assumptions must have no effect on new calculations and survive a three-field save for rollback. */
+test('ignores legacy income and return overrides while preserving their stored values', async ({
+  page,
+}) => {
+  await prisma.runwaySettings.create({
+    data: {
+      id: 'default',
+      monthlyExpenses: 1000,
+      annualInflation: 0,
+      monthlyContribution: 500,
+      monthlyIncome: 100000,
+      annualReturnOverride: 0.99,
+      withdrawalRate: 0.2,
+      targetYears: 1,
+    },
+  });
+  await page.reload();
+  await expect(page.getByRole('spinbutton')).toHaveCount(3);
+  await expect(page.getByTestId('runway-duration')).toHaveText('10 years');
+  await expect(page.getByTestId('fire-time')).toHaveText(
+    'Not reached within 50 years',
+  );
+  const fire = page.getByRole('region', { name: 'FIRE estimate', exact: true });
+  await expect(fire).toContainText('Return does not exceed inflation');
+  await expect(fire.getByText('Unavailable', { exact: true })).toBeVisible();
+  await expect(fire.getByText('FIRE', { exact: true })).toHaveCount(0);
+  await page
+    .getByLabel('Monthly living cost (EUR)', { exact: true })
+    .fill('2000');
+  await page
+    .getByRole('button', { name: 'Save settings', exact: true })
+    .click();
+  await expect(page.getByRole('status')).toContainText('Settings saved');
+  const row = await prisma.runwaySettings.findUniqueOrThrow({
+    where: { id: 'default' },
+  });
+  expect(row.monthlyExpenses).toBe(2000);
+  expect(row.monthlyContribution).toBe(500);
+  expect(row.monthlyIncome).toBe(100000);
+  expect(row.annualReturnOverride).toBe(0.99);
+  expect(row.withdrawalRate).toBe(0.2);
+  expect(row.targetYears).toBe(1);
 });
 
 /** Inputs, results, charts and the fifth navigation item must remain usable at the narrowest viewport. */
 test('keeps the simulation usable on mobile and exposes readable chart figures', async ({
   page,
 }) => {
+  await enablePortfolioReturn();
+  await page.reload();
   await enterMonthlyCost(page, '1000');
-  await page.getByText('Income & simulation settings', { exact: true }).click();
   await page
     .getByLabel('Monthly investment after living costs (EUR)', { exact: true })
     .fill('500');
-  await page.getByLabel('Years to reach FIRE', { exact: true }).fill('5');
-  await page
-    .getByLabel('Annual return override (%)', { exact: true })
-    .fill('5');
   await page
     .getByRole('button', { name: 'Save settings', exact: true })
     .click();
@@ -195,36 +283,45 @@ test('keeps the simulation usable on mobile and exposes readable chart figures',
   await expect(
     page.getByRole('button', { name: 'Save settings', exact: true }),
   ).toBeVisible();
-  await page.getByText('Income & simulation settings', { exact: true }).click();
   await page.evaluate(() => window.scrollTo(0, 0));
   const costInput = page.getByLabel('Monthly living cost (EUR)', {
     exact: true,
   });
-  const formBounds = await page
-    .locator('form')
-    .filter({ has: costInput })
-    .boundingBox();
   const costBounds = await costInput.boundingBox();
+  const runwaySection = await page
+    .getByRole('region', { name: 'Runway', exact: true })
+    .boundingBox();
+  const fireSection = await page
+    .getByRole('region', { name: 'FIRE', exact: true })
+    .boundingBox();
   const coverageBounds = await page
     .getByRole('region', { name: 'Monthly cost coverage', exact: true })
     .boundingBox();
   const fireBounds = await page
     .getByRole('region', { name: 'FIRE estimate', exact: true })
     .boundingBox();
-  expect(formBounds).not.toBeNull();
+  const drawdownBounds = await page
+    .getByRole('region', { name: 'Living off your capital', exact: true })
+    .boundingBox();
+  const wealthBounds = await page
+    .getByRole('region', { name: 'Building toward FIRE', exact: true })
+    .boundingBox();
   expect(costBounds!.height).toBeGreaterThanOrEqual(44);
-  expect(Math.abs(coverageBounds!.y - fireBounds!.y)).toBeLessThanOrEqual(2);
+  expect(costBounds!.y + costBounds!.height).toBeLessThanOrEqual(
+    runwaySection!.y,
+  );
+  expect(runwaySection!.y + runwaySection!.height).toBeLessThanOrEqual(
+    fireSection!.y,
+  );
+  expect(Math.abs(coverageBounds!.y - drawdownBounds!.y)).toBeLessThanOrEqual(
+    2,
+  );
   expect(
-    Math.abs(coverageBounds!.width - fireBounds!.width),
+    Math.abs(coverageBounds!.width - drawdownBounds!.width),
   ).toBeLessThanOrEqual(2);
-  expect(Math.abs(formBounds!.x - coverageBounds!.x)).toBeLessThanOrEqual(2);
-  expect(
-    Math.abs(
-      formBounds!.x + formBounds!.width - fireBounds!.x - fireBounds!.width,
-    ),
-  ).toBeLessThanOrEqual(2);
-  expect(formBounds!.y + formBounds!.height).toBeLessThanOrEqual(
-    coverageBounds!.y,
+  expect(Math.abs(fireBounds!.y - wealthBounds!.y)).toBeLessThanOrEqual(2);
+  expect(Math.abs(fireBounds!.width - wealthBounds!.width)).toBeLessThanOrEqual(
+    2,
   );
   await page.screenshot({
     path: test.info().outputPath('runway-desktop.png'),
@@ -255,7 +352,7 @@ test('keeps the simulation usable on mobile and exposes readable chart figures',
   });
   await chart.getByText('View yearly figures', { exact: true }).click();
   await expect(chart.getByRole('table')).toBeVisible();
-  await expect(chart.getByRole('row')).toHaveCount(7);
+  expect(await chart.getByRole('row').count()).toBeGreaterThan(2);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({
     path: test.info().outputPath('runway-mobile.png'),

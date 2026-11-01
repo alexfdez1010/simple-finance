@@ -8,7 +8,7 @@ import { runwaySettingsSchema } from '@/lib/validation/runway-schemas';
 
 /**
  * Authenticates, validates and persists the shared runway/FIRE assumptions.
- * @param input - EUR cash amounts, decimal annual rates, and whole target years.
+ * @param input - Monthly EUR living cost and investment, plus decimal annual inflation.
  * @returns A confirmed save or a recoverable error without database details.
  * Revalidates dashboard routes only after a successful write; invalid input is never stored.
  */

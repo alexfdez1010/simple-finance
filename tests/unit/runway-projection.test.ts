@@ -7,15 +7,12 @@ import type {
 
 const base: RunwaySettings = {
   monthlyExpenses: 1000,
-  monthlyIncome: 0,
   annualInflation: 0,
-  withdrawalRate: 0.04,
-  targetYears: 10,
   monthlyContribution: 0,
-  annualReturnOverride: null,
 };
+const monthlyOnePercent = 1.01 ** 12 - 1;
 
-/** Creates a minimal valued holding; no external data or clock access is needed. */
+/** Creates a minimal valued holding without external data or clock access. */
 function holding(
   currentValueEur: number,
   expectedAnnualReturn: number | null = 0,
@@ -23,7 +20,7 @@ function holding(
   return { currentValueEur, expectedAnnualReturn };
 }
 
-/** Projects with immutable baseline assumptions and explicit per-test overrides. */
+/** Applies isolated overrides to the three user inputs and an automatic portfolio estimate. */
 function project(
   capital = 12000,
   settings: Partial<RunwaySettings> = {},
@@ -51,13 +48,7 @@ describe('consumption runway', () => {
     expect(result.runwayPoints.at(-1)?.balance).toBe(0);
   });
 
-  it('subtracts recurring external income from monthly living costs', () => {
-    const result = project(12000, { monthlyIncome: 500 });
-    expect(result.netMonthlyBurn).toBe(500);
-    expect(result.runwayMonths).toBe(24);
-  });
-
-  it('reports fractional months and a zero terminal balance', () => {
+  it('reports fractional depletion with a zero terminal balance', () => {
     const result = project(12500);
     expect(result.runwayMonths).toBe(12.5);
     expect(result.runwayPoints.at(-1)).toMatchObject({
@@ -68,54 +59,38 @@ describe('consumption runway', () => {
     expect(result.runwayPoints.every((point) => point.balance >= 0)).toBe(true);
   });
 
-  it('applies effective monthly returns once to the remaining capital', () => {
-    const monthlyRate = 1.12 ** (1 / 12) - 1;
-    const result = project(12000, {}, 0.12);
-    expect(result.firstMonthReturn).toBeCloseTo(12000 * monthlyRate, 9);
-    expect(result.runwayPoints[1].balance).toBeCloseTo(
-      12000 * (1 + monthlyRate) - 1000,
-      9,
-    );
-    expect(result.runwayPoints[2].returns).toBeCloseTo(
-      result.runwayPoints[1].balance * monthlyRate,
-      9,
-    );
+  it('applies portfolio returns once to the remaining capital', () => {
+    const result = project(12000, {}, monthlyOnePercent);
+    expect(result.firstMonthReturn).toBeCloseTo(120, 10);
+    expect(result.runwayPoints[1].balance).toBeCloseTo(11120, 10);
+    expect(result.runwayPoints[2].returns).toBeCloseTo(111.2, 10);
     expect(result.runwayMonths).toBeGreaterThan(12);
   });
 
-  it('compounds inflation monthly and keeps salary nominally fixed', () => {
-    const result = project(100000, {
-      monthlyIncome: 300,
-      annualInflation: 0.12,
-    });
+  it('compounds living costs monthly from the current first-month expense', () => {
+    const result = project(100000, { annualInflation: 0.12 });
     expect(result.runwayPoints[1].expenses).toBe(1000);
     expect(result.runwayPoints[13].expenses).toBeCloseTo(1120, 9);
-    expect(result.runwayPoints[13].income).toBe(300);
-    expect(result.runwayMonths).toBeLessThan(
-      project(100000, { monthlyIncome: 300 }).runwayMonths!,
-    );
+    expect(result.runwayMonths).toBeLessThan(project(100000).runwayMonths!);
+    expect(result.runwayPoints.every((point) => point.income === 0)).toBe(true);
   });
 
-  it('does not call a current surplus perpetual when inflation later creates a gap', () => {
-    const result = project(12000, {
-      monthlyIncome: 1100,
-      annualInflation: 0.1,
-    });
-    expect(result.netMonthlyBurn).toBe(-100);
+  it('does not make an initial return surplus perpetual when inflation exceeds growth', () => {
+    const result = project(100000, { annualInflation: 0.2 }, 0.15);
+    expect(result.netMonthlyBurn).toBeLessThan(0);
     expect(result.runwayMonths).not.toBeNull();
   });
 
-  it('marks surviving the projection horizon as null rather than infinity', () => {
-    const result = project(0, { monthlyIncome: 1000 });
+  it('keeps survival bounded to fifty years rather than an infinite claim', () => {
+    const result = project(100000, {}, monthlyOnePercent);
     expect(result.runwayMonths).toBeNull();
     expect(result.horizonMonths).toBe(600);
     expect(result.runwayPoints.at(-1)?.month).toBe(600);
   });
 
-  it('reports an immediate shortfall when empty capital cannot cover net costs', () => {
-    const result = project(0, { monthlyIncome: 999 });
-    expect(result.runwayMonths).toBe(0);
-    expect(result.runwayPoints).toHaveLength(1);
+  it('reports an immediate shortfall at zero capital', () => {
+    expect(project(0).runwayMonths).toBe(0);
+    expect(project(0).runwayPoints).toHaveLength(1);
   });
 
   it('supports negative returns and deflation without non-finite balances', () => {
@@ -127,10 +102,16 @@ describe('consumption runway', () => {
       result.wealthPoints.every((point) => Number.isFinite(point.balance)),
     ).toBe(true);
   });
+
+  it('keeps contributions exclusively in FIRE rather than funding consumption twice', () => {
+    const funded = project(12000, { monthlyContribution: 10000 });
+    expect(funded.runwayPoints).toEqual(project().runwayPoints);
+    expect(funded.netMonthlyBurn).toBe(1000);
+  });
 });
 
-describe('portfolio-wide return assumptions', () => {
-  it('weights all capital, including unknown holdings at a zero return', () => {
+describe('automatic portfolio return', () => {
+  it('weights the entire portfolio, including unknown holdings at zero', () => {
     const result = computeRunwayProjection(
       [holding(10000, 0.1), holding(10000, 0.2), holding(10000, null)],
       base,
@@ -140,142 +121,225 @@ describe('portfolio-wide return assumptions', () => {
     expect(result.unknownReturnCapital).toBe(10000);
   });
 
-  it('treats invalid market return estimates as unknown rather than spending them', () => {
+  it('discloses invalid estimates as unknown rather than spending them', () => {
     const result = computeRunwayProjection(
-      [holding(100, Number.NaN), holding(100, -1.01), holding(100, Infinity)],
+      [holding(100, NaN), holding(100, -1.01), holding(100, Infinity)],
       base,
     );
     expect(result.annualReturn).toBe(0);
     expect(result.unknownReturnCapital).toBe(300);
+    expect(result.fireTarget).toBeNull();
   });
 
-  it('models a known total-loss annual estimate rather than treating it as unknown', () => {
+  it('retains a known total loss instead of replacing it with zero return', () => {
     const result = project(12000, {}, -1);
     expect(result.annualReturn).toBe(-1);
     expect(result.unknownReturnCapital).toBe(0);
     expect(result.firstMonthReturn).toBe(-12000);
     expect(result.runwayMonths).toBeLessThan(1);
     expect(result.projectedWealth).toBe(0);
-    expect(result.requiredMonthlyContribution).toBe(300000);
+    expect(result.fireTarget).toBeNull();
   });
 
-  it('supports a deliberate zero return override', () => {
-    const result = project(12000, { annualReturnOverride: 0 }, 0.5);
-    expect(result.annualReturn).toBe(0);
-    expect(result.runwayMonths).toBe(12);
-  });
-
-  it('accepts an empty portfolio with a zero blended return', () => {
+  it('accepts an empty portfolio with zero blended return', () => {
     const result = computeRunwayProjection([], base);
     expect(result.initialCapital).toBe(0);
     expect(result.annualReturn).toBe(0);
     expect(result.runwayMonths).toBe(0);
+    expect(result.projectedFireMonth).toBeNull();
   });
 });
 
-describe('FIRE target and accumulation', () => {
-  it('uses the withdrawal rate and excludes active income from financial independence', () => {
-    const result = project(100000, { monthlyIncome: 10000 });
-    expect(result.fireTarget).toBe(300000);
+describe('FIRE derived from monthly cost and real return', () => {
+  it('covers costs at the capital implied by the actual real monthly yield', () => {
+    const result = project(50000, {}, monthlyOnePercent);
+    expect(result.fireTarget).toBeCloseTo(100000, 7);
+    expect(result.monthlyFireIncome).toBeCloseTo(500, 9);
+    expect(result.monthlyIncomeGap).toBeCloseTo(500, 9);
+    expect(result.fireProgress).toBeCloseTo(0.5, 12);
+    expect(result.fireGap).toBeCloseTo(50000, 7);
     expect(result.fireReached).toBe(false);
-    expect(result.fireProgress).toBeCloseTo(1 / 3, 12);
-    expect(result.fireGap).toBe(200000);
   });
 
-  it('shows FIRE at or above the required current capital', () => {
-    for (const capital of [300000, 400000]) {
-      const result = project(capital);
+  it('sets FIRE immediately once expected real monthly returns cover the cost', () => {
+    for (const capital of [100000, 150000]) {
+      const result = project(capital, {}, monthlyOnePercent);
       expect(result.fireReached).toBe(true);
       expect(result.fireProgress).toBe(1);
       expect(result.fireGap).toBe(0);
       expect(result.projectedFireMonth).toBe(0);
+      expect(result.projectionMonths).toBe(12);
     }
   });
 
-  it('solves zero-return monthly savings to reach the target by the chosen year', () => {
-    const result = project(100000);
-    expect(result.requiredMonthlyContribution).toBeCloseTo(200000 / 120, 9);
-    const funded = project(100000, {
-      monthlyContribution: result.requiredMonthlyContribution,
-    });
-    expect(funded.projectedWealth).toBeCloseTo(300000, 7);
-    expect(funded.projectedFireMonth).toBe(120);
-    expect(funded.wealthPoints).toHaveLength(121);
+  it('uses the exact purchasing-power growth factor instead of subtracting percentages', () => {
+    const annualReturn = (1 + monthlyOnePercent) * 1.02 - 1;
+    const result = project(50000, { annualInflation: 0.02 }, annualReturn);
+    expect(result.realAnnualReturn).toBeCloseTo(monthlyOnePercent, 12);
+    expect(result.monthlyFireIncome).toBeCloseTo(500, 9);
+    expect(result.fireTarget).toBeCloseTo(100000, 7);
   });
 
-  it('adjusts future FIRE capital for inflation and solves the compound annuity', () => {
-    const result = project(50000, { annualInflation: 0.03 }, 0.07);
-    expect(result.targetCapital).toBeCloseTo(300000 * 1.03 ** 10, 6);
-    const funded = project(
-      50000,
-      {
-        annualInflation: 0.03,
-        monthlyContribution: result.requiredMonthlyContribution,
-      },
-      0.07,
+  it('requires more capital and provides less monthly coverage when inflation rises', () => {
+    const without = project(50000, {}, 0.08);
+    const inflated = project(50000, { annualInflation: 0.03 }, 0.08);
+    expect(inflated.fireTarget!).toBeGreaterThan(without.fireTarget!);
+    expect(inflated.monthlyFireIncome).toBeLessThan(without.monthlyFireIncome);
+    expect(inflated.realAnnualReturn).toBeCloseTo(1.08 / 1.03 - 1, 12);
+  });
+
+  it.each([
+    [0, 0],
+    [0.02, 0.02],
+    [0.02, 0.03],
+    [-0.1, 0],
+  ])(
+    'does not invent a finite target for return %s and inflation %s',
+    (rate, inflation) => {
+      const result = project(
+        100000,
+        { annualInflation: inflation, monthlyContribution: 1000000 },
+        rate,
+      );
+      expect(result.fireTarget).toBeNull();
+      expect(result.fireGap).toBeNull();
+      expect(result.monthlyFireIncome).toBe(0);
+      expect(result.monthlyIncomeGap).toBe(1000);
+      expect(result.fireProgress).toBe(0);
+      expect(result.fireReached).toBe(false);
+      expect(result.projectedFireMonth).toBeNull();
+      expect(
+        result.wealthPoints.every((point) => point.fireTarget === null),
+      ).toBe(true);
+    },
+  );
+
+  it('supports positive real return during deflation despite negative nominal returns', () => {
+    const result = project(100000, { annualInflation: -0.1 }, -0.05);
+    expect(result.firstMonthReturn).toBeLessThan(0);
+    expect(result.realAnnualReturn).toBeGreaterThan(0);
+    expect(result.monthlyFireIncome).toBeGreaterThan(0);
+    expect(result.fireTarget).not.toBeNull();
+  });
+
+  it('treats zero living costs as already funded without an arbitrary rate', () => {
+    const result = project(0, { monthlyExpenses: 0, monthlyContribution: 100 });
+    expect(result.fireTarget).toBe(0);
+    expect(result.fireReached).toBe(true);
+    expect(result.projectedFireMonth).toBe(0);
+    expect(result.monthlyIncomeGap).toBe(0);
+    expect(result.runwayMonths).toBeNull();
+    expect(result.projectedWealth).toBe(1200);
+  });
+
+  it('retains small positive real yields rather than rounding them to zero', () => {
+    const result = project(100000, {}, Number.EPSILON);
+    expect(result.monthlyFireIncome).toBeGreaterThan(0);
+    expect(Number.isFinite(result.fireTarget)).toBe(true);
+    expect(result.fireTarget!).toBeGreaterThan(1e18);
+  });
+});
+
+describe('contribution-driven FIRE time', () => {
+  it('calculates the first crossing month from monthly investment, not a chosen deadline', () => {
+    const result = project(
+      10000,
+      { monthlyContribution: 1000 },
+      monthlyOnePercent,
     );
-    expect(funded.projectedWealth).toBeCloseTo(funded.targetCapital, 6);
-    expect(funded.projectedFireMonth).toBe(120);
+    const expectedMonth = Math.ceil(Math.log(200000 / 110000) / Math.log(1.01));
+    expect(result.projectedFireMonth).toBe(expectedMonth);
+    expect(result.projectionMonths).toBe(72);
+    expect(result.wealthPoints).toHaveLength(73);
+    expect(result.wealthPoints[expectedMonth - 1].balance).toBeLessThan(
+      result.fireTarget!,
+    );
+    expect(result.wealthPoints[expectedMonth].balance).toBeGreaterThanOrEqual(
+      result.fireTarget! - 1e-7,
+    );
+    expect(result).not.toHaveProperty('requiredMonthlyContribution');
+    expect(result).not.toHaveProperty('targetCapital');
   });
 
-  it('requires no new savings if existing growth reaches the future target', () => {
-    const result = project(200000, {}, 0.1);
-    expect(result.fireReached).toBe(false);
-    expect(result.requiredMonthlyContribution).toBe(0);
-    expect(result.projectedFireMonth).toBeGreaterThan(0);
-    expect(result.projectedFireMonth).toBeLessThan(120);
+  it('reaches FIRE earlier with a larger contribution and later with a higher living cost', () => {
+    const result = project(
+      10000,
+      { monthlyContribution: 1000 },
+      monthlyOnePercent,
+    );
+    const moreSaving = project(
+      10000,
+      { monthlyContribution: 2000 },
+      monthlyOnePercent,
+    );
+    const higherCost = project(
+      10000,
+      { monthlyExpenses: 2000, monthlyContribution: 1000 },
+      monthlyOnePercent,
+    );
+    expect(moreSaving.projectedFireMonth!).toBeLessThan(
+      result.projectedFireMonth!,
+    );
+    expect(higherCost.projectedFireMonth!).toBeGreaterThan(
+      result.projectedFireMonth!,
+    );
   });
 
-  it('keeps net investment separate from salary and expenses in the accumulation scenario', () => {
-    const result = project(100000, {
-      monthlyIncome: 9000,
-      monthlyContribution: 100,
-    });
-    expect(result.wealthPoints[1].balance).toBe(100100);
-    expect(result.projectedWealth).toBe(112000);
+  it('inflates the FIRE target in the accumulation series', () => {
+    const result = project(
+      1000,
+      { annualInflation: 0.02, monthlyContribution: 100 },
+      0.08,
+    );
+    expect(result.wealthPoints[12].fireTarget).toBeCloseTo(
+      result.fireTarget! * 1.02,
+      7,
+    );
+  });
+
+  it('lets current capital grow to FIRE without requiring a new monthly contribution', () => {
+    const result = project(50000, {}, monthlyOnePercent);
+    expect(result.projectedFireMonth).toBe(
+      Math.ceil(Math.log(2) / Math.log(1.01)),
+    );
+    expect(result.projectedWealth).toBeCloseTo(50000 * 1.01 ** 72, 6);
+  });
+
+  it('adds only the net monthly investment, without deducting living costs twice', () => {
+    const result = project(10000, { monthlyContribution: 100 });
+    expect(result.wealthPoints[1].balance).toBe(10100);
+    expect(result.projectedWealth).toBe(70000);
+    expect(result.projectionMonths).toBe(600);
     expect(result.projectedFireMonth).toBeNull();
   });
 
-  it('handles zero costs and arbitrarily small return rates', () => {
-    const free = project(0, { monthlyExpenses: 0 });
-    expect(free.fireTarget).toBe(0);
-    expect(free.fireReached).toBe(true);
-    expect(free.requiredMonthlyContribution).toBe(0);
-    expect(free.runwayMonths).toBeNull();
-    const tiny = project(100000, {}, Number.EPSILON);
-    expect(tiny.requiredMonthlyContribution).toBeCloseTo(200000 / 120, 8);
+  it('uses a bounded full chart when zero starting capital and zero contribution never grow', () => {
+    const result = project(0, {}, monthlyOnePercent);
+    expect(result.projectedFireMonth).toBeNull();
+    expect(result.wealthPoints).toHaveLength(601);
+    expect(result.wealthPoints.at(-1)?.balance).toBe(0);
   });
 });
 
 describe('input boundary', () => {
   it.each([
     { monthlyExpenses: -1 },
-    { monthlyIncome: Number.NaN },
+    { monthlyExpenses: NaN },
     { monthlyContribution: Infinity },
+    { monthlyContribution: -1 },
     { annualInflation: -1 },
-    { annualInflation: Number.NaN },
-    { withdrawalRate: 0 },
-    { withdrawalRate: 1.1 },
-    { targetYears: 0 },
-    { targetYears: 51 },
-    { targetYears: 1.5 },
-    { annualReturnOverride: -1 },
-    { annualReturnOverride: Infinity },
+    { annualInflation: NaN },
+    { annualInflation: Infinity },
   ])('rejects invalid assumptions %j', (settings) => {
     expect(() => project(12000, settings)).toThrow(RangeError);
   });
 
-  it.each([-1, Infinity, Number.NaN])(
-    'rejects invalid capital %s',
-    (capital) => {
-      expect(() => project(capital)).toThrow(RangeError);
-    },
-  );
+  it.each([-1, Infinity, NaN])('rejects invalid capital %s', (capital) => {
+    expect(() => project(capital)).toThrow(RangeError);
+  });
 
-  it('rejects numeric overflow rather than displaying an infinite forecast', () => {
-    expect(() => project(100000, { annualReturnOverride: 1e100 })).toThrow(
-      RangeError,
-    );
+  it('rejects numeric overflow instead of displaying an infinite forecast', () => {
+    expect(() => project(100000, {}, 1e100)).toThrow(RangeError);
   });
 
   it('does not mutate holdings or assumptions', () => {

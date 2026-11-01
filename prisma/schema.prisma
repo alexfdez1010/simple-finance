@@ -142,15 +142,19 @@ model PortfolioSnapshot {
 }
 
 /// Shared EUR assumptions for this single-owner app's runway and FIRE simulation.
-/// Annual rates are decimals; null return override uses the current portfolio mix.
+/// Annual inflation is a decimal; portfolio returns come from the current mix.
 model RunwaySettings {
   id                   String   @id @default("default")
   monthlyExpenses      Float
-  monthlyIncome        Float
+  /// Legacy rollback compatibility only; no longer read by the simulation.
+  monthlyIncome        Float    @default(0)
   annualInflation      Float
-  withdrawalRate       Float
-  targetYears          Int
+  /// Legacy rollback compatibility only; no longer read by the simulation.
+  withdrawalRate       Float    @default(0.04)
+  /// Legacy rollback compatibility only; the FIRE date is now a result.
+  targetYears          Int      @default(10)
   monthlyContribution  Float
+  /// Legacy rollback compatibility only; returns now always use the portfolio.
   annualReturnOverride Float?
   updatedAt            DateTime @updatedAt
 

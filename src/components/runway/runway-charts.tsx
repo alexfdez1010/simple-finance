@@ -6,26 +6,27 @@ import type {
 } from '@/lib/domain/models/runway.types';
 import { ProjectionChart } from './projection-chart';
 
-/** Keeps drawdown and accumulation in distinct charts so income and planned savings cannot be double-counted. */
+/** Renders the active section's chart, keeping consumption and accumulation separate. */
 export function RunwayCharts({
   projection: p,
+  scenario,
 }: {
   projection: RunwayProjection;
   settings: RunwaySettings;
+  scenario: 'runway' | 'fire';
 }) {
-  return (
-    <div className="grid gap-6 xl:grid-cols-2">
-      <ProjectionChart
-        title="Living off your capital"
-        description=""
-        data={p.runwayPoints}
-      />
-      <ProjectionChart
-        title="Building toward FIRE"
-        description=""
-        data={p.wealthPoints}
-        target
-      />
-    </div>
+  return scenario === 'runway' ? (
+    <ProjectionChart
+      title="Living off your capital"
+      description=""
+      data={p.runwayPoints}
+    />
+  ) : (
+    <ProjectionChart
+      title="Building toward FIRE"
+      description=""
+      data={p.wealthPoints}
+      target
+    />
   );
 }

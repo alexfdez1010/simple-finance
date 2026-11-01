@@ -4,12 +4,8 @@ import type { RunwaySettings } from '@/lib/domain/models/runway.types';
 
 const settings: RunwaySettings = {
   monthlyExpenses: 1000,
-  monthlyIncome: 0,
   annualInflation: 0.02,
-  withdrawalRate: 0.04,
-  targetYears: 10,
   monthlyContribution: 0,
-  annualReturnOverride: null,
 };
 
 describe('recoverable runway projection', () => {
@@ -22,7 +18,7 @@ describe('recoverable runway projection', () => {
     expect(result.projection?.initialCapital).toBe(12000);
   });
 
-  it('reports negative positions without silently discarding liabilities', () => {
+  it('reports negative positions without silently dropping liabilities', () => {
     const result = computeSafeRunwayProjection(
       [
         { currentValueEur: 12000, expectedAnnualReturn: 0.05 },
@@ -31,20 +27,17 @@ describe('recoverable runway projection', () => {
       settings,
     );
     expect(result.projection).toBeNull();
-    expect(result.error).toContain('negative balances');
+    expect(result.error).toContain('balances and return estimates');
   });
 
-  it('reports overflowing automatic returns and allows recovery with an override', () => {
-    const products = [{ currentValueEur: 12000, expectedAnnualReturn: 1e100 }];
-    expect(
-      computeSafeRunwayProjection(products, settings).projection,
-    ).toBeNull();
-    const recovered = computeSafeRunwayProjection(products, {
-      ...settings,
-      annualReturnOverride: 0,
-    });
-    expect(recovered.error).toBeNull();
-    expect(recovered.projection?.annualReturn).toBe(0);
+  it('reports overflowing automatic returns without offering a removed override', () => {
+    const result = computeSafeRunwayProjection(
+      [{ currentValueEur: 12000, expectedAnnualReturn: 1e100 }],
+      settings,
+    );
+    expect(result.projection).toBeNull();
+    expect(result.error).toContain('return estimates');
+    expect(result.error).not.toContain('lower return');
   });
 
   it('does not hide unexpected programming errors as financial limitations', () => {

@@ -54,19 +54,25 @@ export function RunwaySummary({
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">FIRE estimate</dt>
+            <dt className="text-xs text-muted-foreground">
+              Estimated time to FIRE
+            </dt>
             <dd
               className={`mt-2 text-2xl font-semibold ${p.fireReached ? 'text-gain' : ''}`}
             >
-              {p.fireReached ? 'FIRE' : `${(p.fireProgress * 100).toFixed(1)}%`}
+              {p.fireReached
+                ? 'FIRE'
+                : p.fireTarget == null
+                  ? 'Unavailable'
+                  : p.projectedFireMonth == null
+                    ? 'Not reached within 50 years'
+                    : formatRunwayMonths(p.projectedFireMonth)}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-muted-foreground">
-              Invest / month for FIRE in {settings.targetYears} years
-            </dt>
+            <dt className="text-xs text-muted-foreground">Monthly cost gap</dt>
             <dd className="display-number mt-2 text-2xl font-semibold text-primary">
-              {format(p.requiredMonthlyContribution)}
+              {format(p.monthlyIncomeGap)}
             </dd>
           </div>
         </dl>

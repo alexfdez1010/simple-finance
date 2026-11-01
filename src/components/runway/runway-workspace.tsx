@@ -9,10 +9,12 @@ import type {
   RunwayHolding,
   RunwaySettings,
 } from '@/lib/domain/models/runway.types';
-import { RunwayFields } from './runway-fields';
+import { RunwayFields, RunwayNumberField } from './runway-fields';
 import { readRunwayForm } from './runway-form-data';
 import { RunwayResults } from './runway-results';
 import { RunwayCharts } from './runway-charts';
+import { FireResults } from './fire-results';
+import { RunwayAssumptions } from './runway-assumptions';
 
 /** Provides immediate validated previews and explicitly saves assumptions; failed saves retain the form. */
 export function RunwayWorkspace({
@@ -67,14 +69,10 @@ export function RunwayWorkspace({
   }
 
   return (
-    <div className="space-y-6">
-      <form
-        onChange={preview}
-        onSubmit={save}
-        className="finance-card p-5 sm:p-6"
-      >
-        <fieldset disabled={pending} className="min-w-0">
-          <legend className="sr-only">Your monthly cost</legend>
+    <form onChange={preview} onSubmit={save} className="space-y-8">
+      <fieldset disabled={pending} className="min-w-0 space-y-8">
+        <legend className="sr-only">Your monthly cost</legend>
+        <div className="finance-card p-5 sm:p-6">
           <RunwayFields
             settings={settings}
             actions={
@@ -87,27 +85,66 @@ export function RunwayWorkspace({
               </Button>
             }
           />
-        </fieldset>
-        <p
-          role="status"
-          className={
-            message || dirty ? 'mt-3 text-xs text-muted-foreground' : 'sr-only'
-          }
-        >
-          {message || (dirty ? 'Unsaved preview' : '')}
-        </p>
-      </form>
-      {projection && draft ? (
-        <RunwayResults projection={projection} settings={draft} />
-      ) : (
-        <div className="flex min-h-48 items-center justify-center rounded-2xl bg-card p-8 text-center text-muted-foreground">
-          {calculation?.error ??
-            'Enter your monthly living cost to see the projection'}
+          <p
+            role="status"
+            className={
+              message || dirty
+                ? 'mt-3 text-xs text-muted-foreground'
+                : 'sr-only'
+            }
+          >
+            {message || (dirty ? 'Unsaved preview' : '')}
+          </p>
         </div>
-      )}
-      {projection && draft && (
-        <RunwayCharts projection={projection} settings={draft} />
-      )}
-    </div>
+        <section aria-labelledby="runway-heading" className="space-y-4">
+          <h2 id="runway-heading" className="text-xl font-semibold">
+            Runway
+          </h2>
+          {projection && draft ? (
+            <div className="grid gap-5 xl:grid-cols-2">
+              <RunwayResults projection={projection} settings={draft} />
+              <RunwayCharts
+                projection={projection}
+                settings={draft}
+                scenario="runway"
+              />
+            </div>
+          ) : (
+            <div className="flex min-h-40 items-center justify-center rounded-2xl bg-card p-8 text-center text-muted-foreground">
+              {calculation?.error ??
+                'Enter your monthly living cost to see the projection'}
+            </div>
+          )}
+        </section>
+        <section aria-labelledby="fire-heading" className="space-y-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <h2 id="fire-heading" className="text-xl font-semibold">
+              FIRE
+            </h2>
+            <div className="w-full sm:max-w-sm">
+              <RunwayNumberField
+                name="monthlyContribution"
+                label="Monthly investment after living costs (EUR)"
+                value={settings?.monthlyContribution ?? 0}
+                prominent
+              />
+            </div>
+          </div>
+          {projection && draft && (
+            <div className="grid gap-5 xl:grid-cols-2">
+              <FireResults projection={projection} />
+              <RunwayCharts
+                projection={projection}
+                settings={draft}
+                scenario="fire"
+              />
+            </div>
+          )}
+        </section>
+        {projection && draft && (
+          <RunwayAssumptions projection={projection} settings={draft} />
+        )}
+      </fieldset>
+    </form>
   );
 }

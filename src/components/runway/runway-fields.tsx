@@ -7,16 +7,12 @@ import type { RunwaySettings } from '@/lib/domain/models/runway.types';
 
 export const DEFAULT_RUNWAY_SETTINGS: RunwaySettings = {
   monthlyExpenses: 0,
-  monthlyIncome: 0,
   annualInflation: 0.02,
-  withdrawalRate: 0.04,
-  targetYears: 10,
   monthlyContribution: 0,
-  annualReturnOverride: null,
 };
 
 /** Renders a labelled EUR or percentage input; browser constraints mirror server validation. */
-function NumberField({
+export function RunwayNumberField({
   name,
   label,
   value,
@@ -62,7 +58,7 @@ function NumberField({
   );
 }
 
-/** Collects living cost and inflation first, with optional independent income and FIRE assumptions. */
+/** Collects the shared monthly living cost and annual inflation assumptions. */
 export function RunwayFields({
   settings,
   actions,
@@ -74,13 +70,13 @@ export function RunwayFields({
   return (
     <>
       <div className="grid items-end gap-5 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto]">
-        <NumberField
+        <RunwayNumberField
           name="monthlyExpenses"
           label="Monthly living cost (EUR)"
           value={settings?.monthlyExpenses ?? ''}
           prominent
         />
-        <NumberField
+        <RunwayNumberField
           name="annualInflation"
           label="Annual inflation (%)"
           value={values.annualInflation * 100}
@@ -90,52 +86,6 @@ export function RunwayFields({
         />
         <div className="sm:col-span-2 lg:col-span-1">{actions}</div>
       </div>
-      <details className="mt-4">
-        <summary className="min-h-11 cursor-pointer text-sm font-medium text-primary">
-          Income & simulation settings
-        </summary>
-        <div className="mt-3 grid items-start gap-5 sm:grid-cols-2 xl:grid-cols-3">
-          <NumberField
-            name="monthlyIncome"
-            label="Other net income per month (EUR)"
-            value={values.monthlyIncome}
-            help="Excludes portfolio returns"
-          />
-          <NumberField
-            name="monthlyContribution"
-            label="Monthly investment after living costs (EUR)"
-            value={values.monthlyContribution}
-          />
-          <NumberField
-            name="targetYears"
-            label="Years to reach FIRE"
-            value={values.targetYears}
-            min={1}
-            max={50}
-            step={1}
-          />
-          <NumberField
-            name="withdrawalRate"
-            label="Annual FIRE withdrawal rate (%)"
-            value={values.withdrawalRate * 100}
-            min={0.1}
-            max={20}
-          />
-          <NumberField
-            name="annualReturnOverride"
-            label="Annual return override (%)"
-            value={
-              values.annualReturnOverride == null
-                ? ''
-                : values.annualReturnOverride * 100
-            }
-            min={-99}
-            max={100}
-            required={false}
-            help="Blank uses the portfolio estimate"
-          />
-        </div>
-      </details>
     </>
   );
 }

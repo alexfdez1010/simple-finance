@@ -11,7 +11,7 @@ import { useDisplayCurrency } from '@/components/dashboard/display-currency-cont
 interface ProjectionPoint {
   month: number;
   balance: number;
-  fireTarget?: number;
+  fireTarget?: number | null;
 }
 
 /** Plots monthly nominal EUR balances and an optional FIRE target with a keyboard-readable data table. */
@@ -27,6 +27,7 @@ export function ProjectionChart({
   target?: boolean;
 }) {
   const { format } = useDisplayCurrency();
+  const hasTarget = target && data.some((point) => point.fireTarget != null);
   const rows = data.filter(
     (row, index) => row.month % 12 === 0 || index === data.length - 1,
   );
@@ -37,7 +38,9 @@ export function ProjectionChart({
         {target && (
           <div className="flex flex-wrap gap-4 text-xs">
             <span className="font-medium text-primary">Projected wealth</span>
-            <span className="font-medium text-[#946b16]">FIRE target</span>
+            {hasTarget && (
+              <span className="font-medium text-[#946b16]">FIRE target</span>
+            )}
           </div>
         )}
       </div>
@@ -104,7 +107,7 @@ export function ProjectionChart({
             dot={false}
             isAnimationActive={false}
           />
-          {target && (
+          {hasTarget && (
             <Line
               dataKey="fireTarget"
               type="monotone"
@@ -134,7 +137,7 @@ export function ProjectionChart({
                 <th className="p-2" scope="col">
                   Capital
                 </th>
-                {target && (
+                {hasTarget && (
                   <th className="p-2" scope="col">
                     FIRE target
                   </th>
@@ -148,8 +151,10 @@ export function ProjectionChart({
                     {Number((row.month / 12).toFixed(2))}
                   </th>
                   <td className="p-2">{format(row.balance)}</td>
-                  {target && (
-                    <td className="p-2">{format(row.fireTarget ?? 0)}</td>
+                  {hasTarget && (
+                    <td className="p-2">
+                      {row.fireTarget == null ? '—' : format(row.fireTarget)}
+                    </td>
                   )}
                 </tr>
               ))}
