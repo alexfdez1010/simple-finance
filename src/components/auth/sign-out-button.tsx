@@ -25,10 +25,12 @@ export function SignOutButton() {
       <button
         onClick={signOut}
         disabled={busy}
-        className="flex min-h-10 items-center gap-2 rounded-lg px-2 text-sm text-muted-foreground hover:bg-default hover:text-foreground disabled:opacity-50"
+        className="flex min-h-11 min-w-11 items-center justify-center lg:justify-start gap-2 rounded-lg px-2 text-sm text-muted-foreground hover:bg-default hover:text-foreground disabled:opacity-50"
       >
         <SignOut aria-hidden size={18} />
-        {busy ? 'Signing out…' : 'Sign out'}
+        <span className="sr-only lg:not-sr-only">
+          {busy ? 'Signing out…' : 'Sign out'}
+        </span>
       </button>
       {error && (
         <p role="alert" className="text-xs text-danger">

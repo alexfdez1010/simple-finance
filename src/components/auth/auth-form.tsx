@@ -39,7 +39,15 @@ export function AuthForm({ canRegister }: { canRegister: boolean }) {
         setBusy(false);
         return;
       }
-      const data = result.data as { redirect?: boolean; url?: string } | null;
+      const data = result.data as {
+        redirect?: boolean;
+        url?: string;
+        twoFactorRedirect?: boolean;
+      } | null;
+      if (data?.twoFactorRedirect) {
+        window.location.assign(`/auth/two-factor?${searchParams.toString()}`);
+        return;
+      }
       if (data?.redirect && data.url) {
         return;
       }

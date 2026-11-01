@@ -1,6 +1,6 @@
 import { betterAuth, type BetterAuthOptions } from 'better-auth';
 import { APIError } from 'better-auth/api';
-import { jwt } from 'better-auth/plugins';
+import { jwt, twoFactor } from 'better-auth/plugins';
 import { mcp } from '@better-auth/mcp';
 import { getDatabase } from '@/lib/cloudflare/context';
 
@@ -50,6 +50,7 @@ export function getAuth(
     },
     disabledPaths: ['/token'],
     plugins: [
+      twoFactor({ issuer: 'Simple Finance' }),
       jwt(),
       mcp({
         loginPage: '/auth',

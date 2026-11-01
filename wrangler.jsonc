@@ -33,6 +33,7 @@
     "enabled": true,
   },
   "workers_dev": true,
+  "placement": { "mode": "smart" },
   "kv_namespaces": [
     {
       "binding": "NEXT_INC_CACHE_KV",

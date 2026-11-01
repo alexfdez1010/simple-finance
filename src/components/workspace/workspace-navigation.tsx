@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   ChartLineUp,
+  ShieldCheck,
   SquaresFour,
   Wallet,
   PlugsConnected,
@@ -83,7 +84,21 @@ export function WorkspaceNavigation() {
         })}
       </nav>
       <div className="absolute right-4 top-5 lg:static lg:mt-auto lg:px-6 lg:pb-6 lg:pt-12">
-        <SignOutButton />
+        <div className="flex items-center gap-1 lg:flex-col lg:items-stretch">
+          <Link
+            href="/dashboard/security"
+            prefetch={false}
+            aria-label="Account security"
+            aria-current={
+              pathname === '/dashboard/security' ? 'page' : undefined
+            }
+            className="flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-lg px-2 text-sm text-muted-foreground hover:bg-default hover:text-foreground lg:justify-start"
+          >
+            <ShieldCheck aria-hidden size={18} />
+            <span className="hidden lg:inline">Account security</span>
+          </Link>
+          <SignOutButton />
+        </div>
       </div>
     </aside>
   );

@@ -47,9 +47,10 @@
     "node-fetch": "^2.7.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "react-qr-code": "^2.2.0",
     "recharts": "^2.15.4",
     "tailwind-merge": "^3.6.0",
-    "yahoo-finance2": "^3.14.0",
+    "yahoo-finance2": "4.0.5",
     "zod": "^4.6.7"
   },
   "overrides": {},

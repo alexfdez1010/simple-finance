@@ -1,4 +1,6 @@
 model User {
+  twoFactorEnabled   Boolean             @default(false)
+  twoFactors         TwoFactor[]
   id                 String              @id
   name               String
   email              String

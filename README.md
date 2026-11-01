@@ -55,7 +55,7 @@ Runway & FIRE (`/dashboard/runway`) projects how long the current portfolio cove
 
 ### Account access and MCP
 
-Better Auth provides email/password sign-in, revocable sessions and OAuth for MCP. Only the first account can register; the database permanently closes registration afterward. Connect assistants through OAuth at `/api/mcp/mcp` and approve their portfolio access in the browser.
+Better Auth provides email/password sign-in, revocable sessions and OAuth for MCP. Only the first account can register; the database permanently closes registration afterward. Connect assistants through OAuth at `/api/mcp/mcp` and approve their portfolio access in the browser. Optional authenticator 2FA and recovery codes are available in [Account security](docs/account-security.md).
 
 ### 🏗️ Technical Excellence
 

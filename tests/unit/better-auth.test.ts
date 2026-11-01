@@ -2,6 +2,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import Database from 'better-sqlite3';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { totpFromUri } from '../helpers/totp';
 import { getAuth } from '@/lib/auth/config';
 
 let database: Database.Database;
@@ -98,5 +99,154 @@ describe('single-owner Better Auth with SQLite', () => {
     );
     expect((await post('sign-out', {}, cookie)).ok).toBe(true);
     expect(await auth.api.getSession({ headers })).toBeNull();
+  });
+});
+
+/** Applies all Set-Cookie updates to a local HTTP-handler test cookie jar. */
+function updatedCookies(response: Response, previous = ''): string {
+  const cookies = new Map(
+    previous
+      .split('; ')
+      .filter(Boolean)
+      .map((value) => {
+        const index = value.indexOf('=');
+        return [value.slice(0, index), value.slice(index + 1)];
+      }),
+  );
+  for (const value of response.headers.getSetCookie()) {
+    const pair = value.split(';')[0];
+    const index = pair.indexOf('=');
+    if (/Max-Age=0/i.test(value)) cookies.delete(pair.slice(0, index));
+    else cookies.set(pair.slice(0, index), pair.slice(index + 1));
+  }
+  return [...cookies].map(([key, value]) => `${key}=${value}`).join('; ');
+}
+
+/** Enrolls a fresh local account and returns its password-authenticated cookie and pending setup. */
+async function enrollment() {
+  const registration = await post('sign-up/email', credentials);
+  const cookie = updatedCookies(registration);
+  const response = await post(
+    'two-factor/enable',
+    { password: credentials.password, method: 'totp' },
+    cookie,
+  );
+  expect(response.ok).toBe(true);
+  return {
+    cookie,
+    setup: (await response.json()) as {
+      totpURI: string;
+      backupCodes: string[];
+    },
+  };
+}
+
+describe('optional authenticator protection', () => {
+  it('keeps 2FA disabled until the authenticator proves possession and encrypts recovery material', async () => {
+    const { cookie, setup } = await enrollment();
+    expect(
+      database.prepare('SELECT twoFactorEnabled AS enabled FROM user').get(),
+    ).toEqual({ enabled: 0 });
+    expect(setup.backupCodes).toHaveLength(10);
+    const row = database
+      .prepare('SELECT secret, backupCodes FROM twoFactor')
+      .get() as { secret: string; backupCodes: string };
+    expect(row.secret).not.toContain(
+      new URL(setup.totpURI).searchParams.get('secret'),
+    );
+    expect(row.backupCodes).not.toContain(setup.backupCodes[0]);
+    expect(
+      (await post('two-factor/verify-totp', { code: 'not-a-code' }, cookie)).ok,
+    ).toBe(false);
+    expect(
+      database.prepare('SELECT twoFactorEnabled AS enabled FROM user').get(),
+    ).toEqual({ enabled: 0 });
+    expect(
+      (
+        await post(
+          'two-factor/verify-totp',
+          { code: totpFromUri(setup.totpURI) },
+          cookie,
+        )
+      ).ok,
+    ).toBe(true);
+    expect(
+      database.prepare('SELECT twoFactorEnabled AS enabled FROM user').get(),
+    ).toEqual({ enabled: 1 });
+  });
+
+  it('withholds the session until TOTP verification and requires a password to disable protection', async () => {
+    const { cookie, setup } = await enrollment();
+    const activation = await post(
+      'two-factor/verify-totp',
+      { code: totpFromUri(setup.totpURI) },
+      cookie,
+    );
+    const session = updatedCookies(activation, cookie);
+    expect(
+      (await post('two-factor/disable', { password: 'wrong' }, session)).ok,
+    ).toBe(false);
+    const challenge = await post('sign-in/email', credentials);
+    expect(await challenge.json()).toHaveProperty('twoFactorRedirect', true);
+    const pending = updatedCookies(challenge);
+    expect(
+      await auth.api.getSession({ headers: new Headers({ cookie: pending }) }),
+    ).toBeNull();
+    const verified = await post(
+      'two-factor/verify-totp',
+      { code: totpFromUri(setup.totpURI) },
+      pending,
+    );
+    expect(verified.ok).toBe(true);
+    const signedIn = updatedCookies(verified, pending);
+    expect(
+      await auth.api.getSession({ headers: new Headers({ cookie: signedIn }) }),
+    ).toHaveProperty('user.email', credentials.email);
+    expect(
+      (
+        await post(
+          'two-factor/disable',
+          { password: credentials.password },
+          signedIn,
+        )
+      ).ok,
+    ).toBe(true);
+    expect(
+      await (await post('sign-in/email', credentials)).json(),
+    ).not.toHaveProperty('twoFactorRedirect');
+  });
+
+  it('consumes a recovery code once and rejects its reuse on a later pending sign-in', async () => {
+    const { cookie, setup } = await enrollment();
+    await post(
+      'two-factor/verify-totp',
+      { code: totpFromUri(setup.totpURI) },
+      cookie,
+    );
+    const pending = updatedCookies(await post('sign-in/email', credentials));
+    const recovered = await post(
+      'two-factor/verify-backup-code',
+      { code: setup.backupCodes[0] },
+      pending,
+    );
+    expect(recovered.ok).toBe(true);
+    const next = updatedCookies(await post('sign-in/email', credentials));
+    expect(
+      (
+        await post(
+          'two-factor/verify-backup-code',
+          { code: setup.backupCodes[0] },
+          next,
+        )
+      ).ok,
+    ).toBe(false);
+    expect(
+      await auth.api.getSession({ headers: new Headers({ cookie: next }) }),
+    ).toBeNull();
+  });
+
+  it('issues a 30-day browser cookie for ordinary password sign-in', async () => {
+    const response = await post('sign-up/email', credentials);
+    expect(response.headers.get('set-cookie')).toMatch(/Max-Age=2592000/i);
   });
 });

@@ -16,7 +16,7 @@ On an empty installation, `/auth` shows name, email and password fields. The pas
 
 Afterward `/auth` only shows sign-in. Better Auth stores passwords as password hashes and issues signed HttpOnly session cookies backed by D1, with a 30-day lifetime. Sign out revokes the current session. Production login and OAuth routes use persistent database rate limits. The previous `PASSWORD`, shared SHA-256 cookie and MCP bearer secret are no longer accepted.
 
-The first production account belongs to the person who registers it. Deployment does not create an account on the owner's behalf. Keep the owner email and password in your password manager. There is no email password-reset provider configured.
+The first production account belongs to the person who registers it. Deployment does not create an account on the owner's behalf. Keep the owner email and password in your password manager. There is no email password-reset provider configured. Optional authenticator protection and recovery codes are documented in [Account security](account-security.md).
 
 ## MCP OAuth
 
@@ -57,3 +57,13 @@ Before a later rollback, export any new D1 financial data. Restore the previous 
 ## Cutover verification
 
 On 2026-11-01, ESLint/formatting, TypeScript, 332 unit cases and all 86 Chromium end-to-end cases passed against the built Worker. Verification includes registration races, permanent registration closure, browser sessions, OAuth login and consent, PKCE, refresh and code replay, insufficient scopes, all financial workflows, atomic backup rollback, UTC snapshots, keyboard access and narrow layouts. The domain was inspected in Safari, and the production capture route returned 200. The previous Vercel cron is disabled; the old DNS target remains under `finance-vercel-rollback` for rollback.
+
+## Market-data request isolation
+
+D1 reports `running_in_region: WEUR` (Western Europe). The Worker uses Smart Placement so Cloudflare can optimize execution near its upstream services; this does not pin both resources to one data center. Check the current database with `bunx wrangler d1 info simple-finance --json` and live failures with `bunx wrangler tail simple-finance --format json`.
+
+Yahoo clients must remain request-local and use yahoo-finance2 v4 or newer. Version 3 shared a global request queue and crumb promise between clients, which can reuse request-bound I/O or hang later requests in workerd. The v4 upgrade removes that shared state. `tests/unit/yahoo-client-isolation.test.ts` proves that a suspended client does not block a different client.
+
+References: [Yahoo isolation fix](https://github.com/gadicc/yahoo-finance2/commit/835c599), [Cloudflare placement](https://developers.cloudflare.com/workers/configuration/placement/).
+
+Verification after the market-data fix and optional 2FA deployment: 337 unit tests and all 87 Chromium cases passed; formatting/lint, TypeScript and the OpenNext build passed. Production Worker version `1e1529fb-606a-449a-b430-75286a49ff17` serves the existing owner and portfolio. Safari loaded Holdings and the overview repeatedly, including after cache revalidation, with successful Worker outcomes and no exceptions. Smart Placement is configured; its initial API status is `INSUFFICIENT_INVOCATIONS` until Cloudflare gathers enough traffic. The additive 2FA migration was applied without enabling protection for the owner.
