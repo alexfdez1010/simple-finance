@@ -68,9 +68,14 @@ export async function updateCustomProduct(
       ),
     db
       .prepare(
-        'UPDATE custom_product_data SET annualReturnRate=?, updatedAt=? WHERE productId=?',
+        'UPDATE custom_product_data SET annualReturnRate=?, reinvestInterest=?, updatedAt=? WHERE productId=?',
       )
-      .bind(input.annualReturnRate, now, input.productId),
+      .bind(
+        input.annualReturnRate,
+        Number(input.reinvestInterest ?? existing.custom.reinvestInterest),
+        now,
+        input.productId,
+      ),
   ]);
   const product = await findProductById(input.productId);
   if (product?.type !== 'CUSTOM')

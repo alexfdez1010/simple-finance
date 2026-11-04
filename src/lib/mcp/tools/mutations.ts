@@ -29,11 +29,7 @@ import {
 
 const idField = { id: z.string().min(1) };
 
-/**
- * Registers add/update/delete tools on the MCP server.
- *
- * @param server - MCP server instance
- */
+/** Registers asset and contribution mutations on the supplied MCP server. */
 export function registerMutationTools(server: McpServer): void {
   server.registerTool(
     'add_yahoo_asset',
@@ -69,6 +65,7 @@ export function registerMutationTools(server: McpServer): void {
       const created = await createCustomProductWithEurBasis({
         name: input.name,
         annualReturnRate: input.annualReturnRate,
+        reinvestInterest: input.reinvestInterest,
         currency: input.currency ?? 'EUR',
         assetCategory: input.assetCategory as AssetCategory,
         daysToLiquidity: input.daysToLiquidity,
@@ -116,6 +113,7 @@ export function registerMutationTools(server: McpServer): void {
         productId: id,
         name: rest.name,
         annualReturnRate: rest.annualReturnRate,
+        reinvestInterest: rest.reinvestInterest,
         assetCategory: rest.assetCategory as AssetCategory,
         daysToLiquidity: rest.daysToLiquidity,
       });

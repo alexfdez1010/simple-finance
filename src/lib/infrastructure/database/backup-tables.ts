@@ -18,10 +18,12 @@ export function portableRow(
   return Object.fromEntries(
     Object.entries(row).map(([key, value]) => [
       key,
-      value !== null &&
-      ['createdAt', 'updatedAt', 'purchaseDate', 'date'].includes(key)
-        ? new Date(value as string | number).toISOString()
-        : value,
+      key === 'reinvestInterest'
+        ? Boolean(value)
+        : value !== null &&
+            ['createdAt', 'updatedAt', 'purchaseDate', 'date'].includes(key)
+          ? new Date(value as string | number).toISOString()
+          : value,
     ]),
   );
 }

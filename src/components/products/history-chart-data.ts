@@ -31,6 +31,7 @@ export function buildHistoryChartData(
     data.expectedAnnualReturn,
     horizon,
     new Date(lastActual.date),
+    data.simpleInterest,
   );
   if (simulation.length === 0) return actual;
 

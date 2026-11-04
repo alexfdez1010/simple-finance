@@ -26,6 +26,7 @@ function product(
     custom: {
       id: `${id}-d`,
       annualReturnRate: 0,
+      reinvestInterest: true,
       currency: 'EUR',
       contributions: [],
     },

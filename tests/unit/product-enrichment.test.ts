@@ -42,6 +42,7 @@ const product: CustomProduct = {
   custom: {
     id: 'trade-republic-data',
     annualReturnRate: 0.0182,
+    reinvestInterest: true,
     currency: 'EUR',
     contributions: [
       {
@@ -110,6 +111,39 @@ describe('enrichProductsWithEurValues', () => {
     );
     expect(performersData[0].returnPct).toBeGreaterThan(0);
     expect(convertProductAmountToEur).toHaveBeenCalledTimes(1);
+  });
+
+  it('propagates simple-interest values to dashboard totals, profit and simulation metadata', async () => {
+    const simple = {
+      ...product,
+      custom: {
+        ...product.custom,
+        reinvestInterest: false,
+        annualReturnRate: 0.1,
+        contributions: [
+          {
+            ...product.custom.contributions[0],
+            amount: 1000,
+            amountEur: 1000,
+            date: new Date('2025-09-04T00:00:00Z'),
+          },
+        ],
+      },
+    };
+    const [enriched] = await enrichProductsWithEurValues([simple]);
+    expect(enriched.currentValueEur).toBeCloseTo(1100);
+    expect(enriched.investedEur).toBe(1000);
+    expect(enriched.expectedAnnualReturn).toBeCloseTo(100 / 1100);
+    expect(enriched.simpleInterest).toEqual({
+      principalEur: 1000,
+      annualRate: 0.1,
+      fxAnnualRate: 0,
+    });
+    const dashboard = computeDashboardData([enriched], []);
+    expect(dashboard.stats.totalValue).toBeCloseTo(1100);
+    expect(dashboard.stats.totalInvestment).toBe(1000);
+    expect(dashboard.liquidityCurve[0].cash).toBeCloseTo(1100);
+    expect(dashboard.performersData[0].returnValue).toBeCloseTo(100);
   });
 
   it('throws before snapshot persistence when strict Yahoo pricing fails', async () => {

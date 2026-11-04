@@ -1,3 +1,4 @@
+import { createRunwayGrowth } from './runway-growth';
 import type {
   RunwayHolding,
   RunwayPoint,
@@ -26,6 +27,7 @@ function projectRunway(
   capital: number,
   rate: number,
   settings: RunwaySettings,
+  growth: (balance: number) => number = (balance) => balance * rate,
 ) {
   let balance = capital;
   const points: RunwayPoint[] = [
@@ -35,7 +37,7 @@ function projectRunway(
     const expenses =
       settings.monthlyExpenses *
       (1 + settings.annualInflation) ** ((month - 1) / 12);
-    const returns = balance * rate;
+    const returns = growth(balance);
     if (!Number.isFinite(expenses) || !Number.isFinite(returns)) {
       throw new RangeError('Projection exceeds supported numeric limits');
     }
@@ -74,10 +76,15 @@ export function computeRunwayProjection(
   validateRunwaySettings(settings);
   const portfolio = portfolioRunwayAssumptions(products);
   const monthlyRate = effectiveMonthlyRate(portfolio.annualReturn);
-  const firstMonthReturn = portfolio.initialCapital * monthlyRate;
+  const firstMonthReturn = createRunwayGrowth(products)(
+    portfolio.initialCapital,
+  );
   const coverage = calculateFireCoverage(
     portfolio.initialCapital,
-    portfolio.annualReturn,
+    products.some((product) => product.simpleInterest) &&
+      portfolio.initialCapital > 0
+      ? (1 + firstMonthReturn / portfolio.initialCapital) ** 12 - 1
+      : portfolio.annualReturn,
     settings,
   );
   const wealth = projectFireAccumulation(
@@ -86,6 +93,7 @@ export function computeRunwayProjection(
     coverage.fireTarget,
     settings,
     HORIZON_MONTHS,
+    createRunwayGrowth(products),
   );
   const result: RunwayProjection = {
     ...portfolio,
@@ -93,7 +101,12 @@ export function computeRunwayProjection(
     ...wealth,
     firstMonthReturn,
     netMonthlyBurn: settings.monthlyExpenses - firstMonthReturn,
-    ...projectRunway(portfolio.initialCapital, monthlyRate, settings),
+    ...projectRunway(
+      portfolio.initialCapital,
+      monthlyRate,
+      settings,
+      createRunwayGrowth(products),
+    ),
     horizonMonths: HORIZON_MONTHS,
   };
   const numbers = [

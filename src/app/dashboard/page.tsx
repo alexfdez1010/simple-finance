@@ -45,9 +45,10 @@ export default async function DashboardPage() {
       <PortfolioStats {...data.stats} />
       <RunwaySummary
         products={data.products.map(
-          ({ currentValueEur, expectedAnnualReturn }) => ({
+          ({ currentValueEur, expectedAnnualReturn, simpleInterest }) => ({
             currentValueEur,
             expectedAnnualReturn,
+            simpleInterest,
           }),
         )}
         settings={runwaySettings}

@@ -19,6 +19,7 @@ function legacyProduct(amountEur: number | null): CustomProduct {
     custom: {
       id: 'custom',
       annualReturnRate: 0.02,
+      reinvestInterest: true,
       currency: 'USD',
       contributions: [
         {

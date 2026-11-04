@@ -1,3 +1,5 @@
+import { calculateFireCoverage } from './runway-math';
+import type { RunwayGrowth } from './runway-growth';
 import type {
   RunwaySettings,
   WealthPoint,
@@ -10,6 +12,7 @@ import type {
  * @param fireTarget - Current cost-funded target, or null for nonpositive real return.
  * @param settings - Fixed monthly investment after costs and annual inflation.
  * @param horizonMonths - Maximum simulation length, shared with consumption runway.
+ * @param growth - Independent scenario growth; optional income-capacity estimate prevents accrued simple yield funding FIRE
  * @returns A chart through the crossing year, or the full bound if FIRE is not reached.
  * Pure; living costs are already excluded from contributions and not subtracted again.
  */
@@ -19,6 +22,7 @@ export function projectFireAccumulation(
   fireTarget: number | null,
   settings: RunwaySettings,
   horizonMonths: number,
+  growth: RunwayGrowth = (balance) => balance * rate,
 ) {
   let balance = capital;
   let projectedFireMonth: number | null =
@@ -30,9 +34,15 @@ export function projectFireAccumulation(
     projectedFireMonth === 0 ? Math.min(12, horizonMonths) : horizonMonths;
   const wealthPoints: WealthPoint[] = [{ month: 0, balance, fireTarget }];
   for (let month = 1; month <= projectionMonths; month++) {
-    balance = balance * (1 + rate) + settings.monthlyContribution;
-    const inflatedTarget =
-      fireTarget === null
+    balance = balance + growth(balance) + settings.monthlyContribution;
+    const inflatedTarget = growth.annualReturn
+      ? calculateFireCoverage(balance, growth.annualReturn(balance), {
+          ...settings,
+          monthlyExpenses:
+            settings.monthlyExpenses *
+            (1 + settings.annualInflation) ** (month / 12),
+        }).fireTarget
+      : fireTarget === null
         ? null
         : fireTarget * (1 + settings.annualInflation) ** (month / 12);
     if (!Number.isFinite(balance) || !Number.isFinite(inflatedTarget ?? 0)) {

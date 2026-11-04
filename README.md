@@ -511,3 +511,9 @@ See [Portfolio experience](docs/portfolio-experience.md) for analytics views, se
 ## Complete data backups
 
 Use **Export backup** and **Import backup** in Holdings to save and restore all products, movements, historical snapshots, simulation settings and display currency. Import previews the copy and asks before replacing existing data. See [data backups](docs/data-backups.md) for the format, API and verification workflow.
+
+## Custom interest reinvestment
+
+Custom products offer **Reinvest interest** when creating or editing a holding. Enabled is the default, including existing products and older backups. Disabled uses signed principal × (1 + annual rate × days / 365) for each effective movement; accrued interest stays in total value but earns no further interest. Changing the setting recalculates the current value from all movement dates; stored historical snapshots remain as recorded.
+
+See [custom interest calculations](docs/custom-interest.md) for API usage, projections and verification.

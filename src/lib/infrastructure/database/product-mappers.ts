@@ -11,6 +11,7 @@ import type {
 export type CustomDataRow = {
   id: string;
   annualReturnRate: number;
+  reinvestInterest: boolean;
   currency: string;
   contributions: Array<{
     id: string;
@@ -31,6 +32,7 @@ export function mapCustomData(custom: CustomDataRow): CustomProduct['custom'] {
   return {
     id: custom.id,
     annualReturnRate: custom.annualReturnRate,
+    reinvestInterest: custom.reinvestInterest,
     currency: custom.currency,
     contributions: custom.contributions
       .map((c): CustomContribution => ({

@@ -17,6 +17,8 @@ export interface CreateYahooFinanceProductInput {
 export interface CreateCustomProductInput {
   name: string;
   annualReturnRate: number;
+  /** Omitted on creation means true; omitted on update preserves the saved choice. */
+  reinvestInterest?: boolean;
   currency: string;
   assetCategory: AssetCategory;
   daysToLiquidity: number;
@@ -50,6 +52,8 @@ export interface UpdateCustomProductInput {
   productId: string;
   name: string;
   annualReturnRate: number;
+  /** Omitted on creation means true; omitted on update preserves the saved choice. */
+  reinvestInterest?: boolean;
   assetCategory: AssetCategory;
   daysToLiquidity: number;
 }

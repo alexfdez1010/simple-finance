@@ -29,6 +29,7 @@ export async function createCustomProductAction(
   firstMovementNote?: string | null,
   assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
   daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
+  reinvestInterest?: boolean,
 ): Promise<{ success: boolean; error?: string; productId?: string }> {
   try {
     await requireAuthentication();
@@ -43,6 +44,7 @@ export async function createCustomProductAction(
     const product = await createCustomProductWithEurBasis({
       name,
       annualReturnRate,
+      reinvestInterest,
       currency: currency || DEFAULT_CURRENCY,
       assetCategory,
       daysToLiquidity,
@@ -71,6 +73,7 @@ export async function updateCustomProductAction(
   annualReturnRate: number,
   assetCategory: AssetCategory = DEFAULT_ASSET_CATEGORY,
   daysToLiquidity: number = DEFAULT_DAYS_TO_LIQUIDITY,
+  reinvestInterest?: boolean,
 ): Promise<{ success: boolean; error?: string }> {
   try {
     await requireAuthentication();
@@ -78,6 +81,7 @@ export async function updateCustomProductAction(
       productId,
       name,
       annualReturnRate,
+      reinvestInterest,
       assetCategory,
       daysToLiquidity,
     });

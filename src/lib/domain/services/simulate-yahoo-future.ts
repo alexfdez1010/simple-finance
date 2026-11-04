@@ -30,6 +30,7 @@ export interface HistorySample {
  * @param annualReturn - Annual return as decimal (0.07 = 7%); `null` skips
  * @param horizonYears - Number of years to project forward
  * @param startDate - Anchor "today"; included as the first point
+ * @param simpleInterest - Optional principal-only yield and currency growth; no yield reinvestment
  * @returns Sequence of points starting at `startDate`
  */
 export function simulateYahooFuture(
@@ -37,6 +38,7 @@ export function simulateYahooFuture(
   annualReturn: number | null,
   horizonYears: number,
   startDate: Date = new Date(),
+  simpleInterest?: import('../models/runway.types').RunwayHolding['simpleInterest'],
 ): SimulationPoint[] {
   if (horizonYears <= 0 || lastValue <= 0 || annualReturn == null) return [];
   const dailyReturn = Math.pow(1 + annualReturn, 1 / 365) - 1;
@@ -49,7 +51,12 @@ export function simulateYahooFuture(
     t.setDate(t.getDate() + day);
     points.push({
       date: t.toISOString().slice(0, 10),
-      value: lastValue * Math.pow(1 + dailyReturn, day),
+      value: simpleInterest
+        ? (lastValue +
+            (simpleInterest.principalEur * simpleInterest.annualRate * day) /
+              365) *
+          (1 + simpleInterest.fxAnnualRate) ** (day / 365)
+        : lastValue * Math.pow(1 + dailyReturn, day),
     });
   }
   return points;

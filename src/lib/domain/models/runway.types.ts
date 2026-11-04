@@ -10,6 +10,12 @@ export interface RunwaySettings {
 export interface RunwayHolding {
   currentValueEur: number;
   expectedAnnualReturn: number | null;
+  /** Simple-interest holdings keep accrued yield outside their earning principal. */
+  simpleInterest?: {
+    principalEur: number;
+    annualRate: number;
+    fxAnnualRate: number;
+  };
 }
 
 /** A projected interval, with its ending balance and the interval's nominal cash flows. */

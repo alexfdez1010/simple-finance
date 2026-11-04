@@ -37,6 +37,7 @@ export const backupDataSchema = z.strictObject({
       ...audit,
       productId: id,
       annualReturnRate: z.number(),
+      reinvestInterest: z.boolean().default(true),
       currency: z.string(),
     }),
   ),

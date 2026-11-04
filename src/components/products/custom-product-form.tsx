@@ -10,6 +10,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ReinvestInterestField } from './reinvest-interest-field';
 import { createCustomProductAction } from '@/lib/actions/custom-product-actions';
 import { Input } from '@/components/ui/input';
 import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
@@ -39,6 +40,7 @@ const todayIso = () => new Date().toISOString().split('T')[0];
  * @returns Form element
  */
 export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
+  const [reinvestInterest, setReinvestInterest] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     currency: 'EUR' as CustomProductCurrency,
@@ -86,6 +88,7 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
         formData.firstMovementNote.trim() || null,
         assetCategory,
         parseInt(daysToLiquidity, 10) || 0,
+        reinvestInterest,
       );
       if (!result.success)
         throw new Error(result.error || 'Failed to create product');
@@ -133,6 +136,11 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
           </Field>
         </div>
 
+        <ReinvestInterestField
+          checked={reinvestInterest}
+          onChange={setReinvestInterest}
+        />
+
         <AssetCategorySelect
           id="custom-category"
           value={assetCategory}
@@ -157,8 +165,10 @@ export function CustomProductForm({ onSuccess }: CustomProductFormProps) {
 
         <aside className="rounded-md bg-surface-secondary px-3 py-2">
           <p className="text-xs leading-relaxed text-muted-foreground">
-            Compound interest: A = P(1 + r/365)^days. Currency stays fixed after
-            creation.
+            {reinvestInterest
+              ? 'Compound interest: A = P(1 + r/365)^days.'
+              : 'Simple interest: A = P(1 + r × days/365).'}{' '}
+            Currency stays fixed after creation.
           </p>
         </aside>
 

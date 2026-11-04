@@ -10,6 +10,7 @@
 'use client';
 
 import { useState } from 'react';
+import { ReinvestInterestField } from './reinvest-interest-field';
 import { useRouter } from 'next/navigation';
 import { updateCustomProductAction } from '@/lib/actions/custom-product-actions';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,9 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [reinvestInterest, setReinvestInterest] = useState(
+    product.custom.reinvestInterest,
+  );
   const [formData, setFormData] = useState({
     name: product.name,
     annualReturnRate: (product.custom.annualReturnRate * 100).toString(),
@@ -69,6 +73,7 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
         parseFloat(formData.annualReturnRate) / 100,
         assetCategory,
         parseInt(daysToLiquidity, 10) || 0,
+        reinvestInterest,
       );
       if (!result.success) {
         throw new Error(result.error || 'Failed to update product');
@@ -107,6 +112,11 @@ export function EditCustomForm({ product, onSuccess }: EditCustomFormProps) {
               required
             />
           </Field>
+
+          <ReinvestInterestField
+            checked={reinvestInterest}
+            onChange={setReinvestInterest}
+          />
 
           <AssetCategorySelect
             id="edit-custom-category"

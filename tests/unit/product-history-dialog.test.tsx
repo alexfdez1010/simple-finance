@@ -37,6 +37,7 @@ const product: FinancialProduct = {
   custom: {
     id: 'custom',
     annualReturnRate: 0.02,
+    reinvestInterest: true,
     currency: 'EUR',
     contributions: [],
   },

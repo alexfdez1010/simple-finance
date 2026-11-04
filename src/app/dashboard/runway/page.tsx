@@ -8,10 +8,13 @@ export default async function RunwayPage() {
   return (
     <CurrencyWorkspace rates={rates} title="Runway & FIRE" description="">
       <RunwayWorkspace
-        products={products.map(({ currentValueEur, expectedAnnualReturn }) => ({
-          currentValueEur,
-          expectedAnnualReturn,
-        }))}
+        products={products.map(
+          ({ currentValueEur, expectedAnnualReturn, simpleInterest }) => ({
+            currentValueEur,
+            expectedAnnualReturn,
+            simpleInterest,
+          }),
+        )}
         settings={settings}
       />
     </CurrencyWorkspace>

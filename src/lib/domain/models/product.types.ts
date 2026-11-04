@@ -66,7 +66,7 @@ export interface CustomContribution {
 
 /**
  * Custom product with fixed annual return rate.
- * Value is computed as the sum of compound-interest growth of every
+ * Value sums simple or compound growth (according to reinvestInterest) of every
  * contribution from its own date. The product's `currency` is the
  * single source of truth for every contribution amount — currency is
  * set on creation and treated as immutable thereafter so existing
@@ -77,6 +77,7 @@ export interface CustomProduct extends BaseProduct {
   custom: {
     id: string;
     annualReturnRate: number;
+    reinvestInterest: boolean;
     currency: string; // 'EUR' | 'USD' | 'BTC' | 'ETH' | 'XAUT'
     contributions: CustomContribution[];
   };
@@ -97,7 +98,7 @@ export type FinancialProduct = YahooFinanceProduct | CustomProduct;
  * - `currentValue`: per-unit value (Yahoo: live price in EUR; Custom: total
  *   EUR value of all contributions).
  * - `currentValueEur`: total current value in EUR (Yahoo: price·quantity;
- *   Custom: full compounded portfolio of contributions).
+ *   Custom: all contributions grown under the chosen interest policy).
  * - `investedEur`: EUR basis used for return calculations. Yahoo products
  *   use purchasePrice·quantity. Custom products sum the signed EUR value
  *   frozen on every contribution date, including later deposits/withdrawals.
@@ -113,6 +114,7 @@ export type ProductWithValue = FinancialProduct & {
   currentValueEur: number;
   investedEur: number;
   expectedAnnualReturn: number | null;
+  simpleInterest?: import('./runway.types').RunwayHolding['simpleInterest'];
 };
 
 /**

@@ -25,6 +25,7 @@ function customProduct(
     custom: {
       id: 'cd1',
       annualReturnRate,
+      reinvestInterest: true,
       currency: 'EUR',
       contributions: [],
     },

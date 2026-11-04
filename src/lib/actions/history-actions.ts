@@ -14,6 +14,11 @@
 
 'use server';
 
+import {
+  effectiveCustomPrincipal,
+  customInterestYield,
+} from '@/lib/domain/services/custom-interest-yield';
+
 import { requireAuthentication } from '@/lib/auth/auth-utils';
 import { findProductById } from '@/lib/infrastructure/database/product-repository';
 import { findProductSnapshots } from '@/lib/infrastructure/database/product-snapshot-repository';
@@ -40,6 +45,7 @@ export interface ProductHistoryResult {
    * geomean vs EUR. `null` when the source data is too thin.
    */
   expectedAnnualReturn: number | null;
+  simpleInterest?: import('../domain/models/runway.types').RunwayHolding['simpleInterest'];
 }
 
 function todayKey(): string {
@@ -89,6 +95,8 @@ export async function getProductHistoryAction(
     const valueProductCcy = calculateCustomProductValueFromContributions(
       product.custom.contributions,
       product.custom.annualReturnRate,
+      new Date(),
+      product.custom.reinvestInterest,
     );
     const [liveEur, fxGeomean] = await Promise.all([
       convertProductAmountToEur(valueProductCcy, product.custom.currency),
@@ -99,8 +107,30 @@ export async function getProductHistoryAction(
     return {
       history: series,
       type: 'CUSTOM',
+      ...(product.custom.reinvestInterest
+        ? {}
+        : {
+            simpleInterest: {
+              principalEur:
+                valueProductCcy > 0
+                  ? (liveEur *
+                      effectiveCustomPrincipal(
+                        product.custom.contributions,
+                        new Date(),
+                      )) /
+                    valueProductCcy
+                  : 0,
+              annualRate: product.custom.annualReturnRate,
+              fxAnnualRate: fxGeomean ?? 0,
+            },
+          }),
       expectedAnnualReturn: combineExpectedReturn(
-        product.custom.annualReturnRate,
+        customInterestYield(
+          effectiveCustomPrincipal(product.custom.contributions, new Date()),
+          valueProductCcy,
+          product.custom.annualReturnRate,
+          product.custom.reinvestInterest,
+        ),
         fxGeomean,
       ),
     };

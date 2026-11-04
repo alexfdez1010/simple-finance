@@ -83,3 +83,9 @@ Migration date: 2026-11-01. Production uses Workers/OpenNext, D1 `simple-finance
 Better Auth's `twoFactor()` plugin is composed before the OAuth provider so a password-only pending sign-in cannot authorize MCP access. `/dashboard/security` offers optional TOTP enrollment, local QR rendering, recovery-code download/regeneration and password-confirmed disable. `/auth/two-factor` is a public challenge shell backed by Better Auth’s pending-login cookie. Preserve signed OAuth query parameters through that page. Do not enable 2FA for the owner automatically; require the owner's first valid authenticator code.
 
 The account defaults to protection off after migration `0004_two_factor.sql`. Financial backups never contain or replace authenticator data. Session cookies remain 30 days; keep production secrets stable and upload exact JSON values with `wrangler secret bulk` rather than dotenv secret files whose values can be overridden by local environment variables. See `docs/account-security.md`.
+
+## Custom interest reinvestment
+
+`custom.reinvestInterest` defaults to true in Prisma, D1 migration 0005 and legacy backup parsing. Explicit false uses simple signed movement interest in the shared calculator. Dashboard and cron snapshots use enrichment; history live points use the same calculator. Forward yield uses effective principal/current value, never accrued interest as principal. Pass `simpleInterest` through dashboard and Runway page projections: history and mixed Runway/FIRE models need this metadata to avoid compounding simple yield. FIRE target must track income capacity as simple interest accrues. Projection withdrawals are proportional and new contributions follow initial allocation. See docs/custom-interest.md.
+
+Use the HeroUI compound Checkbox (Content, Control, Indicator, Label and Description) for the reinvestment option, as explicitly requested by the user.

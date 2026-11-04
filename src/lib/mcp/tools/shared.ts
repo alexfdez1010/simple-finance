@@ -49,6 +49,10 @@ export const customCreateFields = {
     .number()
     .min(-1)
     .describe('Annual return rate as a decimal'),
+  reinvestInterest: z
+    .boolean()
+    .default(true)
+    .describe('Whether accrued interest earns interest'),
   firstMovementAmount: z
     .number()
     .min(0)
@@ -69,6 +73,10 @@ export const customCreateFields = {
  * Contributions are managed via the dedicated contribution tools.
  */
 export const customUpdateFields = {
+  reinvestInterest: z
+    .boolean()
+    .optional()
+    .describe('Omit to preserve the saved reinvestment choice'),
   name: z.string().min(1).max(200),
   annualReturnRate: z
     .number()

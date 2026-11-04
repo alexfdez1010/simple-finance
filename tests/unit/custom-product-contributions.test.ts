@@ -126,3 +126,46 @@ describe('calculateNetInvestedFromContributions', () => {
     expect(calculateNetInvestedFromContributions([])).toBe(0);
   });
 });
+
+describe('non-reinvested interest', () => {
+  it('grows linearly over multiple years and preserves default compounding', () => {
+    const movements = [contribution(1000, '2023-01-01')];
+    const date = new Date('2025-01-01');
+    expect(
+      calculateCustomProductValueFromContributions(movements, 0.1, date, false),
+    ).toBeCloseTo(1000 * (1 + (0.1 * 731) / 365), 9);
+    expect(
+      calculateCustomProductValueFromContributions(movements, 0.1, date),
+    ).toEqual(
+      calculateCustomProductValueFromContributions(movements, 0.1, date, true),
+    );
+  });
+  it('uses each signed movement date and ignores future deposits', () => {
+    const movements = [
+      contribution(1000, '2023-01-01'),
+      contribution(-200, '2024-01-01'),
+      contribution(900, '2026-01-01'),
+    ];
+    expect(
+      calculateCustomProductValueFromContributions(
+        movements,
+        0.1,
+        new Date('2025-01-01'),
+        false,
+      ),
+    ).toBeCloseTo(
+      1000 * (1 + (0.1 * 731) / 365) - 200 * (1 + (0.1 * 366) / 365),
+      9,
+    );
+  });
+  it.each([0, -0.1])('supports rate %s without compounding', (rate) => {
+    expect(
+      calculateCustomProductValueFromContributions(
+        [contribution(1000, '2023-01-01')],
+        rate,
+        new Date('2024-01-01'),
+        false,
+      ),
+    ).toBeCloseTo(1000 * (1 + rate));
+  });
+});

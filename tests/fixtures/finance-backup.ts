@@ -46,6 +46,7 @@ export function financeBackupFixture(): FinanceBackup {
           id: 'custom-data',
           productId: 'custom',
           annualReturnRate: 0.05,
+          reinvestInterest: true,
           currency: 'EUR',
         },
       ],

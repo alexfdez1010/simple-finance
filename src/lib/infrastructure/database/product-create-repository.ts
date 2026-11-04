@@ -85,6 +85,7 @@ export async function createCustomProduct(
       id: customId,
       productId: id,
       annualReturnRate: input.annualReturnRate,
+      reinvestInterest: Number(input.reinvestInterest ?? true),
       currency: input.currency,
       createdAt: now,
       updatedAt: now,

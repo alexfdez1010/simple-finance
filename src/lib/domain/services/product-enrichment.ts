@@ -9,6 +9,11 @@
  */
 
 import 'server-only';
+import {
+  effectiveCustomPrincipal,
+  customInterestYield,
+} from './custom-interest-yield';
+
 import type {
   FinancialProduct,
   ProductWithValue,
@@ -91,6 +96,7 @@ export async function enrichProductsWithEurValues(
         p.custom.contributions,
         p.custom.annualReturnRate,
         valuationDate,
+        p.custom.reinvestInterest,
       );
       const [currentValueEur, fxGeomean] = await Promise.all([
         convertProductAmountToEur(totalProductCcy, p.custom.currency),
@@ -101,15 +107,35 @@ export async function enrichProductsWithEurValues(
         valuationDate,
       );
 
+      const principal = effectiveCustomPrincipal(
+        p.custom.contributions,
+        valuationDate,
+      );
+      const yieldRate = customInterestYield(
+        principal,
+        totalProductCcy,
+        p.custom.annualReturnRate,
+        p.custom.reinvestInterest,
+      );
+      const expectedAnnualReturn = combineExpectedReturn(yieldRate, fxGeomean);
       return {
         ...p,
         currentValue: currentValueEur,
         currentValueEur,
         investedEur,
-        expectedAnnualReturn: combineExpectedReturn(
-          p.custom.annualReturnRate,
-          fxGeomean,
-        ),
+        expectedAnnualReturn,
+        ...(p.custom.reinvestInterest
+          ? {}
+          : {
+              simpleInterest: {
+                principalEur:
+                  totalProductCcy > 0
+                    ? (currentValueEur * principal) / totalProductCcy
+                    : 0,
+                annualRate: p.custom.annualReturnRate,
+                fxAnnualRate: fxGeomean ?? 0,
+              },
+            }),
       };
     }),
   );

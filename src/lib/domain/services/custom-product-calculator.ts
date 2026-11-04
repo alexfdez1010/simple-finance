@@ -11,9 +11,10 @@
  * formatter at display time, since a 2-decimal round here corrupts crypto
  * or commodity amounts (e.g. 0.0066 BTC → 0.01).
  *
- * The calculator uses daily compound interest:
+ * With reinvestment enabled (default), the calculator uses daily compound interest:
  *   value(t) = Σ amount_i · (1 + r/365)^days(t − date_i)
- * where `amount_i` is signed (positive = deposit, negative = withdrawal)
+ * Without reinvestment, growth is `amount_i * (1 + r * days / 365)`.
+ * In both modes `amount_i` is signed (positive = deposit, negative = withdrawal)
  * and contributions with `date_i > t` are ignored.
  *
  * @module domain/services/custom-product-calculator
@@ -33,43 +34,55 @@ function assertRate(annualReturnRate: number): void {
 }
 
 /**
- * Compounds a single amount forward to `currentDate` at the given rate.
+ * Grows one signed amount with compound or simple interest forward to `currentDate` at the given rate.
  *
- * @returns Compounded value in the same currency as `amount`, or 0 if the
+ * @returns Grown value in the same currency as `amount`, or 0 if the
  *          contribution date is after `currentDate`.
  */
-function compoundContribution(
+function growContribution(
   amount: number,
   annualReturnRate: number,
   date: Date,
   currentDate: Date,
+  reinvestInterest: boolean,
 ): number {
   const days = differenceInDays(currentDate, date);
   if (days < 0) return 0;
   const dailyRate = annualReturnRate / 365;
-  return amount * Math.pow(1 + dailyRate, days);
+  return (
+    amount *
+    (reinvestInterest ? Math.pow(1 + dailyRate, days) : 1 + dailyRate * days)
+  );
 }
 
 /**
  * Computes the current value of a custom product as the sum of every
- * contribution compounded from its own date.
+ * contribution grown from its own date with the selected interest policy.
  *
  * @param contributions - All deposits/withdrawals on the product
  * @param annualReturnRate - Annual return rate (decimal; 0.05 = 5%)
  * @param currentDate - Date to compute the value at (defaults to now)
+ * @param reinvestInterest - True compounds daily; false accrues simple interest on signed principal only
  * @returns Current value in the product's currency, full double precision
  */
 export function calculateCustomProductValueFromContributions(
   contributions: CustomContribution[],
   annualReturnRate: number,
   currentDate: Date = new Date(),
+  reinvestInterest: boolean = true,
 ): number {
   assertRate(annualReturnRate);
 
   return contributions.reduce(
     (acc, c) =>
       acc +
-      compoundContribution(c.amount, annualReturnRate, c.date, currentDate),
+      growContribution(
+        c.amount,
+        annualReturnRate,
+        c.date,
+        currentDate,
+        reinvestInterest,
+      ),
     0,
   );
 }
