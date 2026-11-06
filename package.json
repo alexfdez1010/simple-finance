@@ -23,6 +23,8 @@
     "database:format": "prisma format --schema prisma",
     "playwright": "bunx playwright test --ui",
     "build:cloudflare": "opennextjs-cloudflare build",
+    "build:ci": "bun run build:cloudflare && bun run test:unit",
+    "deploy:ci": "bun run database:deploy && opennextjs-cloudflare deploy",
     "preview": "bun run build:cloudflare && bun run start",
     "deploy": "bun run build:cloudflare && opennextjs-cloudflare deploy",
     "cf-typegen": "wrangler types --include-runtime false --env-interface CloudflareEnv cloudflare-env.d.ts",

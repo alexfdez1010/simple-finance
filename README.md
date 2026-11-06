@@ -174,6 +174,8 @@ Cloudflare captures daily snapshots at 05:00 UTC. Dates are stored at UTC midnig
 - `bun run database` applies SQLite migrations locally
 - `bun run database:deploy` applies D1 migrations remotely
 - `bun run build:cloudflare` builds the Worker with OpenNext
+- `bun run build:ci` builds the Worker and runs unit tests for Workers Builds
+- `bun run deploy:ci` applies remote D1 migrations and publishes the built Worker
 - `bun run preview` starts the built Worker locally
 - `bun run deploy` builds and deploys to Cloudflare
 - `bun run lint-format` runs ESLint, Prisma formatting and Prettier
@@ -452,6 +454,8 @@ This project follows **Clean Architecture** principles with clear separation of 
 ## Deployment
 
 Production uses Cloudflare Workers, OpenNext, D1 SQLite and KV. The domain is [Simple Finance](https://finance.alejandrofernandezcamello.me). Follow [deployment and rollback](docs/cloudflare-deployment.md) for secrets, migrations, OAuth and the 05:00 UTC cron. Import financial data afterward from Holdings.
+
+Cloudflare Workers Builds connects directly to `alexfdez1010/simple-finance` on GitHub and deploys pushes to `main`. Build and deployment settings are managed in Cloudflare; no GitHub Actions workflow or GitHub deployment secret is required. See [automatic deployments](docs/cloudflare-deployment.md#automatic-deployments-from-github) for the commands and configuration.
 
 ## 🤝 Contributing
 

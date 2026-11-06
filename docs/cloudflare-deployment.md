@@ -44,6 +44,31 @@ Run `bun run database:deploy` to apply the versioned D1 migrations remotely, the
 
 Vercel's cron must be disabled when the Cloudflare schedule is enabled. Its previous deployment and PostgreSQL database can remain as rollback resources; do not delete them during the cutover. `vercel.json` disables future Vercel Git builds and declares no cron jobs.
 
+## Automatic deployments from GitHub
+
+Use the official Cloudflare Workers Builds GitHub integration for the existing `simple-finance` Worker. The Cloudflare GitHub App already has access to `alexfdez1010/simple-finance`. Configure the connection in the Worker's **Settings > Builds > Connect**:
+
+| Setting                       | Value                 |
+| ----------------------------- | --------------------- |
+| Git account                   | `alexfdez1010`        |
+| Repository                    | `simple-finance`      |
+| Production branch             | `main`                |
+| Root directory                | `/`                   |
+| Build command                 | `bun run build:ci`    |
+| Deploy command                | `bun run deploy:ci`   |
+| Preview builds                | Disabled              |
+| Build variable `DATABASE_URL` | `file:./local.sqlite` |
+
+Cloudflare installs dependencies using the committed `bun.lock` and `packageManager` version. `.node-version` pins Node.js to the locally verified version. `DATABASE_URL` is only for Prisma schema tooling; production data uses the existing D1 `DB` binding.
+
+`bun run build:ci` builds Next.js with type checking, transforms it with OpenNext, then runs the unit suite. `bun run deploy:ci` applies pending D1 migrations and publishes that build without compiling twice. Each command stops at its first failure. For example, run `bun run build:ci` locally to validate the build; run `bun run deploy:ci` only after a successful build when deliberately publishing production. Migrations must stay compatible with the currently active Worker because D1 changes precede publication and are not undone if publication fails.
+
+Workers Builds uses a deployment token stored inside Cloudflare. Reuse the existing Cloudflare-managed Workers Builds token, which has D1 access as well as Worker, KV and route permissions. Its value never belongs in the repository, a GitHub secret or a GitHub Actions workflow. Runtime `BETTER_AUTH_SECRET` and `CRON_SECRET` remain on the Worker; do not copy them to build variables. Git connection and branch settings are stored in Cloudflare, not `wrangler.jsonc`.
+
+Once connected, every push to `main`, including a merged pull request, triggers the build and deployment. Other branches do not deploy. Check the commit and final result in **Deployments > View build history**. A failed build leaves the current Worker active; a failed migration prevents publication. A manual `bun run deploy` remains available for recovery.
+
+References: [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/), [build configuration and managed tokens](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/), [build image and version detection](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/) and [D1 migrations](https://developers.cloudflare.com/d1/reference/migrations/).
+
 ## Data and rollback
 
 Production D1 starts without financial records. Import the previously exported version 1 JSON from Holdings. Accounts, sessions and OAuth credentials are excluded from financial backups. Export reads the financial tables in one D1 batch; restore validates all records first, then replaces them in one atomic batch. A failing final statement rolls back the earlier deletes and writes. Bound JSON inserts avoid D1's SQL parameter limit for long histories.
