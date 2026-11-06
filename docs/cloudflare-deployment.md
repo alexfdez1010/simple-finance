@@ -69,6 +69,8 @@ Once connected, every push to `main`, including a merged pull request, triggers 
 
 References: [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/), [build configuration and managed tokens](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/), [build image and version detection](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/) and [D1 migrations](https://developers.cloudflare.com/d1/reference/migrations/).
 
+The native GitHub connection was enabled on 2026-11-06 with the settings above, build caching enabled and the existing Workers Builds token. Local lint/formatting, TypeScript, OpenNext compilation and all 348 unit tests passed. The same 348 tests also passed from a clean source checkout without local environment files or production secrets.
+
 ## Data and rollback
 
 Production D1 starts without financial records. Import the previously exported version 1 JSON from Holdings. Accounts, sessions and OAuth credentials are excluded from financial backups. Export reads the financial tables in one D1 batch; restore validates all records first, then replaces them in one atomic batch. A failing final statement rolls back the earlier deletes and writes. Bound JSON inserts avoid D1's SQL parameter limit for long histories.
