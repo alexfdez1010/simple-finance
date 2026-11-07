@@ -1,0 +1,5 @@
+/sw.js
+  Content-Type: application/javascript; charset=utf-8
+  Cache-Control: no-cache, no-store, must-revalidate
+  Service-Worker-Allowed: /
+  Content-Security-Policy: default-src 'self'; script-src 'self'

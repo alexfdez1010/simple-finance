@@ -170,6 +170,8 @@ Cloudflare captures daily snapshots at 05:00 UTC. Dates are stored at UTC midnig
 
 ## Available commands
 
+Mobile installation, home-screen icons and offline behavior are documented in [Mobile PWA](docs/mobile-pwa.md).
+
 - `bun run dev` starts Next.js with local Cloudflare bindings
 - `bun run database` applies SQLite migrations locally
 - `bun run database:deploy` applies D1 migrations remotely

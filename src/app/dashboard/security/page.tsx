@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getAuth } from '@/lib/auth/config';
 import { PageHeading } from '@/components/workspace/page-heading';
 import { SecuritySettings } from '@/components/security/security-settings';
+import { InstallApp } from '@/components/pwa/install-app';
 
 /** Reads only the authenticated owner's 2FA status; enrollment secrets never enter server-rendered props. */
 export default async function SecurityPage() {
@@ -12,6 +13,7 @@ export default async function SecurityPage() {
     <div className="space-y-8">
       <PageHeading title="Account security" description="" />
       <SecuritySettings enabled={Boolean(session.user.twoFactorEnabled)} />
+      <InstallApp />
     </div>
   );
 }
